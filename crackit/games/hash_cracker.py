@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """A game about cracking password hashes.
 
 Copyright © 2017 Wren Powell <wrenp@duck.com>
@@ -29,7 +28,7 @@ import textwrap
 import readline  # This is not unused. Importing it adds features to input().
 from typing import List, Set, Iterable
 
-from ..utils import format_banner, clear_line
+from crackit.utils import format_banner, clear_line
 
 
 class CharGrid:
@@ -171,8 +170,8 @@ def main(
         if not char_grid.is_valid():
             clear_line()
             char_grid.rows.pop()
-    else:
-        print(format_banner("ACCESS GRANTED", ansi="\x1b[1;32m"))
+
+    print(format_banner("ACCESS GRANTED", ansi="\x1b[1;32m"))
 
 
 if __name__ == "__main__":
