@@ -41,17 +41,6 @@ MAX_ARGS = 5
 # The probability that a command will send its output to a pipe or file.
 OUTPUT_REDIRECTION_PROBABILITY = 0.25
 
-# The list of possible names of files that the output of a command can be redirected to.
-OUTPUT_FILE_NAMES = [
-    "output.txt", "output", "output_file.txt", "output_file", "results.txt", "results", "file.txt",
-    "file",
-]
-
-# The list of possible names of files that the input of a command can be redirected from.
-INPUT_FILE_NAMES = [
-    "input.txt", "input", "input_file.txt", "input_file", "source.txt", "source", "data.txt", "data",
-]
-
 #
 # The following constants are commonly used arguments for commands.
 #
@@ -60,8 +49,8 @@ INPUT_FILE_NAMES = [
 ARG_DIR_PATHS = [
     "~/Documents", "/home/lostatc/Documents", "~/Downloads", "/home/lostatc/Downloads", "~/Music",
     "/home/lostatc/Music", "~/Pictures", "/home/lostatc/Pictures", "~/Videos", "/home/lostatc/Vidoes", ".", "/", "/dev",
-    "/etc", "/home/lostatc", "/mnt", "/proc", "/run", "/run/media/lostatc", "/sys", "/tmp", "/usr/share",
-    "/usr/local/share", "/var", "/var/log",
+    "/dev/mapper", "/etc", "/etc/sysconfig", "/home/lostatc", "/mnt", "/proc", "/run", "/run/media/lostatc", "/sys",
+    "/tmp", "/usr/share", "/usr/local/share", "/var", "/var/log",
 ]
 
 # Shell globing patterns for matching file names to be used as arguments in commands.
@@ -70,14 +59,19 @@ ARG_FILE_GLOB_PATTERNS = [
     "\"*.od[tspgf]\"", "\".*\"", "\"*.doc[xm]\"", "\"*.xls[xm]\"",
 ]
 
-# Number ranges to be used as arguments in the `cut` command.
-ARG_CUT_RANGES = [
-    "1", "\"-10\"", "\"3-\"", "\"2-4\"", "\"1-2\"", "\"5-\"", "\"-20\"",
+# Delimiters to be used as arguments in commands.
+ARG_DELIMITERS = [
+    "\" \"", "\",\"", "\"-\"", "\"_\"", "\"|\"", "\"\\n\"", "\"\\0\"",
 ]
 
-# Delimiters to be used as arguments in the `cut` command.
-ARG_CUT_DELIMITERS = [
-    "\" \"", "\",\"", "\"|\"", "\"\\n\"", "\"\\0\"",
+# The list of possible names of files that can be used for data input.
+ARG_INPUT_FILE_NAMES = [
+    "input.txt", "input_file.txt", "origin.txt", "source.txt", "src.txt", "data.txt", "beginning.txt", "start.txt",
+]
+
+# The list of possible names of files that can be used for data output.
+ARG_OUTPUT_FILE_NAMES = [
+    "output.txt", "output_file.txt", "result.txt", "destination.txt", "dest.txt", "file.txt", "end.txt", "finish.txt",
 ]
 
 
@@ -104,7 +98,6 @@ class Argument:
         return flag_separator.join(random.choice(choices) for choices in (self.names, self.args) if choices)
 
 
-# TODO: Accept multiple lists for possible_args to account for mutually-exclusive arguments.
 class Command:
     """A shell command that the user can be prompted to type.
 
@@ -168,7 +161,7 @@ class Command:
     def _add_input_redirection(self, command: str) -> str:
         """Add random input redirection to the given command string."""
         def create_file_redirect():
-            return "{0} < {1}".format(command, random.choice(INPUT_FILE_NAMES))
+            return "{0} < {1}".format(command, random.choice(ARG_INPUT_FILE_NAMES))
 
         def create_pipe_redirect():
             try:
@@ -186,7 +179,7 @@ class Command:
     def _add_output_redirection(self, command: str) -> str:
         """Add random output redirection to the given command string."""
         def create_file_redirect():
-            return "{0} > {1}".format(command, random.choice(OUTPUT_FILE_NAMES))
+            return "{0} > {1}".format(command, random.choice(ARG_OUTPUT_FILE_NAMES))
 
         def create_pipe_redirect():
             try:
@@ -270,16 +263,173 @@ COMMANDS = (
     ),
     Command(
         "cut", [], [
-            Argument(["-b", "--bytes"], ARG_CUT_RANGES),
-            Argument(["-c", "--characters"], ARG_CUT_RANGES),
-            Argument(["-d", "--delimiter"], ARG_CUT_DELIMITERS),
-            Argument(["-f", "--fields"], ARG_CUT_RANGES),
+            Argument(["-b", "--bytes"], ["1", "\"-10\"", "\"3-\"", "\"2-4\"", "\"1-2\"", "\"5-\"", "\"-20\""]),
+            Argument(["-c", "--characters"], ["1", "\"-10\"", "\"3-\"", "\"2-4\"", "\"1-2\"", "\"5-\"", "\"-20\""]),
+            Argument(["-d", "--delimiter"], ARG_DELIMITERS),
+            Argument(["-f", "--fields"], ["1", "\"-10\"", "\"3-\"", "\"2-4\"", "\"1-2\"", "\"5-\"", "\"-20\""]),
             Argument(["--complement"], []),
             Argument(["-s", "--only-delimited"], []),
-            Argument(["--output-delimiter"], ARG_CUT_DELIMITERS),
+            Argument(["--output-delimiter"], ARG_DELIMITERS),
         ],
         redirect_input=True,
         redirect_output=True,
+    ),
+    Command(
+        "sort", [], [
+            Argument(["-d", "--dictionary-order"], []),
+            Argument(["-f", "--ignore-case"], []),
+            Argument(["-i", "--ignore-nonprinting"], []),
+            Argument(["-n", "--numeric-sort"], []),
+            Argument(["-r", "--reverse"], []),
+            Argument(["--sort"], ["general-numeric", "human-numeric", "month", "numeric", "random", "version"]),
+            Argument(["-s", "--stable"], []),
+            Argument(["-t", "--field-separator"], ARG_DELIMITERS),
+            Argument(["--parallel"], ["1", "2", "3", "4", "5", "6"]),
+            Argument(["-k", "--key"], ["1", "2", "3", "1,2", "1,3" "2,3", "1.2", "2.3", "1.2,4", "2.2,3.2"]),
+
+        ],
+        redirect_input=True,
+        redirect_output=True,
+    ),
+    Command(
+        "head", [], [
+            Argument(["-c", "--bytes"], ["64", "128", "256", "512", "1K", "2K", "3K" "4K", "1M"]),
+            Argument(["-n", "--lines"], ["1", "2", "3", "4", "5", "15", "\"-15\"", "20", "\"-20\"", "25", "\"-25\""]),
+            Argument(["-q", "--quiet", "--slient"], []),
+            Argument(["-z", "--zero-terminated"], []),
+        ],
+        redirect_input=True,
+        redirect_output=True,
+    ),
+    Command(
+        "tail", [], [
+            Argument(["-c", "--bytes"], ["64", "128", "256", "512", "1K", "2K", "3K", "4K", "1M"]),
+            Argument(["-f", "--follow"], ["name", "descriptor"]),
+            Argument(["-n", "--lines"], ["1", "2", "3", "4", "5", "15", "\"-15\"", "20", "\"-20\"", "25", "\"-25\""]),
+            Argument(["--pid"], ["456", "738", "3336", "1124", "1739", "1984", "677", "666", "2354", "1923"]),
+            Argument(["-q", "--quiet", "--slient"], []),
+            Argument(["--retry"], []),
+            Argument(["-s", "--sleep-interval"], ["0.1", "0.25", "0.5", "2", "3", "5", "10"]),
+            Argument(["-z", "--zero-terminated"], []),
+        ],
+        redirect_input=True,
+        redirect_output=True,
+    ),
+    Command(
+        "cat", [
+            Argument([], ARG_INPUT_FILE_NAMES),
+        ], [
+            Argument(["-A", "--show-all"], []),
+            Argument(["-e"], []),
+            Argument(["-E", "--show-ends"], []),
+            Argument(["-n", "--number"], []),
+            Argument(["-s", "--squeeze-blank"], []),
+            Argument(["-t"], []),
+            Argument(["-T", "--show-tabs"], []),
+            Argument(["-v", "--show-nonprinting"], []),
+        ],
+        redirect_output=True,
+    ),
+    Command(
+        "diff", [
+            Argument([], ARG_INPUT_FILE_NAMES),
+            Argument([], ARG_INPUT_FILE_NAMES),
+        ], [
+            Argument(["-q", "--brief"], []),
+            Argument(["-s", "--report-identical-files"], []),
+            Argument(["-c", "-C", "--context"], ["0", "1", "2", "4", "5", "6", "7", "8", "9", "10"]),
+            Argument(["-u", "-U", "--unified"], ["0", "1", "2", "4", "5", "6", "7", "8", "9", "10"]),
+            Argument(["-y", "--side-by-side"], []),
+            Argument(["-W", "--width"], ["64", "72", "80", "100", "120", "200"]),
+            Argument(["--tabsize"], ["1", "2", "4"]),
+            Argument(["-r", "--recursive"], []),
+            Argument(["--no-dereference"], []),
+            Argument(["-x", "--exclude"], ARG_FILE_GLOB_PATTERNS),
+            Argument(["-i", "--ignore-case"], []),
+            Argument(["a", "--text"], []),
+            Argument(["--color"], ["never", "always", "auto"]),
+        ],
+        redirect_output=True,
+    ),
+    Command(
+        "tee", [
+            Argument([], ARG_OUTPUT_FILE_NAMES),
+        ], [
+            Argument(["-a", "--apend"], []),
+            Argument(["-i", "--ignore-interrupts"], []),
+            Argument(["-p"], []),
+            Argument(["--output-error"], ["warn", "warn-nopipe", "exit", "exit-nopipe"]),
+        ],
+        redirect_input=True,
+        redirect_output=True,
+    ),
+    Command(
+        "paste", [], [
+            Argument(["-d", "--delimiters"], ARG_DELIMITERS),
+            Argument(["-s", "--serial"], []),
+            Argument(["-z", "--zero-terminated"], []),
+        ],
+        redirect_input=True,
+        redirect_output=True,
+    ),
+    Command(
+        "shuf", [], [
+            Argument(["-n", "--head-count"], ["5", "10", "15", "20", "25", "30"]),
+            Argument(["--random-source"], ["/dev/random", "/dev/urandom"]),
+            Argument(["-r", "--repeat"], []),
+            Argument(["-z", "--zero-terminated"], []),
+        ],
+        redirect_input=True,
+        redirect_output=True,
+    ),
+    Command(
+        "mv", [
+            Argument([], ARG_INPUT_FILE_NAMES),
+            Argument([], ARG_OUTPUT_FILE_NAMES),
+        ], [
+            Argument(["--backup"], ["none", "off", "numbered", "exiting", "nil", "simple", "never"]),
+            Argument(["-f", "--force"], []),
+            Argument(["-i", "--interactive"], []),
+            Argument(["-n", "--no-clobber"], []),
+            Argument(["--strip-trailing-slashes"], []),
+            Argument(["-S", "--suffix"], ["\".bak\"", "\".backup\"", "\".old\"", "\".orig\""]),
+            Argument(["-u", "--update"], []),
+        ],
+    ),
+    Command(
+        "cp", [
+            Argument([], ARG_INPUT_FILE_NAMES),
+            Argument([], ARG_OUTPUT_FILE_NAMES),
+        ], [
+            Argument(["-a", "--archive"], []),
+            Argument(["--backup"], ["none", "off", "numbered", "exiting", "nil", "simple", "never"]),
+            Argument(["-f", "--force"], []),
+            Argument(["-i", "--interactive"], []),
+            Argument(["-L", "--dereference"], []),
+            Argument(["-n", "--no-clobber"], []),
+            Argument(["-P", "--no-dereference"], []),
+            Argument(["--preserve"], ["mode", "ownership", "timestamps", "context", "links", "xattr", "all"]),
+            Argument(["--no-reserve"], ["mode", "ownership", "timestamps", "context", "links", "xattr", "all"]),
+            Argument(["-r", "-R", "--recursive"], []),
+            Argument(["--reflink"], ["always", "auto"]),
+            Argument(["--sparse"], ["always", "auto", "never"]),
+            Argument(["-s", "--symbolic-link"], []),
+            Argument(["-S", "--suffix"], ["\".bak\"", "\".backup\"", "\".old\"", "\".orig\""]),
+            Argument(["-u", "--update"], []),
+            Argument(["-x", "--one-file-system"], []),
+        ],
+    ),
+    Command(
+        "rm", [
+            Argument([], ARG_INPUT_FILE_NAMES),
+        ], [
+            Argument(["-f", "--force"], []),
+            Argument(["--interactive"], ["never", "once", "always"]),
+            Argument(["--one-file-system"], []),
+            Argument(["--no-preserve-root"], []),
+            Argument(["-r", "-R", "--recursive"], []),
+            Argument(["-d", "--dir"], []),
+        ]
     ),
 )
 
