@@ -76,26 +76,27 @@ ARG_OUTPUT_FILE_NAMES = [
 
 
 class Argument:
-    """An argument for a shell command that the user can be prompted to type.
+    """An argument to a shell command.
 
     Attributes:
-        names: All the names that the command can have.
-        args: A list of possible arguments for the command.
+        names: A list of possible names for the argument.
+        values: A list of possible values for the argument.
     """
-    def __init__(self, names: List[str], args: List[str]) -> None:
+    def __init__(self, names: List[str], values: List[str]) -> None:
         self.names = names
-        self.args = args
+        self.values = values
 
-    def get_random(self, flag_separator: str) -> str:
+    def get_random(self, separator: str) -> str:
         """Generate a random argument within the given constraints as a string.
 
         Args:
-            flag_separator: The string used to separate flags from their arguments.
+            separator: The string used to separate the argument from its value.
 
         Returns:
             The argument as a string.
         """
-        return flag_separator.join(random.choice(choices) for choices in (self.names, self.args) if choices)
+        # Don't print the separator if either the list of names or list of values are empty.
+        return separator.join(random.choice(choices) for choices in (self.names, self.values) if choices)
 
 
 class Command:
