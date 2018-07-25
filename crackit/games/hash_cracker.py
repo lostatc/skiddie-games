@@ -17,11 +17,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 
-The game starts with rows of characters on the screen. The objective is to add
-rows of characters until you have a certain number of rows. Rows can only
-contain numbers and letters in the range a-f. A character cannot appear more
-than once in the same row or column. If a row is entered that does not meet
-these criteria, it is cleared.
+The game starts with rows of characters on the screen. The objective is to add rows of characters until you have a
+certain number of rows. Rows can only contain numbers and letters in the range a-f. A character cannot appear more than
+once in the same row or column. If a row is entered that does not meet these criteria, it is cleared.
 """
 import random
 import textwrap
@@ -37,8 +35,7 @@ class CharGrid:
     Attributes:
         valid_chars: The string of characters that are allowed in the grid.
         num_columns: The number of columns in the grid.
-        rows: The grid represented as a list of rows. Each row contains a list
-            of characters.
+        rows: The grid represented as a list of rows. Each row contains a list of characters.
     """
     def __init__(self, valid_chars: Iterable, num_columns: int) -> None:
         self.valid_chars = set(valid_chars)
@@ -51,8 +48,7 @@ class CharGrid:
         
         Ignore rows which aren't full.
         """
-        full_rows = [
-            row for row in self.rows if len(row) == self.num_columns]
+        full_rows = [row for row in self.rows if len(row) == self.num_columns]
         return [list(chars) for chars in zip(*full_rows)]
     
     @property
@@ -83,8 +79,7 @@ class CharGrid:
     def is_valid(self) -> bool:
         """The grid is valid.
 
-        Every row is full and there are no repeating characters in any row or
-        column.
+        Every row is full and there are no repeating characters in any row or column.
         """
         for row in self.rows:
             if len(row) != self.num_columns:
@@ -119,28 +114,25 @@ def create_grid(rows: int, columns: int, valid_chars: str) -> CharGrid:
         row_num = len(char_grid.rows) - 1
         current_row = char_grid.rows[-1]
         
-        # These are characters that have been tried and found to not work. 
-        # They are stored in this list to prevent the algorithm from 
-        # selecting them a second time. 
+        # These are characters that have been tried and found to not work. They are stored in this list to prevent the
+        # algorithm from selecting them a second time.
         invalid_row_chars = [set() for i in range(columns)]
-        
+
         while len(current_row) < columns:
             column_num = len(current_row) - 1
             try:
-                # Randomly select a character from the set of characters 
-                # that are not in either the current column or row and 
-                # haven't already been found to not work. 
-                char = random.choice(list((
-                    char_grid.unused_column[column_num + 1]
-                    & char_grid.unused_row[row_num])
-                    - invalid_row_chars[column_num + 1]))
+                # Randomly select a character from the set of characters that are not in either the current column or
+                # row and haven't already been found to not work.
+                char = random.choice(list(
+                    (char_grid.unused_column[column_num + 1] & char_grid.unused_row[row_num])
+                    - invalid_row_chars[column_num + 1]
+                ))
             except IndexError:
-                # There are no characters that will work. Backtrack to the
-                # previous position in the row and try a different character.
+                # There are no characters that will work. Backtrack to the previous position in the row and try a
+                # different character.
                 invalid_row_chars[column_num].add(current_row.pop())
                 for chars in invalid_row_chars[column_num+1:]:
-                    # When a character changes, the set of invalid 
-                    # characters for subsequent positions must be cleared. 
+                    # When a character changes, the set of invalid characters for subsequent positions must be cleared.
                     chars.clear()
             else:
                 current_row.append(char)
