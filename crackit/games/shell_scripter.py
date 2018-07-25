@@ -149,7 +149,10 @@ class Command:
 
         # Select random parameters.
         flag_separator = random.choice(FLAG_SEPARATORS)
-        number_of_args = random.randrange(self.min_args, self.max_args)
+        if self.max_args == 0:
+            number_of_args = 0
+        else:
+            number_of_args = random.randrange(self.min_args, self.max_args)
 
         # Add a random number of optional arguments.
         random.shuffle(remaining_args)
