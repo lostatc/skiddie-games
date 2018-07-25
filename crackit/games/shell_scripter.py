@@ -32,15 +32,6 @@ COMMAND_PROMPT = "$ "
 # All the characters that can be used to separate flags from their arguments.
 FLAG_SEPARATORS = [" ", "="]
 
-# The minimum number of non-required arguments that a command can have.
-MIN_ARGS = 0
-
-# The maximum number of non-required arguments that a command can have.
-MAX_ARGS = 5
-
-# The probability that a command will send its output to a pipe or file.
-OUTPUT_REDIRECTION_PROBABILITY = 0.25
-
 #
 # The following constants are commonly used arguments for commands.
 #
@@ -73,6 +64,20 @@ ARG_INPUT_FILE_NAMES = [
 ARG_OUTPUT_FILE_NAMES = [
     "output.txt", "output_file.txt", "result.txt", "destination.txt", "dest.txt", "file.txt", "end.txt", "finish.txt",
 ]
+
+
+class LateInit:
+    """Raise an exception if the attribute is unset."""
+    def __init__(self) -> None:
+        self._value = None
+
+    def __get__(self, instance, owner):
+        if self._value is None:
+            raise ValueError("this value must not be None")
+        return self._value
+
+    def __set__(self, instance, value):
+        self._value = value
 
 
 class Argument:
@@ -110,7 +115,14 @@ class Command:
             be used in any order.
         redirect_output: The command can redirect its output.
         redirect_input: The command must redirect its input.
+        min_args: The minimum number of non-required arguments that a command can have.
+        max_args: The maximum number of non-required arguments that a command can have.
+        redirect_probability: The probability that a command will send its output to a pipe or file.
     """
+    min_args = LateInit()
+    max_args = LateInit()
+    redirect_probability = LateInit()
+
     def __init__(
             self, name: str, positional_args: List[Argument], optional_args: List[Argument],
             redirect_output: bool = False, redirect_input: bool = False) -> None:
@@ -120,7 +132,7 @@ class Command:
         self.redirect_output = redirect_output
         self.redirect_input = redirect_input
 
-    def get_random(self, redirect_input=True, redirect_output=True) -> str:
+    def get_random(self, redirect_input: bool = True, redirect_output: bool = True) -> str:
         """Generate a random command string within the given constraints.
 
         Args:
@@ -135,7 +147,7 @@ class Command:
 
         # Select random parameters.
         flag_separator = random.choice(FLAG_SEPARATORS)
-        number_of_args = random.randrange(MIN_ARGS, MAX_ARGS)
+        number_of_args = random.randrange(self.min_args, self.max_args)
 
         # Add a random number of optional arguments.
         random.shuffle(remaining_args)
@@ -154,7 +166,7 @@ class Command:
         # Add random redirects to the command string.
         if self.redirect_input and redirect_input:
             command_string = self._add_input_redirection(command_string)
-        if self.redirect_output and redirect_output and random.random() < OUTPUT_REDIRECTION_PROBABILITY:
+        if self.redirect_output and redirect_output and random.random() < self.redirect_probability:
             command_string = self._add_output_redirection(command_string)
 
         return command_string
@@ -435,12 +447,23 @@ COMMANDS = (
 )
 
 
-def main(commands_to_win: int = 10) -> None:
+def main(
+        commands_to_win: int = 15, min_args: int = 0, max_args: int = 5,
+        redirect_probability: float = 0.25) -> None:
     """Play the game.
 
     Args:
         commands_to_win: The number of commands that must be correctly entered to win the game.
+        min_args: The minimum number of non-required arguments that a command can have.
+        max_args: The maximum number of non-required arguments that a command can have.
+        redirect_probability: The probability that a command will send its output to a pipe or file.
     """
+    # Set class attributes that determine how commands are generated.
+    Command.min_args = min_args
+    Command.max_args = max_args
+    Command.redirect_probability = redirect_probability
+
+    # Print random commands and prompt the user to type them in until they type them in correctly.
     for _ in range(commands_to_win):
         command_string = random.choice(COMMANDS).get_random()
         print(COMMAND_PROMPT + command_string)
