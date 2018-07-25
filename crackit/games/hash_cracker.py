@@ -28,6 +28,12 @@ from typing import List, Set, Iterable
 
 from crackit.utils import format_banner, clear_line
 
+# The string that prefixes every line in the grid.
+PREFIX_STRING = "0x"
+
+# The string of characters that may be used in the grid.
+VALID_CHARS = "0123456789abcdef"
+
 
 class CharGrid:
     """Represent a grid of characters.
@@ -94,7 +100,7 @@ class CharGrid:
         return True
             
         
-def create_grid(rows: int, columns: int, valid_chars: str) -> CharGrid:
+def create_grid(rows: int, columns: int, valid_chars: str = VALID_CHARS) -> CharGrid:
     """Generate a random grid of characters.
     
     The same character will not appear more than once in any row or column.
@@ -140,31 +146,22 @@ def create_grid(rows: int, columns: int, valid_chars: str) -> CharGrid:
     return char_grid
 
 
-def main(
-        valid_chars="0123456789abcdef", prefix_string="0x", columns=8,
-        starting_rows=4, rows_to_win=8) -> None:
+def main(rows_to_win: int, starting_rows: int, columns: int) -> None:
     """Play the game.
 
     Args:
-        valid_chars: The string of characters that may be used in the grid.
-        prefix_string: A string that prefixes every line in the grid.
         columns: The number of columns in the grid.
         starting_rows: The number of rows in the grid when the game starts.
-        rows_to_win: The total number of rows that must be in the grid to win
-            the game.
+        rows_to_win: The total number of rows that must be in the grid to win the game.
     """
-    char_grid = create_grid(starting_rows, columns, valid_chars)
-    print(textwrap.indent(char_grid.format(), prefix_string))
+    char_grid = create_grid(starting_rows, columns)
+    print(textwrap.indent(char_grid.format(), PREFIX_STRING))
 
     while len(char_grid.rows) < rows_to_win:
-        user_input = input(prefix_string)
+        user_input = input(PREFIX_STRING)
         char_grid.rows.append(user_input)
         if not char_grid.is_valid():
             clear_line()
             char_grid.rows.pop()
 
     print(format_banner("ACCESS GRANTED", ansi="\x1b[1;32m"))
-
-
-if __name__ == "__main__":
-    main()

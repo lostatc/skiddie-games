@@ -457,9 +457,7 @@ COMMANDS = (
 )
 
 
-def main(
-        commands_to_win: int = 15, min_args: int = 0, max_args: int = 5,
-        redirect_probability: float = 0.25) -> None:
+def main(commands_to_win: int, min_args: int, max_args: int, redirect_probability: float) -> None:
     """Play the game.
 
     Args:
@@ -487,7 +485,3 @@ def main(
         print()
 
     print(format_banner("ACCESS GRANTED", ansi="\x1b[1;32m"))
-
-
-if __name__ == "__main__":
-    main()
