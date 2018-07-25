@@ -58,11 +58,13 @@ ARG_DELIMITERS = [
 # The list of possible names of files that can be used for data input.
 ARG_INPUT_FILE_NAMES = [
     "input.txt", "input_file.txt", "origin.txt", "source.txt", "src.txt", "data.txt", "beginning.txt", "start.txt",
+    "info.txt",
 ]
 
 # The list of possible names of files that can be used for data output.
 ARG_OUTPUT_FILE_NAMES = [
     "output.txt", "output_file.txt", "result.txt", "destination.txt", "dest.txt", "file.txt", "end.txt", "finish.txt",
+    "dump.txt",
 ]
 
 
@@ -224,8 +226,13 @@ COMMANDS = (
             Argument(["-v", "--invert-match"], []),
             Argument(["-x", "--line-regexp"], []),
             Argument(["-c", "--count"], []),
+            Argument(["--color"], ["never", "always", "auto"]),
             Argument(["-m", "--max-count"], ["1", "2", "3", "4", "5"]),
-            Argument(["-A", "--after-context", "-B", "--before-context"], ["1", "2", "5", "10"]),
+            Argument(["-A", "--after-context"], ["1", "2", "3", "4", "5", "10"]),
+            Argument(["-B", "--before-context"], ["1", "2", "3", "4", "5", "10"]),
+            Argument(["--exclude"], ARG_FILE_GLOB_PATTERNS),
+            Argument(["--include"], ARG_FILE_GLOB_PATTERNS),
+            Argument(["-r", "--recursive"], []),
         ],
         redirect_input=True,
         redirect_output=True,
@@ -247,7 +254,7 @@ COMMANDS = (
             Argument(["-mmin"], ["1", "5", "10", "15", "20", "25", "30"]),
             Argument(["-name"], ARG_FILE_GLOB_PATTERNS),
             Argument(["-perm"], ["\"/a+w\"", "\"-g+w\"", "\"u=w\"", "\"-a+r\"", "\"/a+x\"", "\"-220\""]),
-            Argument(["-size"], ["100k", "120K", "50M", "200M", "1G", "10G"]),
+            Argument(["-size"], ["50K", "100K", "120K", "50M", "200M", "1G", "10G"]),
             Argument(["-delete"], []),
             Argument(["-print"], []),
             Argument(["-ls"], []),
@@ -308,7 +315,7 @@ COMMANDS = (
         "head", [], [
             Argument(["-c", "--bytes"], ["64", "128", "256", "512", "1K", "2K", "3K" "4K", "1M"]),
             Argument(["-n", "--lines"], ["1", "2", "3", "4", "5", "15", "\"-15\"", "20", "\"-20\"", "25", "\"-25\""]),
-            Argument(["-q", "--quiet", "--slient"], []),
+            Argument(["-q", "--quiet", "--silent"], []),
             Argument(["-z", "--zero-terminated"], []),
         ],
         redirect_input=True,
@@ -320,7 +327,7 @@ COMMANDS = (
             Argument(["-f", "--follow"], ["name", "descriptor"]),
             Argument(["-n", "--lines"], ["1", "2", "3", "4", "5", "15", "\"-15\"", "20", "\"-20\"", "25", "\"-25\""]),
             Argument(["--pid"], ["456", "738", "3336", "1124", "1739", "1984", "677", "666", "2354", "1923"]),
-            Argument(["-q", "--quiet", "--slient"], []),
+            Argument(["-q", "--quiet", "--silent"], []),
             Argument(["--retry"], []),
             Argument(["-s", "--sleep-interval"], ["0.1", "0.25", "0.5", "2", "3", "5", "10"]),
             Argument(["-z", "--zero-terminated"], []),
@@ -368,7 +375,7 @@ COMMANDS = (
         "tee", [
             Argument([], ARG_OUTPUT_FILE_NAMES),
         ], [
-            Argument(["-a", "--apend"], []),
+            Argument(["-a", "--append"], []),
             Argument(["-i", "--ignore-interrupts"], []),
             Argument(["-p"], []),
             Argument(["--output-error"], ["warn", "warn-nopipe", "exit", "exit-nopipe"]),
@@ -422,7 +429,7 @@ COMMANDS = (
             Argument(["-n", "--no-clobber"], []),
             Argument(["-P", "--no-dereference"], []),
             Argument(["--preserve"], ["mode", "ownership", "timestamps", "context", "links", "xattr", "all"]),
-            Argument(["--no-reserve"], ["mode", "ownership", "timestamps", "context", "links", "xattr", "all"]),
+            Argument(["--no-preserve"], ["mode", "ownership", "timestamps", "context", "links", "xattr", "all"]),
             Argument(["-r", "-R", "--recursive"], []),
             Argument(["--reflink"], ["always", "auto"]),
             Argument(["--sparse"], ["always", "auto", "never"]),
