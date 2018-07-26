@@ -1,0 +1,7 @@
+A game about writing shell scripts.
+
+The objective of this game is to type out the given randomly generated Linux
+shell commands as quickly and accurately as possible. If a command is typed
+incorrectly, it is cleared. You can use the up arrow key to go back to the last
+command you typed. You can use the left and right arrow keys to move the
+cursor.

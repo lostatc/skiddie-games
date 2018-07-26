@@ -1,0 +1,7 @@
+This is a game about cracking password hashes.
+
+The game starts with rows of characters on the screen. The objective is to type
+new rows of characters until you have a certain number of rows. Rows can only
+contain numbers and letters in the range a-f. Also, a character cannot appear
+more than once in the same row or column. If a row is entered that does not
+meet these criteria, it is cleared.

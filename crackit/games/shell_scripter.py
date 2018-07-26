@@ -1,4 +1,4 @@
-"""A game about cracking password hashes.
+"""A game about writing shell scripts.
 
 Copyright © 2017 Wren Powell <wrenp@duck.com>
 
@@ -16,9 +16,6 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with crackit.  If not, see <http://www.gnu.org/licenses/>.
-
-The objective of this game is to type out the given randomly generated Linux shell commands as quickly and accurately as
-possible. If a command is typed incorrectly, it is cleared.
 """
 import random
 import readline  # This is not unused. Importing it adds features to input().

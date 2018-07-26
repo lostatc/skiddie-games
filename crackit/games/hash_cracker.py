@@ -16,10 +16,6 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with crackit.  If not, see <http://www.gnu.org/licenses/>.
-
-The game starts with rows of characters on the screen. The objective is to add rows of characters until you have a
-certain number of rows. Rows can only contain numbers and letters in the range a-f. A character cannot appear more than
-once in the same row or column. If a row is entered that does not meet these criteria, it is cleared.
 """
 import random
 import textwrap
