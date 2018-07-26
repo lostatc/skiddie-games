@@ -39,7 +39,7 @@ FLAG_SEPARATORS = [" ", "="]
 # Directory paths to be used as arguments in commands.
 ARG_DIR_PATHS = [
     "~/Documents", "/home/lostatc/Documents", "~/Downloads", "/home/lostatc/Downloads", "~/Music",
-    "/home/lostatc/Music", "~/Pictures", "/home/lostatc/Pictures", "~/Videos", "/home/lostatc/Vidoes", ".", "/", "/dev",
+    "/home/lostatc/Music", "~/Pictures", "/home/lostatc/Pictures", "~/Videos", "/home/lostatc/Videos", ".", "/", "/dev",
     "/dev/mapper", "/etc", "/etc/sysconfig", "/home/lostatc", "/mnt", "/proc", "/run", "/run/media/lostatc", "/sys",
     "/tmp", "/usr/share", "/usr/local/share", "/var", "/var/log",
 ]
@@ -120,10 +120,12 @@ class Command:
         min_args: The minimum number of non-required arguments that a command can have.
         max_args: The maximum number of non-required arguments that a command can have.
         redirect_probability: The probability that a command will send its output to a pipe or file.
+        pipe_probability: The probability that a command will use a pipe when redirecting its output.
     """
     min_args = LateInit()
     max_args = LateInit()
     redirect_probability = LateInit()
+    pipe_probability = LateInit()
 
     def __init__(
             self, name: str, positional_args: List[Argument], optional_args: List[Argument],
@@ -178,10 +180,10 @@ class Command:
 
     def _add_input_redirection(self, command: str) -> str:
         """Add random input redirection to the given command string."""
-        def create_file_redirect():
+        def create_file_redirect() -> str:
             return "{0} < {1}".format(command, random.choice(ARG_INPUT_FILE_NAMES))
 
-        def create_pipe_redirect():
+        def create_pipe_redirect() -> str:
             try:
                 input_command = random.choice([item for item in COMMANDS if item.redirect_output and item != self])
             except IndexError:
@@ -189,17 +191,17 @@ class Command:
 
             return "{0} | {1}".format(input_command.get_random(redirect_output=False), command)
 
-        return random.choice([
-            create_file_redirect(),
-            create_pipe_redirect(),
-        ])
+        if random.random() < self.pipe_probability:
+            return create_pipe_redirect()
+        else:
+            return create_file_redirect()
 
     def _add_output_redirection(self, command: str) -> str:
         """Add random output redirection to the given command string."""
-        def create_file_redirect():
+        def create_file_redirect() -> str:
             return "{0} > {1}".format(command, random.choice(ARG_OUTPUT_FILE_NAMES))
 
-        def create_pipe_redirect():
+        def create_pipe_redirect() -> str:
             try:
                 output_command = random.choice([item for item in COMMANDS if item.redirect_input and item != self])
             except IndexError:
@@ -207,10 +209,10 @@ class Command:
 
             return "{0} | {1}".format(command, output_command.get_random(redirect_input=False))
 
-        return random.choice([
-            create_file_redirect(),
-            create_pipe_redirect(),
-        ])
+        if random.random() < self.pipe_probability:
+            return create_pipe_redirect()
+        else:
+            return create_file_redirect()
 
 
 COMMANDS = (
@@ -316,7 +318,7 @@ COMMANDS = (
     ),
     Command(
         "head", [], [
-            Argument(["-c", "--bytes"], ["64", "128", "256", "512", "1K", "2K", "3K" "4K", "1M"]),
+            Argument(["-c", "--bytes"], ["64", "128", "256", "512", "1K", "2K", "3K", "4K", "1M"]),
             Argument(["-n", "--lines"], ["1", "2", "3", "4", "5", "15", "\"-15\"", "20", "\"-20\"", "25", "\"-25\""]),
             Argument(["-q", "--quiet", "--silent"], []),
             Argument(["-z", "--zero-terminated"], []),
@@ -329,7 +331,7 @@ COMMANDS = (
             Argument(["-c", "--bytes"], ["64", "128", "256", "512", "1K", "2K", "3K", "4K", "1M"]),
             Argument(["-f", "--follow"], ["name", "descriptor"]),
             Argument(["-n", "--lines"], ["1", "2", "3", "4", "5", "15", "\"-15\"", "20", "\"-20\"", "25", "\"-25\""]),
-            Argument(["--pid"], ["456", "738", "3336", "1124", "1739", "1984", "677", "666", "2354", "1923"]),
+            Argument(["--pid"], ["451", "1984", "24601", "666", "6022", "3141", "2718", "1414", "1618"]),
             Argument(["-q", "--quiet", "--silent"], []),
             Argument(["--retry"], []),
             Argument(["-s", "--sleep-interval"], ["0.1", "0.25", "0.5", "2", "3", "5", "10"]),
@@ -369,7 +371,7 @@ COMMANDS = (
             Argument(["--no-dereference"], []),
             Argument(["-x", "--exclude"], ARG_FILE_GLOB_PATTERNS),
             Argument(["-i", "--ignore-case"], []),
-            Argument(["a", "--text"], []),
+            Argument(["-a", "--text"], []),
             Argument(["--color"], ["never", "always", "auto"]),
         ],
         redirect_output=True,
@@ -457,7 +459,9 @@ COMMANDS = (
 )
 
 
-def main(commands_to_win: int, min_args: int, max_args: int, redirect_probability: float) -> None:
+def main(
+        commands_to_win: int, min_args: int, max_args: int,
+        redirect_probability: float, pipe_probability: float) -> None:
     """Play the game.
 
     Args:
@@ -465,11 +469,13 @@ def main(commands_to_win: int, min_args: int, max_args: int, redirect_probabilit
         min_args: The minimum number of non-required arguments that a command can have.
         max_args: The maximum number of non-required arguments that a command can have.
         redirect_probability: The probability that a command will send its output to a pipe or file.
+        pipe_probability: The probability that a command will use a pipe when redirecting its output.
     """
     # Set class attributes that determine how commands are generated.
     Command.min_args = min_args
     Command.max_args = max_args
     Command.redirect_probability = redirect_probability
+    Command.pipe_probability = pipe_probability
 
     # Print random commands and prompt the user to type them in until they type them in correctly.
     for _ in range(commands_to_win):
