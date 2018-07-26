@@ -24,7 +24,7 @@ import random
 import readline  # This is not unused. Importing it adds features to input().
 from typing import List
 
-from crackit.utils import clear_line, format_banner
+from crackit.utils import clear_line, format_banner, LateInit
 
 # The string that is printed before each command and line of user input.
 COMMAND_PROMPT = "$ "
@@ -66,20 +66,6 @@ ARG_OUTPUT_FILE_NAMES = [
     "output.txt", "output_file.txt", "result.txt", "destination.txt", "dest.txt", "file.txt", "end.txt", "finish.txt",
     "dump.txt",
 ]
-
-
-class LateInit:
-    """Raise an exception if the attribute is unset."""
-    def __init__(self) -> None:
-        self._value = None
-
-    def __get__(self, instance, owner):
-        if self._value is None:
-            raise ValueError("this value must not be None")
-        return self._value
-
-    def __set__(self, instance, value):
-        self._value = value
 
 
 class Argument:

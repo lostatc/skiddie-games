@@ -50,3 +50,17 @@ def clear_line() -> None:
     """Clear the current line in stdout."""
     print("\x1b[1A", end="")
     print("\x1b[2K", end="")
+
+
+class LateInit:
+    """Raise an exception if the attribute is unset."""
+    def __init__(self) -> None:
+        self._value = None
+
+    def __get__(self, instance, owner):
+        if self._value is None:
+            raise ValueError("this value must not be None")
+        return self._value
+
+    def __set__(self, instance, value):
+        self._value = value
