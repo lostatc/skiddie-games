@@ -43,25 +43,25 @@ ARG_DIR_PATHS = [
 
 # Shell globing patterns for matching file names to be used as arguments in commands.
 ARG_FILE_GLOB_PATTERNS = [
-    "\"*.png\"", "\"*.jpg\"", "\"*.mp3\"", "\"*.flac\"", "\"*.mp4\"", "\"*.log\"", "\"*.tar.*\"",
-    "\"*.od[tspgf]\"", "\".*\"", "\"*.doc[xm]\"", "\"*.xls[xm]\"",
+    "\".*\"", "\"*.png\"", "\"*.flac\"", "\"*.log\"", "\"*.pid\"", "\"*.rst\"", "\"*.tar.*\"", "\"*.py[cod]\"",
+    "\"*.od[tspgf]\"", "*.og[gvaxm]", "\"*.doc[xm]\"", "\"*.xls[xm]\"", "\"backup.tar-[a-z][a-z]\"",
 ]
 
 # Delimiters to be used as arguments in commands.
 ARG_DELIMITERS = [
-    "\" \"", "\",\"", "\"-\"", "\"_\"", "\"|\"", "\"\\n\"", "\"\\0\"",
+    "\" \"", "\",\"", "\"-\"", "\"_\"", "\"|\"", "\":\"", "\"\\n\"", "\"\\0\"",
 ]
 
 # The list of possible names of files that can be used for data input.
 ARG_INPUT_FILE_NAMES = [
-    "input.txt", "input_file.txt", "origin.txt", "source.txt", "src.txt", "data.txt", "beginning.txt", "start.txt",
-    "info.txt",
+    "input.txt", "input_file.txt", "in.txt", "origin.txt", "source.txt", "src.txt", "data.txt", "beginning.txt",
+    "start.txt", "info.txt",
 ]
 
 # The list of possible names of files that can be used for data output.
 ARG_OUTPUT_FILE_NAMES = [
-    "output.txt", "output_file.txt", "result.txt", "destination.txt", "dest.txt", "file.txt", "end.txt", "finish.txt",
-    "dump.txt",
+    "output.txt", "output_file.txt", "out.txt", "result.txt", "destination.txt", "dest.txt", "file.txt", "end.txt",
+    "finish.txt", "dump.txt",
 ]
 
 
@@ -204,8 +204,8 @@ COMMANDS = (
             Argument(
                 ["-e", "--regexp"], [
                     "\"^[0-9]+$\"", "\"[KMGT](B|iB)\"", "\"[a-f0-9]{6}\"", "\"^https?://\"", "\"[04567]{3}\"",
-                    "\"^/\w(:/\w)*$\"", "\"([r-][w-][x-]){3}\"", "Error", "Exception", "Warning", "Info", "NULL",
-                    "true", "false",
+                    "\"^/\w*(:/\w*)*$\"", "\"([r-][w-][x-]){3}\"", "^[\w=]+(,[\w=]+)*$", "Error", "Exception",
+                    "Warning", "Info", "NULL", "true", "false",
                 ],
             ),
         ], [
@@ -233,16 +233,16 @@ COMMANDS = (
             Argument(["-maxdepth"], ["0", "1", "2", "3", "4", "5"]),
             Argument(["-mindepth"], ["0", "1", "2", "3", "4", "5"]),
             Argument(["-mount"], []),
-            Argument(["-amin"], ["1", "5", "10", "15", "20", "25", "30"]),
-            Argument(["-cmin"], ["1", "5", "10", "15", "20", "25", "30"]),
+            Argument(["-amin"], ["1", "2", "3", "4", "5", "10", "15", "20", "25", "30", "60", "120"]),
+            Argument(["-cmin"], ["1", "2", "3", "4", "5", "10", "15", "20", "25", "30", "60", "120"]),
             Argument(["-empty"], []),
             Argument(["-gid"], ["0", "10", "100", "99", "1000", "1001", "1002", "1003"]),
             Argument(["-group"], ["root", "lostatc", "wheel", "nobody", "users"]),
             Argument(["-links"], ["0", "1", "2", "3", "4", "5"]),
-            Argument(["-mmin"], ["1", "5", "10", "15", "20", "25", "30"]),
+            Argument(["-mmin"], ["1", "2", "3", "4", "5", "10", "15", "20", "25", "30", "60", "120"]),
             Argument(["-name"], ARG_FILE_GLOB_PATTERNS),
             Argument(["-perm"], ["\"/a+w\"", "\"-g+w\"", "\"u=w\"", "\"-a+r\"", "\"/a+x\"", "\"-220\""]),
-            Argument(["-size"], ["50K", "100K", "120K", "50M", "200M", "1G", "10G"]),
+            Argument(["-size"], ["50K", "100K", "120K", "1M", "50M", "100M", "200M", "1G", "2G", "3G"]),
             Argument(["-delete"], []),
             Argument(["-print"], []),
             Argument(["-ls"], []),
@@ -271,10 +271,19 @@ COMMANDS = (
     ),
     Command(
         "cut", [], [
-            Argument(["-b", "--bytes"], ["1", "\"-10\"", "\"3-\"", "\"2-4\"", "\"1-2\"", "\"5-\"", "\"-20\""]),
-            Argument(["-c", "--characters"], ["1", "\"-10\"", "\"3-\"", "\"2-4\"", "\"1-2\"", "\"5-\"", "\"-20\""]),
+            Argument(
+                ["-b", "--bytes"],
+                ["\"-4\"", "\"-8\"", "\"-16\"", "\"1-\"", "\"2-\"", "\"4-\"", "\"1-2\"", "\"2-4\"", "\"4-8\""]
+            ),
+            Argument(
+                ["-c", "--characters"],
+                ["1", "\"-10\"", "\"-3\"", "\"-5\"", "\"1-5\"", "\"1-2\"", "\"5-\"", "\"-20\""]
+            ),
+            Argument(
+                ["-f", "--fields"],
+                ["1", "2", "3", "4", "5", "\"1-\"", "\"2-\"", "\"-3\"", "\"-5\"", "\"1-2\"", "\"2-3\""]
+            ),
             Argument(["-d", "--delimiter"], ARG_DELIMITERS),
-            Argument(["-f", "--fields"], ["1", "\"-10\"", "\"3-\"", "\"2-4\"", "\"1-2\"", "\"5-\"", "\"-20\""]),
             Argument(["--complement"], []),
             Argument(["-s", "--only-delimited"], []),
             Argument(["--output-delimiter"], ARG_DELIMITERS),
@@ -383,7 +392,7 @@ COMMANDS = (
     Command(
         "shuf", [], [
             Argument(["-n", "--head-count"], ["5", "10", "15", "20", "25", "30"]),
-            Argument(["--random-source"], ["/dev/random", "/dev/urandom"]),
+            Argument(["--random-source"], ["/dev/random", "/dev/urandom", "<(echo \"4\")"]),
             Argument(["-r", "--repeat"], []),
             Argument(["-z", "--zero-terminated"], []),
         ],
