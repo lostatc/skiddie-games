@@ -17,11 +17,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 """
+import os
 import sys
 import shutil
+import pkg_resources
 
 
 def format_banner(message: str, padding_char="=", ansi="") -> str:
+# The relative path to the directory containing the instructions for each game.
+INSTRUCTIONS_DIR = "instructions"
     """Format a banner message that is centered in the window.
 
     Args:
@@ -64,3 +68,9 @@ class LateInit:
 
     def __set__(self, instance, value):
         self._value = value
+
+
+def get_instructions(game_name: str) -> str:
+    """Get the instructions for how to play a game."""
+    relative_path = os.path.join(INSTRUCTIONS_DIR, "{0}.txt".format(game_name))
+    return pkg_resources.resource_string(__name__, relative_path).decode("utf-8")
