@@ -170,4 +170,4 @@ def main(rows_to_win: int, starting_rows: int, columns: int) -> None:
     while len(char_grid.rows) < rows_to_win:
         user_input = session.prompt(PREFIX_STRING)
 
-    print_banner("ACCESS GRANTED", ansi="\x1b[1;32m")
+    print_banner("ACCESS GRANTED", style="ansigreen bold")

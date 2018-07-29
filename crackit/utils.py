@@ -22,7 +22,8 @@ import sys
 import shutil
 import pkg_resources
 
-from prompt_toolkit import print_formatted_text, ANSI
+from prompt_toolkit.formatted_text import FormattedText
+from prompt_toolkit import print_formatted_text
 
 # The relative path to the directory containing the instructions for each game.
 INSTRUCTIONS_DIR = "instructions"
@@ -42,18 +43,18 @@ def _format_banner(message: str, padding_char="=") -> str:
     return "{0:{1}^{2}}".format(" {} ".format(message), padding_char, term_width)
 
 
-def print_banner(message: str, padding_char="=", ansi="") -> None:
+def print_banner(message: str, padding_char: str = "=", style: str = "") -> None:
     """Print a banner message that is centered in the window.
 
     Args:
-        message: The message to format.
+        message: The message to print.
         padding_char: The character to pad the message with.
-        ansi: An ANSI escape sequence to apply before the message if stdout is a tty.
+        style: A space-separated string of styles to apply to the message.
     """
     banner = _format_banner(message, padding_char)
 
     if sys.stdout.isatty():
-        print_formatted_text(ANSI(ansi + banner))
+        print_formatted_text(FormattedText([(style, banner)]))
     else:
         print_formatted_text(banner)
 
@@ -73,6 +74,9 @@ class LateInit:
 
 
 def get_instructions(game_name: str) -> str:
-    """Get the instructions for how to play a game."""
+    """Get the instructions for how to play a game.
+
+    This function looks for a plain text file named "game_name.txt" in the directory INSTRUCTIONS_DIR.
+    """
     relative_path = os.path.join(INSTRUCTIONS_DIR, "{0}.txt".format(game_name))
     return pkg_resources.resource_string(__name__, relative_path).decode("utf-8")

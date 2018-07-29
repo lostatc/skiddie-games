@@ -477,4 +477,4 @@ def main(
 
         print()
 
-    print_banner("ACCESS GRANTED", ansi="\x1b[1;32m")
+    print_banner("ACCESS GRANTED", style="ansigreen bold")
