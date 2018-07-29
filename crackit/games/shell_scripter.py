@@ -28,9 +28,6 @@ from crackit.utils import print_banner, LateInit
 # The string that is printed before each command and line of user input.
 COMMAND_PROMPT = "$ "
 
-# All the characters that can be used to separate flags from their arguments.
-FLAG_SEPARATORS = [" ", "="]
-
 #
 # The following constants are commonly used arguments for commands.
 #
@@ -78,17 +75,14 @@ class Argument:
         self.names = names
         self.values = values
 
-    def get_random(self, separator: str) -> str:
+    def get_random(self) -> str:
         """Generate a random argument within the given constraints as a string.
-
-        Args:
-            separator: The string used to separate the argument from its value.
 
         Returns:
             The argument as a string.
         """
         # Don't print the separator if either the list of names or list of values are empty.
-        return separator.join(random.choice(choices) for choices in (self.names, self.values) if choices)
+        return " ".join(random.choice(choices) for choices in (self.names, self.values) if choices)
 
 
 class Command:
@@ -135,7 +129,6 @@ class Command:
         remaining_args = self.optional_args.copy()
 
         # Select random parameters.
-        flag_separator = random.choice(FLAG_SEPARATORS)
         if self.max_args == 0:
             number_of_args = 0
         else:
@@ -153,7 +146,7 @@ class Command:
         if not selected_args:
             command_string = self.name
         else:
-            command_string = "{0} {1}".format(self.name, " ".join(arg.get_random(flag_separator) for arg in selected_args))
+            command_string = "{0} {1}".format(self.name, " ".join(arg.get_random() for arg in selected_args))
 
         # Add random redirects to the command string.
         if self.redirect_input and redirect_input:
@@ -184,7 +177,7 @@ class Command:
     def _add_output_redirection(self, command: str) -> str:
         """Add random output redirection to the given command string."""
         def create_file_redirect() -> str:
-            return "{0} > {1}".format(command, random.choice(ARG_OUTPUT_FILE_NAMES))
+            return random.choice(["{0} > {1}", "{0} >> {1}"]).format(command, random.choice(ARG_OUTPUT_FILE_NAMES))
 
         def create_pipe_redirect() -> str:
             try:
