@@ -472,7 +472,7 @@ def main(
         print(COMMAND_PROMPT + command_string)
 
         validator = Validator.from_callable(
-            lambda x: x == command_string, error_message="Invalid command", move_cursor_to_end=True)
+            lambda x: x == command_string, error_message="Commands do not match", move_cursor_to_end=True)
         session.prompt(COMMAND_PROMPT, validator=validator)
 
         print()
