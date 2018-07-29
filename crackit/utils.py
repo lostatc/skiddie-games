@@ -22,38 +22,40 @@ import sys
 import shutil
 import pkg_resources
 
+from prompt_toolkit import print_formatted_text, ANSI
 
-def format_banner(message: str, padding_char="=", ansi="") -> str:
 # The relative path to the directory containing the instructions for each game.
 INSTRUCTIONS_DIR = "instructions"
+
+
+def _format_banner(message: str, padding_char="=") -> str:
     """Format a banner message that is centered in the window.
 
     Args:
         message: The message to format.
         padding_char: The character to pad the message with.
-        ansi: An ANSI escape sequence to apply before the message if stdout is
-            a tty.
 
     Returns:
         The formatted banner message.
     """
     term_width = shutil.get_terminal_size().columns
-    formatted_message = "{0:{1}^{2}}".format(
-        " {} ".format(message), padding_char, term_width)
+    return "{0:{1}^{2}}".format(" {} ".format(message), padding_char, term_width)
+
+
+def print_banner(message: str, padding_char="=", ansi="") -> None:
+    """Print a banner message that is centered in the window.
+
+    Args:
+        message: The message to format.
+        padding_char: The character to pad the message with.
+        ansi: An ANSI escape sequence to apply before the message if stdout is a tty.
+    """
+    banner = _format_banner(message, padding_char)
 
     if sys.stdout.isatty():
-        ansi_start = ansi
-        ansi_end = "\x1b[0m"
+        print_formatted_text(ANSI(ansi + banner))
     else:
-        ansi_start = ansi_end = ""
-
-    return ansi_start + formatted_message + ansi_end
-
-
-def clear_line() -> None:
-    """Clear the current line in stdout."""
-    print("\x1b[1A", end="")
-    print("\x1b[2K", end="")
+        print_formatted_text(banner)
 
 
 class LateInit:

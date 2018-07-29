@@ -19,10 +19,12 @@ along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 """
 import random
 import textwrap
-import readline  # This is not unused. Importing it adds features to input().
 from typing import List, Set, Iterable
 
-from crackit.utils import format_banner, clear_line
+from prompt_toolkit.validation import Validator
+from prompt_toolkit import PromptSession
+
+from crackit.utils import print_banner
 
 # The string that prefixes every line in the grid.
 PREFIX_STRING = "0x"
@@ -94,6 +96,15 @@ class CharGrid:
                 return False
             
         return True
+
+    def check_row(self, row: str) -> bool:
+        """Return whether the given row would be valid if added to the grid."""
+        self.rows.append(row)
+        if not self.is_valid():
+            self.rows.pop()
+            return False
+        return True
+
             
         
 def create_grid(rows: int, columns: int, valid_chars: str = VALID_CHARS) -> CharGrid:
@@ -153,11 +164,10 @@ def main(rows_to_win: int, starting_rows: int, columns: int) -> None:
     char_grid = create_grid(starting_rows, columns)
     print(textwrap.indent(char_grid.format(), PREFIX_STRING))
 
-    while len(char_grid.rows) < rows_to_win:
-        user_input = input(PREFIX_STRING)
-        char_grid.rows.append(user_input)
-        if not char_grid.is_valid():
-            clear_line()
-            char_grid.rows.pop()
+    validator = Validator.from_callable(char_grid.check_row, error_message="Invalid row", move_cursor_to_end=True)
+    session = PromptSession(validator=validator, validate_while_typing=False, mouse_support=True)
 
-    print(format_banner("ACCESS GRANTED", ansi="\x1b[1;32m"))
+    while len(char_grid.rows) < rows_to_win:
+        user_input = session.prompt(PREFIX_STRING)
+
+    print_banner("ACCESS GRANTED", ansi="\x1b[1;32m")

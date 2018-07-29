@@ -18,10 +18,12 @@ You should have received a copy of the GNU General Public License
 along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 """
 import random
-import readline  # This is not unused. Importing it adds features to input().
 from typing import List
 
-from crackit.utils import clear_line, format_banner, LateInit
+from prompt_toolkit.validation import Validator
+from prompt_toolkit import PromptSession
+
+from crackit.utils import print_banner, LateInit
 
 # The string that is printed before each command and line of user input.
 COMMAND_PROMPT = "$ "
@@ -469,17 +471,17 @@ def main(
     Command.redirect_probability = redirect_probability
     Command.pipe_probability = pipe_probability
 
+    session = PromptSession(validate_while_typing=False, mouse_support=True)
+
     # Print random commands and prompt the user to type them in until they type them in correctly.
     for _ in range(commands_to_win):
         command_string = random.choice(COMMANDS).get_random()
         print(COMMAND_PROMPT + command_string)
 
-        while True:
-            if input(COMMAND_PROMPT) == command_string:
-                break
-            else:
-                clear_line()
+        validator = Validator.from_callable(
+            lambda x: x == command_string, error_message="Invalid command", move_cursor_to_end=True)
+        session.prompt(COMMAND_PROMPT, validator=validator)
 
         print()
 
-    print(format_banner("ACCESS GRANTED", ansi="\x1b[1;32m"))
+    print_banner("ACCESS GRANTED", ansi="\x1b[1;32m")
