@@ -17,9 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 """
-import functools
 import collections
-from typing import Dict, Optional
 
 from prompt_toolkit import Application
 from prompt_toolkit.layout.containers import VSplit, HSplit
@@ -27,77 +25,72 @@ from prompt_toolkit.widgets import Button, Frame, Label, HorizontalLine
 from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
 from prompt_toolkit.layout.dimension import Dimension
 from prompt_toolkit.layout.layout import Layout
-from prompt_toolkit.layout.containers import Container, DynamicContainer
+from prompt_toolkit.layout.containers import Container
 from prompt_toolkit.key_binding import KeyBindings
 
-from crackit.launcher.common import Game, GAME_HASH_CRACKER, GAME_SHELL_SCRIPTER
+from crackit.launcher.common import Difficulty, Game, GAME_HASH_CRACKER, GAME_SHELL_SCRIPTER
+
+# The width of buttons that are used to create menus.
+MENU_BUTTON_WIDTH = 20
+
+# A list of all available games.
+GAMES = ["GAME_HASH_CRACKER", "GAME_SHELL_SCRIPTER"]
 
 
 class Launcher:
     """A GUI application for launching games.
 
     Attributes:
-        application: The application object for the GUI launcher.
         _selected_game: The game which was has been selected on the game selection screen.
+        _global_keybindings: The keybindings for the whole application.
+        _button_keybindings: The keybindings for windows containing buttons.
+        _game_buttons: A map of buttons to the games they represent.
+        _game_select_container: The container for selecting a game.
+        _game_option_container: The container for configuring options for a game.
+        _layout: The layout for the application.
+        application: The application object for the GUI launcher.
     """
     def __init__(self):
         self._selected_game = None
-        self.application = self._create_application()
 
-    @property
-    @functools.lru_cache()
-    def _global_keybindings(self) -> KeyBindings:
-        """The global keybindings."""
-        bindings = KeyBindings()
+        # Define global keybindings.
+        self._global_keybindings = KeyBindings()
 
-        @bindings.add("c-c")
-        @bindings.add("q")
+        @self._global_keybindings.add("c-c")
+        @self._global_keybindings.add("q")
         def _exit(event):
             event.app.exit()
 
-        return bindings
+        # Define local keybindings.
+        self._button_keybindings = KeyBindings()
+        self._button_keybindings.add("down")(focus_next)
+        self._button_keybindings.add("up")(focus_previous)
 
-    @property
-    @functools.lru_cache()
-    def _button_keybindings(self) -> KeyBindings:
-        """The keybindings for windows containing buttons."""
-        bindings = KeyBindings()
-        bindings.add("down")(focus_next)
-        bindings.add("up")(focus_previous)
-        return bindings
-
-    @property
-    @functools.lru_cache()
-    def _game_buttons(self) -> Dict[Button, Game]:
-        """A map of buttons to the games they represent."""
-        return collections.OrderedDict([(
-                Button("hash_cracker", width=20, handler=lambda: self._set_active_container(GAME_HASH_CRACKER)),
+        # Define widgets.
+        self._game_buttons = collections.OrderedDict([(
+                Button(
+                    "hash_cracker", width=MENU_BUTTON_WIDTH,
+                    handler=lambda: self._select_game(GAME_HASH_CRACKER)
+                ),
                 GAME_HASH_CRACKER
             ), (
-                Button("shell_scripter", width=20, handler=lambda: self._set_active_container(GAME_SHELL_SCRIPTER)),
+                Button(
+                    "shell_scripter", width=MENU_BUTTON_WIDTH,
+                    handler=lambda: self._select_game(GAME_SHELL_SCRIPTER)
+                ),
                 GAME_SHELL_SCRIPTER
             ),
         ])
 
-    @property
-    @functools.lru_cache()
-    def _layout(self) -> Layout:
-        # root_container = DynamicContainer(self._get_active_container)
-        # return Layout(container=root_container)
-        return Layout(container=self._game_select_container)
-
-    @property
-    @functools.lru_cache()
-    def _game_select_container(self) -> Container:
-        """The layout for selecting a game."""
-        container = VSplit([
+        # Define containers.
+        self._game_select_container = VSplit([
             Frame(
                 HSplit([
-                        *self._game_buttons.keys(),
-                        HorizontalLine(),
-                        Button("Quit", width=20, handler=self._exit),
-                    ],
-                    width=Dimension(min=20, max=40),
+                    *self._game_buttons.keys(),
+                    HorizontalLine(),
+                    Button("Quit", width=MENU_BUTTON_WIDTH, handler=self._exit),
+                ],
+                    width=Dimension(min=MENU_BUTTON_WIDTH, max=40),
                     height=Dimension(),
                 ),
                 title="Select a Game",
@@ -112,22 +105,19 @@ class Launcher:
             ),
         ])
 
-        return container
-
-    @property
-    @functools.lru_cache()
-    def _game_option_container(self) -> Container:
-        """The layout for configuring options for a game."""
-        container = VSplit([
+        self._game_option_container = VSplit([
             Frame(
                 HSplit([
-                    Button("Play", width=20),
-                    Button("Difficulty", width=20),
-                    Button("High Scores", width=20),
-                    HorizontalLine(),
-                    Button("Back", width=20, handler=lambda: self._set_active_container(None)),
-                ],
-                    width=Dimension(min=20, max=40),
+                        Button("Play", width=MENU_BUTTON_WIDTH),
+                        Button("Difficulty", width=MENU_BUTTON_WIDTH),
+                        Button("High Scores", width=MENU_BUTTON_WIDTH),
+                        HorizontalLine(),
+                        Button(
+                            "Back", width=MENU_BUTTON_WIDTH,
+                            handler=lambda: self._set_active_container(self._game_select_container)
+                        ),
+                    ],
+                    width=Dimension(min=MENU_BUTTON_WIDTH, max=40),
                     height=Dimension(),
                 ),
                 title=lambda: self._selected_game.name,
@@ -142,28 +132,40 @@ class Launcher:
             ),
         ])
 
-        return container
+        # Define layout.
+        self._layout = Layout(container=self._game_select_container)
 
-    def _create_application(self) -> Application:
-        """Create the application."""
-        return Application(
+        # Define application.
+        self.application = Application(
             layout=self._layout,
             full_screen=True,
             mouse_support=True,
             key_bindings=self._global_keybindings
         )
 
-    def _set_active_container(self, game: Optional[Game]) -> None:
-        """Set the currently active container based on the selected game."""
+    def _set_active_container(self, container: Container) -> None:
+        """Set the currently active and focused container for the layout.
+
+        Args:
+            container: The container to set as the active container.
+        """
+        self._layout.container = container
+        self._layout.focus(container)
+
+    def _select_game(self, game: Game) -> None:
+        """Set the appropriate active container for a given game.
+
+        This is called whenever a game is selected in the game selection menu.
+
+        Args:
+            game: The game that was selected.
+        """
         self._selected_game = game
 
         if self._selected_game is None:
-            active_container = self._game_select_container
+            self._set_active_container(self._game_select_container)
         else:
-            active_container = self._game_option_container
-
-        self._layout.container = active_container
-        self._layout.focus(active_container)
+            self._set_active_container(self._game_option_container)
 
     # TODO: Find a way to wrap the output of this to fit the size of the window.
     def _get_game_description(self) -> str:
