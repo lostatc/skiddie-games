@@ -399,7 +399,7 @@ COMMANDS = (
             Argument([], ARG_INPUT_FILE_NAMES),
             Argument([], ARG_OUTPUT_FILE_NAMES),
         ], [
-            Argument(["--backup"], ["none", "off", "numbered", "exiting", "nil", "simple", "never"]),
+            Argument(["--backup"], ["none", "off", "numbered", "existing", "nil", "simple", "never"]),
             Argument(["-f", "--force"], []),
             Argument(["-i", "--interactive"], []),
             Argument(["-n", "--no-clobber"], []),
