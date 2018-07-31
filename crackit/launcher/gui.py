@@ -19,7 +19,7 @@ along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 """
 import collections
 
-from prompt_toolkit import Application
+from prompt_toolkit import Application, print_formatted_text
 from prompt_toolkit.layout.containers import VSplit, HSplit
 from prompt_toolkit.widgets import Button, Frame, Label, HorizontalLine, Dialog, RadioList, Box
 from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
@@ -29,13 +29,11 @@ from prompt_toolkit.layout.containers import FloatContainer, Float
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.styles import Style
 
-from crackit.launcher.common import Difficulty, Game, GAME_HASH_CRACKER, GAME_SHELL_SCRIPTER
+from crackit.utils import format_duration
+from crackit.launcher.common import Difficulty, Game, GAMES, GAME_HASH_CRACKER, GAME_SHELL_SCRIPTER
 
 # The width of buttons that are used to create menus.
 MENU_BUTTON_WIDTH = 20
-
-# A list of all available games.
-GAMES = [GAME_HASH_CRACKER, GAME_SHELL_SCRIPTER]
 
 
 class Launcher:
@@ -273,11 +271,15 @@ class Launcher:
 
 
 def main() -> None:
-    """Run the GUI application."""
+    """Run the launcher GUI and play the selected game."""
     launcher = Launcher()
-    game = launcher.application.run()
-    if game is not None:
-        game()
+    game_timer = launcher.application.run()
+
+    if game_timer is None:
+        return
+
+    game_duration = game_timer()
+    print_formatted_text("Your time is: {0}".format(format_duration(game_duration)))
 
 
 if __name__ == "__main__":

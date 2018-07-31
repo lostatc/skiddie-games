@@ -80,3 +80,13 @@ def get_description(game_name: str) -> str:
     """
     relative_path = os.path.join(INSTRUCTIONS_DIR, "{0}.txt".format(game_name))
     return pkg_resources.resource_string(__name__, relative_path).decode("utf-8")
+
+
+def format_duration(seconds: float) -> str:
+    """Return a formatted string representing a duration in seconds.
+
+    A duration of 63.29 seconds would be formatted as "1m 3.3s".
+    """
+    minutes, seconds = divmod(seconds, 60)
+    return "{0:.0f}m {1:.1f}s".format(minutes, seconds)
+
