@@ -17,6 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 """
+import functools
 import collections
 
 from prompt_toolkit import Application, print_formatted_text
@@ -30,7 +31,7 @@ from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.styles import Style
 
 from crackit.utils import format_duration
-from crackit.launcher.common import Difficulty, Game, GAMES, GAME_HASH_CRACKER, GAME_SHELL_SCRIPTER
+from crackit.launcher.common import Difficulty, Game, GAMES
 
 # The width of buttons that are used to create menus.
 MENU_BUTTON_WIDTH = 20
@@ -44,7 +45,8 @@ class Launcher:
         _selected_difficulties: A map of games to their currently selected difficulties.
         _global_keybindings: The keybindings for the whole application.
         _menu_keybindings: The keybindings for interactive menus.
-        _game_buttons: A map of buttons to the games they represent.
+        _game_buttons: A map of buttons to the games they represent. These buttons are used to access the options menu
+            for each game.
         _game_select_container: The container for selecting a game.
         _game_option_container: The container for configuring options for a game.
         _difficulty_select_container: The container for selecting a difficulty.
@@ -69,19 +71,9 @@ class Launcher:
         self._menu_keybindings.add("up")(focus_previous)
 
         # Define widgets.
-        self._game_buttons = collections.OrderedDict([(
-                Button(
-                    "hash_cracker", width=MENU_BUTTON_WIDTH,
-                    handler=lambda: self._select_game(GAME_HASH_CRACKER)
-                ),
-                GAME_HASH_CRACKER
-            ), (
-                Button(
-                    "shell_scripter", width=MENU_BUTTON_WIDTH,
-                    handler=lambda: self._select_game(GAME_SHELL_SCRIPTER)
-                ),
-                GAME_SHELL_SCRIPTER
-            ),
+        self._game_buttons = collections.OrderedDict([
+            (Button(game.name, width=MENU_BUTTON_WIDTH, handler=functools.partial(self._select_game, game)), game)
+            for game in sorted(GAMES, key=lambda x: x.name)
         ])
 
         # Define containers.
