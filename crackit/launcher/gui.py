@@ -196,7 +196,7 @@ class Launcher:
         # Define style.
         self._style = Style([
             ("button.focused", "bg:ansired"),
-            ("dialog.body", "fg:ansiwhite bg:ansiblack"),
+            ("dialog.body", "fg:ansidefault bg:ansidefault"),
             ("dialog shadow", "bg:ansibrightblack"),
             ("dialog frame.label", "fg:ansigreen"),
         ])
