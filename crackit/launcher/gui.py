@@ -137,24 +137,35 @@ class Launcher:
                     key_bindings=self._menu_keybindings,
                 ),
                 Frame(
-                    Box(
-                        Label(
-                            text=lambda: self._selected_game.description,
-                            dont_extend_height=False,
-                            width=Dimension(min=40),
+                    HSplit([
+                        Box(
+                            Label(
+                                text=lambda: "Difficulty: {0}".format(self._selected_difficulty.value),
+                                width=Dimension(min=40),
+                            ),
+                            padding=0,
+                            padding_left=1,
                         ),
-                        padding=0,
-                        padding_left=1,
-                    ),
+                        HorizontalLine(),
+                        Box(
+                            Label(
+                                text=lambda: self._selected_game.description,
+                                dont_extend_height=False,
+                                width=Dimension(min=40),
+                            ),
+                            padding=0,
+                            padding_left=1,
+                        ),
+                    ]),
                 ),
             ]),
             floats=[]
         )
 
         difficulty_radiolist = RadioList([
-            (Difficulty.EASY, "Easy"),
-            (Difficulty.NORMAL, "Normal"),
-            (Difficulty.HARD, "Hard"),
+            (Difficulty.EASY, Difficulty.EASY.value),
+            (Difficulty.NORMAL, Difficulty.NORMAL.value),
+            (Difficulty.HARD, Difficulty.HARD.value),
         ])
 
         def ok_handler() -> None:

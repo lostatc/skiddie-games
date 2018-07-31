@@ -19,7 +19,7 @@ along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 """
 import enum
 import time
-from typing import Callable
+from typing import Callable, NamedTuple
 
 from crackit.games import hash_cracker, shell_scripter
 from crackit.utils import get_description, format_duration
@@ -27,9 +27,9 @@ from crackit.utils import get_description, format_duration
 
 class Difficulty(enum.Enum):
     """The difficulty level of a game."""
-    EASY = 1
-    NORMAL = 2
-    HARD = 3
+    EASY = "Easy"
+    NORMAL = "Normal"
+    HARD = "Hard"
 
 
 # A function which launches a game with a given difficulty.
