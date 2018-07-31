@@ -158,7 +158,7 @@ class Launcher:
         ])
 
         def ok_handler() -> None:
-            self._select_difficulty(difficulty_radiolist.current_value)
+            self._selected_difficulty = difficulty_radiolist.current_value
             self._clear_floats()
 
         def cancel_handler() -> None:
@@ -198,6 +198,16 @@ class Launcher:
             mouse_support=True,
             key_bindings=self._global_keybindings
         )
+
+    @property
+    def _selected_difficulty(self) -> Difficulty:
+        """The selected difficulty for the currently selected game."""
+        return self._selected_difficulties[self._selected_game]
+
+    @_selected_difficulty.setter
+    def _selected_difficulty(self, value: Difficulty) -> None:
+        """Set the selected difficulty for the currently selected game."""
+        self._selected_difficulties[self._selected_game] = value
 
     def _set_active_container(self, container: FloatContainer) -> None:
         """Set the currently active and focused container for the layout.
@@ -239,18 +249,10 @@ class Launcher:
         else:
             self._set_active_container(self._game_option_container)
 
-    def _select_difficulty(self, difficulty: Difficulty) -> None:
-        """Sets the given difficulty for the currently selected game.
-
-        Args:
-            difficulty: The difficulty to use.
-        """
-        self._selected_difficulties[self._selected_game] = difficulty
-
     def _play_game(self) -> None:
         """Play the currently selected game with its selected difficulty."""
         self.application.exit(
-            result=lambda: self._selected_game.launcher(self._selected_difficulties[self._selected_game])
+            result=lambda: self._selected_game.launcher(self._selected_difficulty)
         )
 
     # TODO: Find a way to wrap the output of this to fit the size of the window.
