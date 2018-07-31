@@ -8,8 +8,8 @@ Games
 =====
 hash_cracker
 ------------
-.. include:: crackit/instructions/hash_cracker.txt
+.. include:: crackit/descriptions/hash_cracker.txt
 
 shell_scripter
 --------------
-.. include:: crackit/instructions/shell_scripter.txt
+.. include:: crackit/descriptions/shell_scripter.txt
