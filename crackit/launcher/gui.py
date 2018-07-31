@@ -21,7 +21,7 @@ import collections
 
 from prompt_toolkit import Application
 from prompt_toolkit.layout.containers import VSplit, HSplit
-from prompt_toolkit.widgets import Button, Frame, Label, HorizontalLine, Dialog, RadioList
+from prompt_toolkit.widgets import Button, Frame, Label, HorizontalLine, Dialog, RadioList, Box
 from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
 from prompt_toolkit.layout.dimension import Dimension
 from prompt_toolkit.layout.layout import Layout
@@ -101,10 +101,14 @@ class Launcher:
                     key_bindings=self._menu_keybindings,
                 ),
                 Frame(
-                    Label(
-                        text=self._get_game_description,
-                        dont_extend_height=False,
-                        width=Dimension(min=40),
+                    Box(
+                        Label(
+                            text=self._get_game_description,
+                            dont_extend_height=False,
+                            width=Dimension(min=40),
+                        ),
+                        padding=0,
+                        padding_left=1,
                     ),
                 ),
             ]),
@@ -134,10 +138,14 @@ class Launcher:
                     key_bindings=self._menu_keybindings,
                 ),
                 Frame(
-                    Label(
-                        text=lambda: self._selected_game.description,
-                        dont_extend_height=False,
-                        width=Dimension(min=40),
+                    Box(
+                        Label(
+                            text=lambda: self._selected_game.description,
+                            dont_extend_height=False,
+                            width=Dimension(min=40),
+                        ),
+                        padding=0,
+                        padding_left=1,
                     ),
                 ),
             ]),
