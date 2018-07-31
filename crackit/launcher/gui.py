@@ -27,6 +27,7 @@ from prompt_toolkit.layout.dimension import Dimension
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.containers import FloatContainer, Float
 from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.styles import Style
 
 from crackit.launcher.common import Difficulty, Game, GAME_HASH_CRACKER, GAME_SHELL_SCRIPTER
 
@@ -183,9 +184,18 @@ class Launcher:
         # Define layout.
         self._layout = Layout(container=self._game_select_container)
 
+        # Define style.
+        self._style = Style([
+            ("button.focused", "bg:ansired"),
+            ("dialog.body", "fg:ansiwhite bg:ansiblack"),
+            ("dialog shadow", "bg:ansibrightblack"),
+            ("dialog frame.label", "fg:ansigreen"),
+        ])
+
         # Define application.
         self.application = Application(
             layout=self._layout,
+            style=self._style,
             full_screen=True,
             mouse_support=True,
             key_bindings=self._global_keybindings
