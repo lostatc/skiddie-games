@@ -26,7 +26,7 @@ from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit import print_formatted_text
 
 # The relative path to the directory containing the instructions for each game.
-INSTRUCTIONS_DIR = "instructions"
+INSTRUCTIONS_DIR = "descriptions"
 
 
 def _format_banner(message: str, padding_char="=") -> str:
@@ -73,8 +73,8 @@ class LateInit:
         self._value = value
 
 
-def get_instructions(game_name: str) -> str:
-    """Get the instructions for how to play a game.
+def get_description(game_name: str) -> str:
+    """Get the descriptions for a game of a given name.
 
     This function looks for a plain text file named "game_name.txt" in the directory INSTRUCTIONS_DIR.
     """

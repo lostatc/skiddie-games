@@ -1,8 +1,9 @@
 import enum
+import time
 from typing import Callable
 
 from crackit.games import hash_cracker, shell_scripter
-from crackit.utils import get_instructions
+from crackit.utils import get_description
 
 
 class Difficulty(enum.Enum):
@@ -44,5 +45,5 @@ class Game:
         self.launcher = launcher
 
 
-GAME_HASH_CRACKER = Game("hash_cracker", get_instructions("hash_cracker"), _start_hash_cracker)
-GAME_SHELL_SCRIPTER = Game("shell_scripter", get_instructions("shell_scripter"), _start_shell_scripter)
+GAME_HASH_CRACKER = Game("hash_cracker", get_description("hash_cracker"), _start_hash_cracker)
+GAME_SHELL_SCRIPTER = Game("shell_scripter", get_description("shell_scripter"), _start_shell_scripter)
