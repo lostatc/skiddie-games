@@ -34,7 +34,7 @@ from crackit.launcher.common import Difficulty, Game, GAME_HASH_CRACKER, GAME_SH
 MENU_BUTTON_WIDTH = 20
 
 # A list of all available games.
-GAMES = ["GAME_HASH_CRACKER", "GAME_SHELL_SCRIPTER"]
+GAMES = [GAME_HASH_CRACKER, GAME_SHELL_SCRIPTER]
 
 
 class Launcher:
@@ -115,7 +115,7 @@ class Launcher:
             VSplit([
                 Frame(
                     HSplit([
-                            Button("Play", width=MENU_BUTTON_WIDTH),
+                            Button("Play", width=MENU_BUTTON_WIDTH, handler=self._play_game),
                             Button(
                                 "Difficulty", width=MENU_BUTTON_WIDTH,
                                 handler=lambda: self._add_float(self._difficulty_select_container),
@@ -154,6 +154,9 @@ class Launcher:
             self._select_difficulty(difficulty_radiolist.current_value)
             self._clear_floats()
 
+        def cancel_handler() -> None:
+            self._clear_floats()
+
         self._difficulty_select_container = Dialog(
             title="Difficulty",
             body=HSplit([
@@ -164,6 +167,7 @@ class Launcher:
             ),
             buttons=[
                 Button(text="Okay", handler=ok_handler),
+                Button(text="Cancel", handler=cancel_handler),
             ],
             with_background=True,
         )
@@ -227,6 +231,12 @@ class Launcher:
         """
         self._selected_difficulties[self._selected_game] = difficulty
 
+    def _play_game(self) -> None:
+        """Play the currently selected game with its selected difficulty."""
+        self.application.exit(
+            result=lambda: self._selected_game.launcher(self._selected_difficulties[self._selected_game])
+        )
+
     # TODO: Find a way to wrap the output of this to fit the size of the window.
     def _get_game_description(self) -> str:
         """Return the correct description for the selected game.
@@ -247,7 +257,9 @@ class Launcher:
 def main() -> None:
     """Run the GUI application."""
     launcher = Launcher()
-    launcher.application.run()
+    game = launcher.application.run()
+    if game is not None:
+        game()
 
 
 if __name__ == "__main__":
