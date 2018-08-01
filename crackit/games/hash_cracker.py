@@ -106,7 +106,6 @@ class CharGrid:
         return True
 
             
-        
 def create_grid(rows: int, columns: int, valid_chars: str = VALID_CHARS) -> CharGrid:
     """Generate a random grid of characters.
     
@@ -129,7 +128,7 @@ def create_grid(rows: int, columns: int, valid_chars: str = VALID_CHARS) -> Char
         
         # These are characters that have been tried and found to not work. They are stored in this list to prevent the
         # algorithm from selecting them a second time.
-        invalid_row_chars = [set() for i in range(columns)]
+        invalid_row_chars = [set() for _ in range(columns)]
 
         while len(current_row) < columns:
             column_num = len(current_row) - 1
@@ -168,6 +167,6 @@ def main(rows_to_win: int, starting_rows: int, columns: int) -> None:
     session = PromptSession(validator=validator, validate_while_typing=False, mouse_support=True)
 
     while len(char_grid.rows) < rows_to_win:
-        user_input = session.prompt(PREFIX_STRING)
+        session.prompt(PREFIX_STRING)
 
     print_banner("ACCESS GRANTED", style="ansigreen bold")
