@@ -1,4 +1,4 @@
-"""A game about writing shell scripts.
+"""Constants used to generate commands.
 
 Copyright © 2017 Wren Powell <wrenp@duck.com>
 
@@ -17,20 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 """
-import random
-from typing import List
-
-from prompt_toolkit.validation import Validator
-from prompt_toolkit import PromptSession
-
-from crackit.utils import print_banner, LateInit
-
-# The string that is printed before each command and line of user input.
-COMMAND_PROMPT = "$ "
-
-#
-# The following constants are commonly used arguments for commands.
-#
+from crackit.games.shell_scripter.command import Command, Argument
 
 # Directory paths to be used as arguments in commands.
 ARG_DIR_PATHS = [
@@ -52,146 +39,16 @@ ARG_DELIMITERS = [
 ]
 
 # The list of possible names of files that can be used for data input.
-ARG_INPUT_FILE_NAMES = [
+INPUT_FILE_NAMES = [
     "input.txt", "input_file.txt", "in.txt", "origin.txt", "source.txt", "src.txt", "data.txt", "beginning.txt",
     "start.txt", "info.txt",
 ]
 
 # The list of possible names of files that can be used for data output.
-ARG_OUTPUT_FILE_NAMES = [
+OUTPUT_FILE_NAMES = [
     "output.txt", "output_file.txt", "out.txt", "result.txt", "destination.txt", "dest.txt", "file.txt", "end.txt",
     "finish.txt", "dump.txt",
 ]
-
-
-class Argument:
-    """An argument to a shell command.
-
-    Attributes:
-        names: A list of possible names for the argument.
-        values: A list of possible values for the argument.
-    """
-    def __init__(self, names: List[str], values: List[str]) -> None:
-        self.names = names
-        self.values = values
-
-    def get_random(self) -> str:
-        """Generate a random argument within the given constraints as a string.
-
-        Returns:
-            The argument as a string.
-        """
-        # Don't print the separator if either the list of names or list of values are empty.
-        return " ".join(random.choice(choices) for choices in (self.names, self.values) if choices)
-
-
-class Command:
-    """A shell command that the user can be prompted to type.
-
-    Attributes:
-        name: The name of the command.
-        positional_args: A list of required positional arguments for the command. Each command in this list is used once
-            in the order that it appears.
-        optional_args: A list of optional arguments for the command. Commands in this list are chosen randomly and can
-            be used in any order.
-        redirect_output: The command can redirect its output.
-        redirect_input: The command must redirect its input.
-        min_args: The minimum number of non-required arguments that a command can have.
-        max_args: The maximum number of non-required arguments that a command can have.
-        redirect_probability: The probability that a command will send its output to a pipe or file.
-        pipe_probability: The probability that a command will use a pipe when redirecting its output.
-    """
-    min_args = LateInit()
-    max_args = LateInit()
-    redirect_probability = LateInit()
-    pipe_probability = LateInit()
-
-    def __init__(
-            self, name: str, positional_args: List[Argument], optional_args: List[Argument],
-            redirect_output: bool = False, redirect_input: bool = False) -> None:
-        self.name = name
-        self.positional_args = positional_args
-        self.optional_args = optional_args
-        self.redirect_output = redirect_output
-        self.redirect_input = redirect_input
-
-    def get_random(self, redirect_input: bool = True, redirect_output: bool = True) -> str:
-        """Generate a random command string within the given constraints.
-
-        Args:
-            redirect_input: Have a chance of adding random input redirection to the command string.
-            redirect_output: Have a chance of adding random output redirection to the command string.
-
-        Returns:
-            The command as a string.
-        """
-        selected_args = self.positional_args.copy()
-        remaining_args = self.optional_args.copy()
-
-        # Select random parameters.
-        if self.max_args == 0:
-            number_of_args = 0
-        else:
-            number_of_args = random.randrange(self.min_args, self.max_args)
-
-        # Add a random number of optional arguments.
-        random.shuffle(remaining_args)
-        for _ in range(number_of_args):
-            try:
-                selected_args.append(remaining_args.pop())
-            except IndexError:
-                break
-
-        # Generate a command string.
-        if not selected_args:
-            command_string = self.name
-        else:
-            command_string = "{0} {1}".format(self.name, " ".join(arg.get_random() for arg in selected_args))
-
-        # Add random redirects to the command string.
-        if self.redirect_input and redirect_input:
-            command_string = self._add_input_redirection(command_string)
-        if self.redirect_output and redirect_output and random.random() < self.redirect_probability:
-            command_string = self._add_output_redirection(command_string)
-
-        return command_string
-
-    def _add_input_redirection(self, command: str) -> str:
-        """Add random input redirection to the given command string."""
-        def create_file_redirect() -> str:
-            return "{0} < {1}".format(command, random.choice(ARG_INPUT_FILE_NAMES))
-
-        def create_pipe_redirect() -> str:
-            try:
-                input_command = random.choice([item for item in COMMANDS if item.redirect_output and item != self])
-            except IndexError:
-                return command
-
-            return "{0} | {1}".format(input_command.get_random(redirect_output=False), command)
-
-        if random.random() < self.pipe_probability:
-            return create_pipe_redirect()
-        else:
-            return create_file_redirect()
-
-    def _add_output_redirection(self, command: str) -> str:
-        """Add random output redirection to the given command string."""
-        def create_file_redirect() -> str:
-            return random.choice(["{0} > {1}", "{0} >> {1}"]).format(command, random.choice(ARG_OUTPUT_FILE_NAMES))
-
-        def create_pipe_redirect() -> str:
-            try:
-                output_command = random.choice([item for item in COMMANDS if item.redirect_input and item != self])
-            except IndexError:
-                return command
-
-            return "{0} | {1}".format(command, output_command.get_random(redirect_input=False))
-
-        if random.random() < self.pipe_probability:
-            return create_pipe_redirect()
-        else:
-            return create_file_redirect()
-
 
 COMMANDS = (
     Command(
@@ -329,7 +186,7 @@ COMMANDS = (
     ),
     Command(
         "cat", [
-            Argument([], ARG_INPUT_FILE_NAMES),
+            Argument([], INPUT_FILE_NAMES),
         ], [
             Argument(["-A", "--show-all"], []),
             Argument(["-e"], []),
@@ -344,8 +201,8 @@ COMMANDS = (
     ),
     Command(
         "diff", [
-            Argument([], ARG_INPUT_FILE_NAMES),
-            Argument([], ARG_INPUT_FILE_NAMES),
+            Argument([], INPUT_FILE_NAMES),
+            Argument([], INPUT_FILE_NAMES),
         ], [
             Argument(["-q", "--brief"], []),
             Argument(["-s", "--report-identical-files"], []),
@@ -365,7 +222,7 @@ COMMANDS = (
     ),
     Command(
         "tee", [
-            Argument([], ARG_OUTPUT_FILE_NAMES),
+            Argument([], OUTPUT_FILE_NAMES),
         ], [
             Argument(["-a", "--append"], []),
             Argument(["-i", "--ignore-interrupts"], []),
@@ -396,8 +253,8 @@ COMMANDS = (
     ),
     Command(
         "mv", [
-            Argument([], ARG_INPUT_FILE_NAMES),
-            Argument([], ARG_OUTPUT_FILE_NAMES),
+            Argument([], INPUT_FILE_NAMES),
+            Argument([], OUTPUT_FILE_NAMES),
         ], [
             Argument(["--backup"], ["none", "off", "numbered", "existing", "nil", "simple", "never"]),
             Argument(["-f", "--force"], []),
@@ -410,8 +267,8 @@ COMMANDS = (
     ),
     Command(
         "cp", [
-            Argument([], ARG_INPUT_FILE_NAMES),
-            Argument([], ARG_OUTPUT_FILE_NAMES),
+            Argument([], INPUT_FILE_NAMES),
+            Argument([], OUTPUT_FILE_NAMES),
         ], [
             Argument(["-a", "--archive"], []),
             Argument(["--backup"], ["none", "off", "numbered", "exiting", "nil", "simple", "never"]),
@@ -433,7 +290,7 @@ COMMANDS = (
     ),
     Command(
         "rm", [
-            Argument([], ARG_INPUT_FILE_NAMES),
+            Argument([], INPUT_FILE_NAMES),
         ], [
             Argument(["-f", "--force"], []),
             Argument(["--interactive"], ["never", "once", "always"]),
@@ -444,37 +301,3 @@ COMMANDS = (
         ]
     ),
 )
-
-
-def main(
-        commands_to_win: int, min_args: int, max_args: int,
-        redirect_probability: float, pipe_probability: float) -> None:
-    """Play the game.
-
-    Args:
-        commands_to_win: The number of commands that must be correctly entered to win the game.
-        min_args: The minimum number of non-required arguments that a command can have.
-        max_args: The maximum number of non-required arguments that a command can have.
-        redirect_probability: The probability that a command will send its output to a pipe or file.
-        pipe_probability: The probability that a command will use a pipe when redirecting its output.
-    """
-    # Set class attributes that determine how commands are generated.
-    Command.min_args = min_args
-    Command.max_args = max_args
-    Command.redirect_probability = redirect_probability
-    Command.pipe_probability = pipe_probability
-
-    session = PromptSession(validate_while_typing=False, mouse_support=True)
-
-    # Print random commands and prompt the user to type them in until they type them in correctly.
-    for _ in range(commands_to_win):
-        command_string = random.choice(COMMANDS).get_random()
-        print(COMMAND_PROMPT + command_string)
-
-        validator = Validator.from_callable(
-            lambda x: x == command_string, error_message="Commands do not match", move_cursor_to_end=True)
-        session.prompt(COMMAND_PROMPT, validator=validator)
-
-        print()
-
-    print_banner("ACCESS GRANTED", style="ansigreen bold")
