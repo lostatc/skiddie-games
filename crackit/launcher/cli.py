@@ -21,7 +21,8 @@ import click
 from prompt_toolkit import print_formatted_text
 
 from crackit.launcher import gui
-from crackit.launcher.common import Game, GAMES, Difficulty
+from crackit.launcher.common import Game, GameSession, GAMES, Difficulty
+from crackit.launcher.leaderboard import process_result
 
 
 def _get_game(name: str) -> Game:
@@ -51,12 +52,14 @@ def cli(ctx):
 @cli.command(name="play", short_help="Play a game.")
 @click.argument("game", type=str)
 @click.option(
-    "--difficulty", "-d", default="normal",
+    "--difficulty", "-d", default="normal", show_default=True,
     help="The difficulty to play the game on. Accepted values are \"easy\", \"normal\" and \"hard\"."
 )
 def play(game: str, difficulty: str):
     """Play the game named GAME."""
-    _get_game(game).launcher(_get_difficulty(difficulty))
+    session = GameSession(_get_game(game), _get_difficulty(difficulty))
+    session.play()
+    process_result(session)
 
 
 @cli.command(name="get-description", short_help="Get the description of a game.")

@@ -31,7 +31,8 @@ from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.styles import Style
 
 from crackit.utils import format_duration
-from crackit.launcher.common import Difficulty, Game, GAMES
+from crackit.launcher.common import Difficulty, Game, GameSession, GAMES
+from crackit.launcher.leaderboard import process_result
 
 # The width of buttons that are used to create menus.
 MENU_BUTTON_WIDTH = 20
@@ -39,6 +40,8 @@ MENU_BUTTON_WIDTH = 20
 
 class Launcher:
     """A GUI application for launching games.
+
+    When this exits, it returns either a GameSession object representing the game that was selected or None.
 
     Attributes:
         _selected_game: The game which was has been selected on the game selection screen.
@@ -110,7 +113,7 @@ class Launcher:
             VSplit([
                 Frame(
                     HSplit([
-                            Button("Play", width=MENU_BUTTON_WIDTH, handler=self._play_game),
+                            Button("Play", width=MENU_BUTTON_WIDTH, handler=self._return_session),
                             Button(
                                 "Difficulty", width=MENU_BUTTON_WIDTH,
                                 handler=lambda: self._add_float(self._difficulty_select_container),
@@ -252,10 +255,10 @@ class Launcher:
         else:
             self._set_active_container(self._game_option_container)
 
-    def _play_game(self) -> None:
-        """Play the currently selected game with its selected difficulty."""
+    def _return_session(self) -> None:
+        """Return the currently selected game with its selected difficulty."""
         self.application.exit(
-            result=lambda: self._selected_game.launcher(self._selected_difficulty)
+            result=GameSession(self._selected_game, self._selected_difficulty)
         )
 
     # TODO: Find a way to wrap the output of this to fit the size of the window.
@@ -278,14 +281,10 @@ class Launcher:
 def main() -> None:
     """Run the launcher GUI and play the selected game."""
     launcher = Launcher()
-    game_timer = launcher.application.run()
+    session = launcher.application.run()
 
-    if game_timer is None:
+    if session is None:
         return
 
-    game_duration = game_timer()
-    print_formatted_text("Your time is: {0}".format(format_duration(game_duration)))
-
-
-if __name__ == "__main__":
-    main()
+    session.play()
+    process_result(session)

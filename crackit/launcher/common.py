@@ -19,10 +19,10 @@ along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 """
 import enum
 import time
-from typing import Callable, NamedTuple
+from typing import Callable
 
 from crackit.games import hash_cracker, shell_scripter
-from crackit.utils import get_description, format_duration
+from crackit.utils import get_description
 
 
 class Difficulty(enum.Enum):
@@ -95,8 +95,36 @@ class Game:
         self.launcher = launcher
 
 
+class GameSession:
+    """A session of a terminal game.
+
+    Attributes:
+        game: The game to be played.
+        difficulty: The difficulty that the game is played on.
+        duration: The number of seconds it took to complete the game. None if the game hasn't bee played yet.
+    """
+    def __init__(self, game: Game, difficulty: Difficulty):
+        self.game = game
+        self.difficulty = difficulty
+        self.duration = None
+
+    @property
+    def name(self):
+        """A shortcut for accessing the name of the game."""
+        return self.game.name
+
+    @property
+    def description(self):
+        """A shortcut for accessing the description of the game."""
+        return self.game.description
+
+    def play(self):
+        """Play the game with the current difficulty."""
+        self.duration = self.game.launcher(self.difficulty)
+
+
 GAME_HASH_CRACKER = Game("hash_cracker", get_description("hash_cracker"), get_timer(_start_hash_cracker))
 GAME_SHELL_SCRIPTER = Game("shell_scripter", get_description("shell_scripter"), get_timer(_start_shell_scripter))
 
-# A list of all available games.
+# A list of all available games. This must be updated whenever new games are added.
 GAMES = [GAME_HASH_CRACKER, GAME_SHELL_SCRIPTER]
