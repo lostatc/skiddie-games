@@ -56,7 +56,7 @@ COMMANDS = (
             Argument(
                 ["-e", "--regexp"], [
                     "\"^[0-9]+$\"", "\"[KMGT](B|iB)\"", "\"[a-f0-9]{6}\"", "\"^https?://\"", "\"[04567]{3}\"",
-                    "\"^/\w*(:/\w*)*$\"", "\"([r-][w-][x-]){3}\"", "^[\w=]+(,[\w=]+)*$", "Error", "Exception",
+                    "\"^/\w*(:/\w*)*$\"", "\"([r-][w-][x-]){3}\"", "^[\w-=]+(,[\w-=]+)*$", "Error", "Exception",
                     "Warning", "Info", "NULL", "true", "false",
                 ],
             ),
@@ -247,6 +247,22 @@ COMMANDS = (
             Argument(["--random-source"], ["/dev/random", "/dev/urandom", "<(echo \"4\")"]),
             Argument(["-r", "--repeat"], []),
             Argument(["-z", "--zero-terminated"], []),
+        ],
+        redirect_input=True,
+        redirect_output=True,
+    ),
+    Command(
+        "uniq", [], [
+            Argument(["-c", "--count"], []),
+            Argument(["-d", "--repeated"], []),
+            Argument(["--all-repeated"], ["none", "prepend", "separate"]),
+            Argument(["-f", "--skip-fields"], ["1", "2", "3", "4", "5"]),
+            Argument(["--group"], ["separate", "prepend", "append", "both"]),
+            Argument(["-i", "--ignore-case"], []),
+            Argument(["-s", "--skip-chars"], ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]),
+            Argument(["-u", "--unique"], []),
+            Argument(["-z", "--zero-terminated"], []),
+            Argument(["-w", "--check-chars"], ["1", "5", "10", "15", "20", "25", "30", "40", "50"]),
         ],
         redirect_input=True,
         redirect_output=True,
