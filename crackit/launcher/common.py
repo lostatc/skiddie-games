@@ -123,8 +123,8 @@ class GameSession:
         self.duration = self.game.launcher(self.difficulty)
 
 
-GAME_HASH_CRACKER = Game("hash_cracker", get_description("hash_cracker"), get_timer(_start_hash_cracker))
-GAME_SHELL_SCRIPTER = Game("shell_scripter", get_description("shell_scripter"), get_timer(_start_shell_scripter))
+GAME_HASH_CRACKER = Game("hash_cracker", get_description("hash_cracker.txt"), get_timer(_start_hash_cracker))
+GAME_SHELL_SCRIPTER = Game("shell_scripter", get_description("shell_scripter.txt"), get_timer(_start_shell_scripter))
 
 # A list of all available games. This must be updated whenever new games are added.
 GAMES = [GAME_HASH_CRACKER, GAME_SHELL_SCRIPTER]

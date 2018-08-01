@@ -73,12 +73,13 @@ class LateInit:
         self._value = value
 
 
-def get_description(game_name: str) -> str:
-    """Get the descriptions for a game of a given name.
+def get_description(file_name: str) -> str:
+    """Get the descriptions of a game.
 
-    This function looks for a plain text file named "game_name.txt" in the directory INSTRUCTIONS_DIR.
+    Args:
+        file_name: The name of the text file containing the description relative to INSTRUCTIONS_DIR.
     """
-    relative_path = os.path.join(INSTRUCTIONS_DIR, "{0}.txt".format(game_name))
+    relative_path = os.path.join(INSTRUCTIONS_DIR, file_name)
     return pkg_resources.resource_string(__name__, relative_path).decode("utf-8")
 
 
