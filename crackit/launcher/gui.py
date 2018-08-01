@@ -20,7 +20,7 @@ along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 import functools
 import collections
 
-from prompt_toolkit import Application, print_formatted_text
+from prompt_toolkit import Application
 from prompt_toolkit.layout.containers import VSplit, HSplit
 from prompt_toolkit.widgets import Button, Frame, Label, HorizontalLine, Dialog, RadioList, Box
 from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
@@ -30,7 +30,6 @@ from prompt_toolkit.layout.containers import FloatContainer, Float
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.styles import Style
 
-from crackit.utils import format_duration
 from crackit.launcher.common import Difficulty, Game, GameSession, GAMES
 from crackit.launcher.leaderboard import process_result
 
@@ -256,7 +255,7 @@ class Launcher:
             self._set_active_container(self._game_option_container)
 
     def _return_session(self) -> None:
-        """Return the currently selected game with its selected difficulty."""
+        """Exit the application and have it return the currently selected game with its selected difficulty."""
         self.application.exit(
             result=GameSession(self._selected_game, self._selected_difficulty)
         )
