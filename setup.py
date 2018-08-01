@@ -1,9 +1,9 @@
-from setuptools import setup
+import setuptools
 
 with open("README.rst") as file:
     readme_contents = file.read()
 
-setup(
+setuptools.setup(
     name="crackit",
     version="0.1",
     description="Hollywood-style hacking minigames",
@@ -13,7 +13,7 @@ setup(
     author="Wren Powell",
     author_email="wrenp@duck.com",
     license="GPLv3",
-    install_requires=["prompt_toolkit"],
+    install_requires=["prompt_toolkit", "click"],
     python_requires=">=3.5",
     tests_require=[],
     packages=setuptools.find_packages(),
@@ -26,4 +26,9 @@ setup(
         "Programming Language :: Python :: 3",
         "Topic :: Games/Entertainment :: Puzzle Games",
     ),
+    entry_points={
+        "console_scripts": [
+            "crackit=crackit.launcher.cli:cli"
+        ]
+    },
 )

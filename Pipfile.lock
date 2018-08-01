@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b67af7ef0374f32f9ffd252da57e37a210cb1c6bbe8efbe334b67e3682791908"
+            "sha256": "4f2b00a617e5d3e09b81ebb0de6f2f8c9e70e33ca4b36b7b67adeedb739a3cb5"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,18 @@
         ]
     },
     "default": {
+        "click": {
+            "hashes": [
+                "sha256:29f99fc6125fbc931b758dc053b3114e55c77a6e4c6c3a2674a2dc986016381d",
+                "sha256:f15516df478d5a56180fbf80e68f206010e6d160fc39fa508b65e035fd75130b"
+            ],
+            "index": "pypi",
+            "version": "==6.7"
+        },
+        "crackit": {
+            "editable": true,
+            "path": "."
+        },
         "prompt-toolkit": {
             "hashes": [
                 "sha256:12e076b21178064b5627f74c4819559c125e31046b55a28d5e024b85fef5617e",
