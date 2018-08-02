@@ -133,9 +133,9 @@ class GameSession:
         self.duration = self.game.launcher(self.difficulty)
 
 
-GAME_HASH_CRACKER = Game("hash_cracker", get_description("hash_cracker.txt"), get_timer(_start_hash_cracker))
-GAME_PORT_SCANNER = Game("port_scanner", get_description("port_scanner.txt"), get_timer(_start_port_scanner))
-GAME_SHELL_SCRIPTER = Game("shell_scripter", get_description("shell_scripter.txt"), get_timer(_start_shell_scripter))
+GAME_HASH_CRACKER = Game("hash_cracker", get_description("hash_cracker.rst"), get_timer(_start_hash_cracker))
+GAME_PORT_SCANNER = Game("port_scanner", get_description("port_scanner.rst"), get_timer(_start_port_scanner))
+GAME_SHELL_SCRIPTER = Game("shell_scripter", get_description("shell_scripter.rst"), get_timer(_start_shell_scripter))
 
 # A list of all available games. This must be updated whenever new games are added.
 GAMES = [GAME_HASH_CRACKER, GAME_PORT_SCANNER, GAME_SHELL_SCRIPTER]
