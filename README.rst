@@ -28,6 +28,10 @@ hash_cracker
 ------------
 .. include:: crackit/descriptions/hash_cracker.txt
 
+port_scanner
+------------
+.. include:: crackit/descriptions/port_scanner.txt
+
 shell_scripter
 --------------
 .. include:: crackit/descriptions/shell_scripter.txt

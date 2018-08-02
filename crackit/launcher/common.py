@@ -21,7 +21,7 @@ import enum
 import time
 from typing import Callable
 
-from crackit.games import hash_cracker, shell_scripter
+from crackit.games import hash_cracker, shell_scripter, port_scanner
 from crackit.utils import get_description
 
 
@@ -47,6 +47,16 @@ def _start_hash_cracker(difficulty: Difficulty) -> None:
         hash_cracker.main(rows_to_win=8, starting_rows=4, columns=8)
     if difficulty is Difficulty.HARD:
         hash_cracker.main(rows_to_win=8, starting_rows=4, columns=10)
+
+
+def _start_port_scanner(difficulty: Difficulty) -> None:
+    """Start the game "port_scanner" with a given difficulty."""
+    if difficulty is Difficulty.EASY:
+        port_scanner.main(challenges_to_win=3, number_of_examples=1, max_section_number=63)
+    if difficulty is Difficulty.NORMAL:
+        port_scanner.main(challenges_to_win=3, number_of_examples=1, max_section_number=127)
+    if difficulty is Difficulty.HARD:
+        port_scanner.main(challenges_to_win=3, number_of_examples=1, max_section_number=255)
 
 
 def _start_shell_scripter(difficulty: Difficulty) -> None:
@@ -124,7 +134,8 @@ class GameSession:
 
 
 GAME_HASH_CRACKER = Game("hash_cracker", get_description("hash_cracker.txt"), get_timer(_start_hash_cracker))
+GAME_PORT_SCANNER = Game("port_scanner", get_description("port_scanner.txt"), get_timer(_start_port_scanner))
 GAME_SHELL_SCRIPTER = Game("shell_scripter", get_description("shell_scripter.txt"), get_timer(_start_shell_scripter))
 
 # A list of all available games. This must be updated whenever new games are added.
-GAMES = [GAME_HASH_CRACKER, GAME_SHELL_SCRIPTER]
+GAMES = [GAME_HASH_CRACKER, GAME_PORT_SCANNER, GAME_SHELL_SCRIPTER]
