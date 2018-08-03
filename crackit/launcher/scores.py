@@ -47,7 +47,7 @@ class ScoreStore:
     """
     def __init__(self) -> None:
         self._path = SCORES_FILE
-        self._data = LateInit()
+        self._data = LateInit("cannot access data before the `read` method is called")
 
     def read(self) -> None:
         """Read the scores from storage."""

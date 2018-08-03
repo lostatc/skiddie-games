@@ -60,13 +60,18 @@ def print_banner(message: str, padding_char: str = "=", style: str = "") -> None
 
 
 class LateInit:
-    """Raise an exception if the attribute is unset."""
-    def __init__(self) -> None:
+    """Raise an exception if the attribute is unset.
+
+    Args:
+        message: The message passed to the exception when the value is accessed before it is set.
+    """
+    def __init__(self, message: str = "this value must not be None") -> None:
         self._value = None
+        self._message = message
 
     def __get__(self, instance, owner):
         if self._value is None:
-            raise ValueError("this value must not be None")
+            raise ValueError(self._message)
         return self._value
 
     def __set__(self, instance, value):
@@ -90,4 +95,3 @@ def format_duration(seconds: float) -> str:
     """
     minutes, seconds = divmod(seconds, 60)
     return "{0:.0f}m {1:.1f}s".format(minutes, seconds)
-
