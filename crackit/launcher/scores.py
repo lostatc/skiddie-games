@@ -21,7 +21,6 @@ import os
 import json
 from typing import List, Optional
 
-from prompt_toolkit import print_formatted_text
 from prompt_toolkit.shortcuts import input_dialog
 
 from crackit.constants import SCORES_FILE, GUI_STYLE, CONFIG_DIR
@@ -138,4 +137,4 @@ def process_result(session: GameSession) -> None:
         score_store.write()
 
     # Print score to stdout.
-    print_formatted_text(TIMER_RESULT_PREFIX + format_duration(session.duration))
+    print(TIMER_RESULT_PREFIX + format_duration(session.duration))

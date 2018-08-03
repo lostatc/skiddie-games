@@ -56,7 +56,7 @@ def print_banner(message: str, padding_char: str = "=", style: str = "") -> None
     if sys.stdout.isatty():
         print_formatted_text(FormattedText([(style, banner)]))
     else:
-        print_formatted_text(banner)
+        print(banner)
 
 
 class LateInit:

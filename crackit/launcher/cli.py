@@ -18,7 +18,6 @@ You should have received a copy of the GNU General Public License
 along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 """
 import click
-from prompt_toolkit import print_formatted_text
 
 from crackit.launcher import gui
 from crackit.launcher.common import Game, GameSession, GAMES, Difficulty
@@ -67,4 +66,4 @@ def play(game: str, difficulty: str):
 @click.argument("game", type=str)
 def get_description(game: str):
     """Get the description of the game named GAME."""
-    print_formatted_text(_get_game(game).description)
+    print(_get_game(game).description)
