@@ -44,6 +44,7 @@ def _get_difficulty(name: str) -> Difficulty:
 @click.group(invoke_without_command=True)
 @click.pass_context
 def cli(ctx):
+    """Run without any arguments to launch the GUI."""
     # If the command is run without any arguments, options or subcommands, run the GUI launcher.
     if ctx.invoked_subcommand is None:
         gui.main()
