@@ -31,6 +31,20 @@ class Difficulty(enum.Enum):
     NORMAL = "Normal"
     HARD = "Hard"
 
+    @classmethod
+    def from_value(cls, value: str):
+        """Get a Difficulty instance from its value.
+
+        Args:
+            value: The value of the difficulty to return. This is not case-sensitive.
+
+        Returns:
+            The first difficulty instance with the given value, or None if there is none.
+        """
+        for difficulty in cls:
+            if difficulty.value.lower() == value.lower():
+                return difficulty
+
 
 # A function which launches a game with a given difficulty.
 LauncherFunc = Callable[[Difficulty], None]
@@ -95,12 +109,12 @@ class Game:
     """A terminal game.
 
     Attributes:
-        name: The name of the game.
+        game_name: The name of the game.
         description: A description of the game.
         launcher: A function used to launch the game which returns the number of seconds taken to complete it.
     """
-    def __init__(self, name: str, description: str, launcher: TimerFunc) -> None:
-        self.name = name
+    def __init__(self, game_name: str, description: str, launcher: TimerFunc) -> None:
+        self.game_name = game_name
         self.description = description
         self.launcher = launcher
 
@@ -111,17 +125,19 @@ class GameSession:
     Attributes:
         game: The game to be played.
         difficulty: The difficulty that the game is played on.
+        username: The name of the user playing the game. None if no username has been set.
         duration: The number of seconds it took to complete the game. None if the game hasn't bee played yet.
     """
-    def __init__(self, game: Game, difficulty: Difficulty):
+    def __init__(self, game: Game, difficulty: Difficulty, username: str = None, duration: float = None):
         self.game = game
         self.difficulty = difficulty
+        self.username = username
         self.duration = None
 
     @property
-    def name(self):
+    def game_name(self):
         """A shortcut for accessing the name of the game."""
-        return self.game.name
+        return self.game.game_name
 
     @property
     def description(self):

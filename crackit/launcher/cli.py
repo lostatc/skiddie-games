@@ -22,23 +22,23 @@ from prompt_toolkit import print_formatted_text
 
 from crackit.launcher import gui
 from crackit.launcher.common import Game, GameSession, GAMES, Difficulty
-from crackit.launcher.leaderboard import process_result
+from crackit.launcher.scores import process_result
 
 
 def _get_game(name: str) -> Game:
     """Get a game from its name."""
     try:
-        return [item for item in GAMES if item.name == name][0]
+        return [item for item in GAMES if item.game_name == name][0]
     except IndexError:
         raise click.BadParameter("'{0}'".format(name))
 
 
 def _get_difficulty(name: str) -> Difficulty:
     """Get a difficulty from its name."""
-    try:
-        return [item for item in Difficulty if item.value.lower() == name.lower()][0]
-    except IndexError:
+    selected_difficulty = Difficulty.from_value(name)
+    if not selected_difficulty:
         raise click.BadParameter("'{0}'".format(name))
+    return selected_difficulty
 
 
 @click.group(invoke_without_command=True)

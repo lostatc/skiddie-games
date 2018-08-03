@@ -30,8 +30,9 @@ from prompt_toolkit.layout.containers import FloatContainer, Float
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.styles import Style
 
+from crackit.constants import GUI_STYLE
 from crackit.launcher.common import Difficulty, Game, GameSession, GAMES
-from crackit.launcher.leaderboard import process_result
+from crackit.launcher.scores import process_result
 
 # The width of buttons that are used to create menus.
 MENU_BUTTON_WIDTH = 20
@@ -74,8 +75,8 @@ class Launcher:
 
         # Define widgets.
         self._game_buttons = collections.OrderedDict([
-            (Button(game.name, width=MENU_BUTTON_WIDTH, handler=functools.partial(self._select_game, game)), game)
-            for game in sorted(GAMES, key=lambda x: x.name)
+            (Button(game.game_name, width=MENU_BUTTON_WIDTH, handler=functools.partial(self._select_game, game)), game)
+            for game in sorted(GAMES, key=lambda x: x.game_name)
         ])
 
         # Define containers.
@@ -127,7 +128,7 @@ class Launcher:
                         width=Dimension(min=MENU_BUTTON_WIDTH, max=40),
                         height=Dimension(),
                     ),
-                    title=lambda: self._selected_game.name,
+                    title=lambda: self._selected_game.game_name,
                     key_bindings=self._menu_keybindings,
                 ),
                 Frame(
@@ -188,12 +189,7 @@ class Launcher:
         self._layout = Layout(container=self._game_select_container)
 
         # Define style.
-        self._style = Style([
-            ("button.focused", "bg:ansired"),
-            ("dialog.body", "fg:ansidefault bg:ansidefault"),
-            ("dialog shadow", "bg:ansibrightblack"),
-            ("dialog frame.label", "fg:ansigreen"),
-        ])
+        self._style = GUI_STYLE
 
         # Define application.
         self.application = Application(
