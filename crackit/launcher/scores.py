@@ -20,6 +20,7 @@ along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import json
 import getpass
+import datetime
 from typing import List, Optional
 
 from prompt_toolkit import prompt
@@ -70,7 +71,12 @@ class ScoreStore:
         Args:
             session: The session of the game where the score was set.
         """
-        new_score = {"username": session.username, "duration": session.duration}
+        new_score = {
+            "username": session.username,
+            "duration": session.duration,
+            "completed": session.completed.timestamp()
+        }
+
         (self._data
             .setdefault(session.game_name, {})
             .setdefault(session.difficulty.value, [])
@@ -83,18 +89,23 @@ class ScoreStore:
             A list of sessions of games.
         """
         try:
-            scores = [
-                GameSession(game, difficulty, username=score["username"], duration=score["duration"])
-                for score in self._data[game.game_name][difficulty.value]
-            ]
-
-            if sort:
-                scores.sort(key=lambda x: x.duration)
-
-            return scores
+            data = self._data[game.game_name][difficulty.value]
         except KeyError:
             # There are no scores for the given game and difficulty.
             return []
+
+        scores = [
+            GameSession(
+                game, difficulty, username=score["username"], duration=score["duration"],
+                completed=datetime.datetime.fromtimestamp(score["completed"]),
+            )
+            for score in data
+        ]
+
+        if sort:
+            scores.sort(key=lambda x: x.duration)
+
+        return scores
 
     def get_high_score(self, game: Game, difficulty: Difficulty) -> Optional[GameSession]:
         """Get the score with the best time for the given game and difficulty.
@@ -103,8 +114,8 @@ class ScoreStore:
             The session for the game with the high score or None if there are no scores.
         """
         try:
-            max(self.get_scores(game, difficulty), key=lambda x: x.duration)
-        except ValueError:
+            return self.get_scores(game, difficulty, sort=True)[0]
+        except IndexError:
             # There are no scores for the given game and difficulty.
             return None
 
@@ -127,7 +138,7 @@ def process_result(session: GameSession) -> None:
 
     # Inform the user if they've set a new high score.
     high_score = score_store.get_high_score(session.game, session.difficulty)
-    if high_score is None or high_score.duration < session.duration:
+    if high_score is None or session.duration < high_score.duration:
         print(NEW_HIGH_SCORE_MESSAGE)
 
     # Print score to stdout.

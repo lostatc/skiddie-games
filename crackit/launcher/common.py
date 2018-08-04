@@ -19,6 +19,7 @@ along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 """
 import enum
 import time
+import datetime
 from typing import Callable
 
 from crackit.games import hash_cracker, shell_scripter, port_scanner
@@ -56,7 +57,7 @@ TimerFunc = Callable[[Difficulty], float]
 def _start_hash_cracker(difficulty: Difficulty) -> None:
     """Start the game "hash_cracker" with a given difficulty."""
     if difficulty is Difficulty.EASY:
-        hash_cracker.main(rows_to_win=8, starting_rows=4, columns=6)
+        hash_cracker.main(rows_to_win=5, starting_rows=4, columns=6)
     if difficulty is Difficulty.NORMAL:
         hash_cracker.main(rows_to_win=8, starting_rows=4, columns=8)
     if difficulty is Difficulty.HARD:
@@ -126,13 +127,17 @@ class GameSession:
         game: The game to be played.
         difficulty: The difficulty that the game is played on.
         username: The name of the user playing the game. None if no username has been set.
-        duration: The number of seconds it took to complete the game. None if the game hasn't bee played yet.
+        duration: The number of seconds it took to complete the game. None if the game hasn't been played yet.
+        completed: The time and date that the game was completed. None if hte game hasn't bee played yet.
     """
-    def __init__(self, game: Game, difficulty: Difficulty, username: str = None, duration: float = None):
+    def __init__(
+            self, game: Game, difficulty: Difficulty,
+            username: str = None, duration: float = None, completed: datetime.datetime = None):
         self.game = game
         self.difficulty = difficulty
         self.username = username
         self.duration = duration
+        self.completed = completed
 
     @property
     def game_name(self):
@@ -147,6 +152,7 @@ class GameSession:
     def play(self):
         """Play the game with the current difficulty."""
         self.duration = self.game.launcher(self.difficulty)
+        self.completed = datetime.datetime.now()
 
 
 GAME_HASH_CRACKER = Game("hash_cracker", get_description("hash_cracker.rst"), get_timer(_start_hash_cracker))

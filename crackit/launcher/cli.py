@@ -87,7 +87,7 @@ def get_scores(game, difficulty, number):
         return
 
     output_data = [
-        (session.username, format_duration(session.duration))
+        (session.username, format_duration(session.duration), session.completed.strftime("%d %b %Y %H:%M"))
         for session in scores
     ]
 
