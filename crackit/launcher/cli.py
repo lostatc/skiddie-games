@@ -50,7 +50,7 @@ def cli(ctx):
         gui.main()
 
 
-@cli.command(name="play", short_help="Play a game.")
+@cli.command(short_help="Play a game.")
 @click.argument("game", type=str)
 @click.option(
     "--difficulty", "-d", default="normal", show_default=True,
@@ -63,32 +63,32 @@ def play(game: str, difficulty: str):
     process_result(session)
 
 
-@cli.command(name="get-description", short_help="Get the description of a game.")
+@cli.command(short_help="Get the description of a game.")
 @click.argument("game", type=str)
-def get_description(game: str):
+def description(game: str):
     """Get the description of the game named GAME."""
     print(_get_game(game).description)
 
 
-@cli.command(name="get-scores", short_help="Get the high scores of a game.")
+@cli.command(short_help="Get the high scores of a game.")
 @click.argument("game", type=str)
 @click.option(
     "--difficulty", "-d", default="normal", show_default=True,
     help="The difficulty to play the game on. Accepted values are \"easy\", \"normal\" and \"hard\"."
 )
 @click.option("--number", "-n", default=10, show_default=True, help="The number of high scores to show.")
-def get_scores(game, difficulty, number):
+def scores(game, difficulty, number):
     """Get the high scores of the game named GAME."""
     score_store = ScoreStore()
     score_store.read()
-    scores = score_store.get_scores(_get_game(game), _get_difficulty(difficulty))[:number]
+    high_scores = score_store.get_scores(_get_game(game), _get_difficulty(difficulty))[:number]
 
     if not scores:
         return
 
     output_data = [
         (session.username, format_duration(session.duration), session.completed.strftime("%d %b %Y %H:%M"))
-        for session in scores
+        for session in high_scores
     ]
 
     print_table(output_data)
