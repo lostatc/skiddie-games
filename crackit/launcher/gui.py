@@ -28,7 +28,6 @@ from prompt_toolkit.layout.dimension import Dimension
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.containers import FloatContainer, Float
 from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.styles import Style
 
 from crackit.constants import GUI_STYLE
 from crackit.launcher.common import Difficulty, Game, GameSession, GAMES
@@ -61,17 +60,10 @@ class Launcher:
         self._selected_difficulties = {game: Difficulty.NORMAL for game in GAMES}
 
         # Define global keybindings.
-        self._global_keybindings = KeyBindings()
-
-        @self._global_keybindings.add("c-c")
-        @self._global_keybindings.add("q")
-        def _exit(event):
-            event.app.exit()
+        self._global_keybindings = self._create_global_keybindings()
 
         # Define local keybindings.
-        self._menu_keybindings = KeyBindings()
-        self._menu_keybindings.add("down")(focus_next)
-        self._menu_keybindings.add("up")(focus_previous)
+        self._menu_keybindings = self._create_menu_keybindings()
 
         # Define widgets.
         self._game_buttons = collections.OrderedDict([
@@ -80,7 +72,49 @@ class Launcher:
         ])
 
         # Define containers.
-        self._game_select_container = FloatContainer(
+        self._game_select_container = self._create_game_select_container()
+        self._game_option_container = self._create_game_option_container()
+        self._difficulty_select_container = self._create_difficulty_select_container()
+
+        # Define layout.
+        self._layout = Layout(container=self._game_select_container)
+
+        # Define style.
+        self._style = GUI_STYLE
+
+        # Define application.
+        self.application = Application(
+            layout=self._layout,
+            style=self._style,
+            full_screen=True,
+            mouse_support=True,
+            key_bindings=self._global_keybindings
+        )
+
+    @staticmethod
+    def _create_global_keybindings() -> KeyBindings:
+        """Create keybindings for the whole application."""
+        bindings = KeyBindings()
+
+        @bindings.add("c-c")
+        @bindings.add("q")
+        def _exit(event):
+            event.app.exit()
+
+        return bindings
+
+    @staticmethod
+    def _create_menu_keybindings() -> KeyBindings:
+        """Create keybindings for containers containing buttons."""
+        bindings = KeyBindings()
+        bindings.add("down")(focus_next)
+        bindings.add("up")(focus_previous)
+
+        return bindings
+
+    def _create_game_select_container(self) -> FloatContainer:
+        """Create the container used for selecting a game."""
+        return FloatContainer(
             VSplit([
                 Frame(
                     HSplit([
@@ -109,22 +143,24 @@ class Launcher:
             floats=[]
         )
 
-        self._game_option_container = FloatContainer(
+    def _create_game_option_container(self) -> FloatContainer:
+        """Create the container used for configuring game options."""
+        return FloatContainer(
             VSplit([
                 Frame(
                     HSplit([
-                            Button("Play", width=MENU_BUTTON_WIDTH, handler=self._return_session),
-                            Button(
-                                "Difficulty", width=MENU_BUTTON_WIDTH,
-                                handler=lambda: self._add_float(self._difficulty_select_container),
-                            ),
-                            Button("High Scores", width=MENU_BUTTON_WIDTH),
-                            HorizontalLine(),
-                            Button(
-                                "Back", width=MENU_BUTTON_WIDTH,
-                                handler=lambda: self._set_active_container(self._game_select_container)
-                            ),
-                        ],
+                        Button("Play", width=MENU_BUTTON_WIDTH, handler=self._return_session),
+                        Button(
+                            "Difficulty", width=MENU_BUTTON_WIDTH,
+                            handler=lambda: self._add_float(self._difficulty_select_container),
+                        ),
+                        Button("High Scores", width=MENU_BUTTON_WIDTH),
+                        HorizontalLine(),
+                        Button(
+                            "Back", width=MENU_BUTTON_WIDTH,
+                            handler=lambda: self._set_active_container(self._game_select_container)
+                        ),
+                    ],
                         width=Dimension(min=MENU_BUTTON_WIDTH, max=40),
                         height=Dimension(),
                     ),
@@ -157,6 +193,8 @@ class Launcher:
             floats=[]
         )
 
+    def _create_difficulty_select_container(self) -> Dialog:
+        """Create the container used for selecting the difficulty of a game."""
         difficulty_radiolist = RadioList([
             (Difficulty.EASY, Difficulty.EASY.value),
             (Difficulty.NORMAL, Difficulty.NORMAL.value),
@@ -170,12 +208,12 @@ class Launcher:
         def cancel_handler() -> None:
             self._clear_floats()
 
-        self._difficulty_select_container = Dialog(
+        return Dialog(
             title="Difficulty",
             body=HSplit([
-                    Label(text="Select a difficulty", dont_extend_height=True),
-                    difficulty_radiolist,
-                ],
+                Label(text="Select a difficulty", dont_extend_height=True),
+                difficulty_radiolist,
+            ],
                 padding=1,
             ),
             buttons=[
@@ -183,21 +221,6 @@ class Launcher:
                 Button(text="Cancel", handler=cancel_handler),
             ],
             with_background=True,
-        )
-
-        # Define layout.
-        self._layout = Layout(container=self._game_select_container)
-
-        # Define style.
-        self._style = GUI_STYLE
-
-        # Define application.
-        self.application = Application(
-            layout=self._layout,
-            style=self._style,
-            full_screen=True,
-            mouse_support=True,
-            key_bindings=self._global_keybindings
         )
 
     @property

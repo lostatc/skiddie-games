@@ -7,7 +7,6 @@ sum yielding the fifth number. Examples::
 
     3.12.6.5:10  ->  - 3 + 12 + 6 - 5 = 10
 
-
 Below these numbers is a second row of four numbers with the fifth one missing.
 The objective of the game is to determine what the fifth number should be. To
 find the fifth number, you need to determine what the rules of addition and
