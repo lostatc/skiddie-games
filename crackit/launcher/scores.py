@@ -19,12 +19,13 @@ along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 """
 import os
 import json
+import getpass
 from typing import List, Optional
 
-from prompt_toolkit.shortcuts import input_dialog
+from prompt_toolkit import prompt
 
 from crackit.constants import SCORES_FILE, GUI_STYLE, CONFIG_DIR
-from crackit.utils import format_duration, LateInit
+from crackit.utils import format_duration, LateInit, bool_prompt
 from crackit.launcher.common import GameSession, Game, Difficulty
 
 # The string that immediately precedes the users time whenever their time is printed to stdout.
@@ -116,25 +117,28 @@ def process_result(session: GameSession) -> None:
     if session.duration is None:
         raise ValueError("the game has not been played yet")
 
-    # Prompt user for username.
-    # TODO: Replace with custom dialog that uses the system username as the default input.
-    username = input_dialog(text="Enter name for new score", ok_text="Okay", cancel_text="Cancel", style=GUI_STYLE)
+    # Get all the user's past scores.
+    score_store = ScoreStore()
+    score_store.read()
 
-    if username:
-        session.username = username
-
-        # Get all the user's past scores.
-        score_store = ScoreStore()
-        score_store.read()
-
-        # Inform the user if they've set a new high score.
-        high_score = score_store.get_high_score(session.game, session.difficulty)
-        if high_score is None or high_score.duration < session.duration:
-            print(NEW_HIGH_SCORE_MESSAGE)
-
-        # Record score.
-        score_store.add_score(session)
-        score_store.write()
+    # Inform the user if they've set a new high score.
+    high_score = score_store.get_high_score(session.game, session.difficulty)
+    if high_score is None or high_score.duration < session.duration:
+        print(NEW_HIGH_SCORE_MESSAGE)
 
     # Print score to stdout.
     print(TIMER_RESULT_PREFIX + format_duration(session.duration))
+
+    # Ask user if they want to save their score.
+    save_score = bool_prompt("Would you like to save your score? [Y/n]: ", default=True)
+
+    if not save_score:
+        return
+
+    # Prompt user for username.
+    username = prompt(message="Name for the new score: ", default=getpass.getuser())
+    session.username = username
+
+    # Record score.
+    score_store.add_score(session)
+    score_store.write()

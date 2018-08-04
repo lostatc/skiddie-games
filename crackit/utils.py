@@ -23,7 +23,8 @@ import shutil
 import pkg_resources
 
 from prompt_toolkit.formatted_text import FormattedText
-from prompt_toolkit import print_formatted_text
+from prompt_toolkit.validation import Validator
+from prompt_toolkit import print_formatted_text, prompt
 
 # The relative path to the directory containing the instructions for each game.
 INSTRUCTIONS_DIR = "descriptions"
@@ -95,3 +96,27 @@ def format_duration(seconds: float) -> str:
     """
     minutes, seconds = divmod(seconds, 60)
     return "{0:.0f}m {1:.1f}s".format(minutes, seconds)
+
+
+def bool_prompt(message: str, default: bool = False) -> bool:
+    """Prompt the user to answer yes or no.
+
+    This accepts the same arguments as prompt_toolkit.PromptSession.
+
+    Returns:
+        The user's choice.
+    """
+    true_answers = ["y", "yes"]
+    false_answers = ["n", "no"]
+
+    validator = Validator.from_callable(
+        lambda x: not x or x.lower() in true_answers + false_answers,
+        error_message="Answer must be \"yes\" or \"no\"",
+        move_cursor_to_end=True,
+    )
+    answer = prompt(message=message, validator=validator, validate_while_typing=False)
+
+    if answer:
+        return answer.lower() in true_answers
+    else:
+        return default
