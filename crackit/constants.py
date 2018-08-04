@@ -33,6 +33,6 @@ SCORES_FILE = os.path.join(CONFIG_DIR, "scores.json")
 GUI_STYLE = Style([
     ("button.focused", "bg:ansired"),
     ("dialog.body", "fg:ansidefault bg:ansidefault"),
-    ("dialog shadow", "bg:ansibrightblack"),
+    ("dialog shadow", "fg:ansibrightblack bg:ansibrightblack"),
     ("dialog frame.label", "fg:ansigreen"),
 ])
