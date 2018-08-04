@@ -21,6 +21,7 @@ import os
 import sys
 import shutil
 import pkg_resources
+from typing import Sequence
 
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.validation import Validator
@@ -120,3 +121,32 @@ def bool_prompt(message: str, default: bool = False) -> bool:
         return answer.lower() in true_answers
     else:
         return default
+
+
+def print_table(rows: Sequence[Sequence[str]], padding=2, align_right=False) -> None:
+    """Print the given data in a formatted table.
+
+    Args:
+        rows: The rows of data to print.
+        padding: The number of spaces used to separate each column.
+        align_right: Align each column to the right instead of to the left.
+    """
+    # Get the length of the longest string in each column.
+    column_lengths = [0 for _ in range(len(max(rows, key=len)))]
+    for row in rows:
+        for i, item in enumerate(row):
+            column_lengths[i] = max(len(item), column_lengths[i])
+
+    format_string = "{0:>{1}}" if align_right else "{0:{1}}"
+    padding_string = " "*padding
+
+    # Pad and align each row.
+    output = "\n".join(
+        padding_string.join(
+            format_string.format(item, column_lengths[i])
+            for i, item in enumerate(row)
+        )
+        for row in rows
+    )
+
+    print(output)

@@ -132,7 +132,7 @@ class GameSession:
         self.game = game
         self.difficulty = difficulty
         self.username = username
-        self.duration = None
+        self.duration = duration
 
     @property
     def game_name(self):

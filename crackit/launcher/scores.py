@@ -76,18 +76,22 @@ class ScoreStore:
             .setdefault(session.difficulty.value, [])
             .append(new_score))
 
-    def get_scores(self, game: Game, difficulty: Difficulty) -> List[GameSession]:
+    def get_scores(self, game: Game, difficulty: Difficulty, sort=True) -> List[GameSession]:
         """Return a list of scores from the given game on the given difficulty.
 
         Returns:
             A list of sessions of games.
         """
         try:
-            scores = self._data[game.game_name][difficulty.value]
-            return [
+            scores = [
                 GameSession(game, difficulty, username=score["username"], duration=score["duration"])
-                for score in scores
+                for score in self._data[game.game_name][difficulty.value]
             ]
+
+            if sort:
+                scores.sort(key=lambda x: x.duration)
+
+            return scores
         except KeyError:
             # There are no scores for the given game and difficulty.
             return []

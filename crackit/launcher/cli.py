@@ -19,9 +19,10 @@ along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 """
 import click
 
+from crackit.utils import format_duration, print_table
 from crackit.launcher import gui
 from crackit.launcher.common import Game, GameSession, GAMES, Difficulty
-from crackit.launcher.scores import process_result
+from crackit.launcher.scores import process_result, ScoreStore
 
 
 def _get_game(name: str) -> Game:
@@ -67,3 +68,27 @@ def play(game: str, difficulty: str):
 def get_description(game: str):
     """Get the description of the game named GAME."""
     print(_get_game(game).description)
+
+
+@cli.command(name="get-scores", short_help="Get the high scores of a game.")
+@click.argument("game", type=str)
+@click.option(
+    "--difficulty", "-d", default="normal", show_default=True,
+    help="The difficulty to play the game on. Accepted values are \"easy\", \"normal\" and \"hard\"."
+)
+@click.option("--number", "-n", default=10, show_default=True, help="The number of high scores to show.")
+def get_scores(game, difficulty, number):
+    """Get the high scores of the game named GAME."""
+    score_store = ScoreStore()
+    score_store.read()
+    scores = score_store.get_scores(_get_game(game), _get_difficulty(difficulty))[:number]
+
+    if not scores:
+        return
+
+    output_data = [
+        (session.username, format_duration(session.duration))
+        for session in scores
+    ]
+
+    print_table(output_data)
