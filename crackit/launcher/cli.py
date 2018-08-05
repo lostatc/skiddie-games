@@ -22,7 +22,7 @@ import click
 from crackit.utils import format_duration, print_table
 from crackit.launcher import gui
 from crackit.launcher.common import Game, GameSession, GAMES, Difficulty
-from crackit.launcher.scores import process_result, ScoreStore
+from crackit.launcher.scores import process_result, Scores
 
 
 def _get_game(name: str) -> Game:
@@ -79,7 +79,7 @@ def description(game: str):
 @click.option("--number", "-n", default=10, show_default=True, help="The number of high scores to show.")
 def scores(game, difficulty, number):
     """Get the high scores of the game named GAME."""
-    score_store = ScoreStore()
+    score_store = Scores()
     score_store.read()
     high_scores = score_store.get_scores(_get_game(game), _get_difficulty(difficulty))[:number]
 

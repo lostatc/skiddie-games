@@ -25,7 +25,7 @@ from typing import List, Optional
 
 from prompt_toolkit import prompt
 
-from crackit.constants import SCORES_FILE, GUI_STYLE, CONFIG_DIR
+from crackit.constants import SCORES_FILE, CONFIG_DIR
 from crackit.utils import format_duration, LateInit, bool_prompt
 from crackit.launcher.common import GameSession, Game, Difficulty
 
@@ -39,7 +39,7 @@ JSON_INDENT = 4
 NEW_HIGH_SCORE_MESSAGE = "You've set a new high score!"
 
 
-class ScoreStore:
+class Scores:
     """Persistent storage of the user's scores.
 
     Attributes:
@@ -133,7 +133,7 @@ def process_result(session: GameSession) -> None:
         raise ValueError("the game has not been played yet")
 
     # Get all the user's past scores.
-    score_store = ScoreStore()
+    score_store = Scores()
     score_store.read()
 
     # Inform the user if they've set a new high score.
