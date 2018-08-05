@@ -187,7 +187,16 @@ class FloatScreen:
 
 
 class MultiScreenApp:
-    """A graphical terminal application that supports switching between multiple screens."""
+    """A graphical terminal application that supports switching between multiple screens.
+
+    Args:
+        app: The application instance to use.
+        default_screen: The screen that shows by default when the application starts.
+
+    Attributes:
+        app: The application instance to use.
+        _screen_history: A list that keeps track of which screens have been visited.
+    """
     def __init__(self, app: Application, default_screen: Screen) -> None:
         self.app = app
         self._screen_history = [default_screen]

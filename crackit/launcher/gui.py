@@ -255,6 +255,9 @@ class Launcher(MultiScreenApp):
     """A GUI application for launching games.
 
     Attributes:
+        _global_keybindings: The application-wide keybindings.
+        _menu_keybindings: The keybindings for windows containing button menus.
+        _game_select_screen: The screen used for selecting a game to play.
     """
     def __init__(self) -> None:
         self._global_keybindings = self._create_global_keybindings()
