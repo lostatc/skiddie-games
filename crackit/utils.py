@@ -23,9 +23,11 @@ import shutil
 import pkg_resources
 from typing import Sequence
 
+from prompt_toolkit import Application
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.validation import Validator
 from prompt_toolkit import print_formatted_text, prompt
+from prompt_toolkit.layout import Float, FloatContainer, Container
 
 # The relative path to the directory containing the instructions for each game.
 INSTRUCTIONS_DIR = "descriptions"
@@ -150,3 +152,71 @@ def print_table(rows: Sequence[Sequence[str]], padding=2, align_right=False) -> 
     )
 
     print(output)
+
+
+class Screen:
+    """A screen in a graphical terminal application.
+
+    Args:
+        multi_screen: A reference to the MultiScreenApp containing this instance.
+        root_container: A FloatContainer. This is the top-level container in the screen.
+
+    Attributes:
+        multi_screen: A reference to the MultiScreenApp containing this instance.
+        root_container: A FloatContainer. This is the top-level container in the screen.
+    """
+    def __init__(self, multi_screen: "MultiScreenApp", root_container: FloatContainer) -> None:
+        self.multi_screen = multi_screen
+        self.root_container = root_container
+
+
+class FloatScreen:
+    """A screen in a graphical terminal application that can float above other screens.
+
+    Args:
+        multi_screen: A reference to the MultiScreenApp containing this instance.
+        root_container: A Container or widget. This is the top-level container in the screen.
+
+    Attributes:
+        multi_screen: A reference to the MultiScreenApp containing this instance.
+        root_container: A FloatContainer. This is the top-level container in the screen.
+    """
+    def __init__(self, multi_screen: "MultiScreenApp", root_container) -> None:
+        self.multi_screen = multi_screen
+        self.root_container = root_container
+
+
+class MultiScreenApp:
+    """A graphical terminal application that supports switching between multiple screens."""
+    def __init__(self, app: Application, default_screen: Screen) -> None:
+        self.app = app
+        self._screen_history = [default_screen]
+
+    def set_screen(self, screen: Screen) -> None:
+        """Set the active screen.
+
+        Args:
+            screen: The screen to set as active.
+        """
+        self.app.layout.container = screen.root_container
+        self.app.layout.focus(screen.root_container)
+        self._screen_history.append(screen)
+
+    def set_previous(self) -> None:
+        """Set the active screen to the previous screen."""
+        self._screen_history.pop()
+        self.set_screen(self._screen_history.pop())
+
+    def add_floating_screen(self, screen: FloatScreen) -> None:
+        """Add a screen to the layout as a floating window.
+
+        Args:
+            screen: The screen to add.
+        """
+        self.app.layout.container.floats.append(Float(screen.root_container))
+        self.app.layout.focus(screen.root_container)
+
+    def clear_floating(self) -> None:
+        """Remove all floating windows."""
+        self.app.layout.container.floats.clear()
+        self.app.layout.focus(self.app.layout.container)
