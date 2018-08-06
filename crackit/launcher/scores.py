@@ -26,7 +26,7 @@ from typing import List, Optional
 from prompt_toolkit import prompt
 
 from crackit.constants import SCORES_FILE, CONFIG_DIR
-from crackit.utils import format_duration, LateInit, bool_prompt
+from crackit.utils import format_duration, LateInit, bool_prompt, format_table
 from crackit.launcher.common import GameSession, Game, Difficulty
 
 # The string that immediately precedes the users time whenever their time is printed to stdout.
@@ -118,6 +118,30 @@ class Scores:
         except IndexError:
             # There are no scores for the given game and difficulty.
             return None
+
+
+def format_scores(scores: List[GameSession], header=True) -> str:
+    """Format the given scores in a table.
+
+    Args:
+        scores: The scores to format.
+        header: Print a header row containing a name for each column.
+
+    Returns:
+        A formatted table of scores.
+    """
+    output_header = [("#", "Username", "Score", "Date")]
+    output_data = [
+        (str(i + 1), session.username, format_duration(session.duration), session.completed.strftime("%d %b %Y %H:%M"))
+        for i, session in enumerate(scores)
+    ]
+
+    if header:
+        output = output_header + output_data
+    else:
+        output = output_data
+
+    return format_table(output)
 
 
 def process_result(session: GameSession) -> None:

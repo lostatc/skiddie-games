@@ -19,10 +19,10 @@ along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 """
 import click
 
-from crackit.utils import format_duration, print_table
+from crackit.utils import format_duration
 from crackit.launcher import gui
 from crackit.launcher.common import Game, GameSession, GAMES, Difficulty
-from crackit.launcher.scores import process_result, Scores
+from crackit.launcher.scores import process_result, Scores, format_scores
 
 
 def _get_game(name: str) -> Game:
@@ -83,12 +83,7 @@ def scores(game, difficulty, number):
     score_store.read()
     high_scores = score_store.get_scores(_get_game(game), _get_difficulty(difficulty))[:number]
 
-    if not scores:
+    if not high_scores:
         return
 
-    output_data = [
-        (session.username, format_duration(session.duration), session.completed.strftime("%d %b %Y %H:%M"))
-        for session in high_scores
-    ]
-
-    print_table(output_data)
+    print(format_scores(high_scores))

@@ -17,6 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 """
+import abc
 import os
 import sys
 import shutil
@@ -125,13 +126,16 @@ def bool_prompt(message: str, default: bool = False) -> bool:
         return default
 
 
-def print_table(rows: Sequence[Sequence[str]], padding=2, align_right=False) -> None:
-    """Print the given data in a formatted table.
+def format_table(rows: Sequence[Sequence[str]], padding=2, align_right=False) -> str:
+    """Return the given data in a formatted table.
 
     Args:
         rows: The rows of data to print.
         padding: The number of spaces used to separate each column.
         align_right: Align each column to the right instead of to the left.
+
+    Returns:
+        The formatted table.
     """
     # Get the length of the longest string in each column.
     column_lengths = [0 for _ in range(len(max(rows, key=len)))]
@@ -151,39 +155,41 @@ def print_table(rows: Sequence[Sequence[str]], padding=2, align_right=False) -> 
         for row in rows
     )
 
-    print(output)
+    return output
 
 
-class Screen:
+class Screen(abc.ABC):
     """A screen in a graphical terminal application.
 
     Args:
         multi_screen: A reference to the MultiScreenApp containing this instance.
-        root_container: A FloatContainer. This is the top-level container in the screen.
 
     Attributes:
         multi_screen: A reference to the MultiScreenApp containing this instance.
-        root_container: A FloatContainer. This is the top-level container in the screen.
     """
-    def __init__(self, multi_screen: "MultiScreenApp", root_container: FloatContainer) -> None:
+    def __init__(self, multi_screen: "MultiScreenApp") -> None:
         self.multi_screen = multi_screen
-        self.root_container = root_container
+
+    @abc.abstractmethod
+    def get_root_container(self) -> FloatContainer:
+        """Get the top-level container for the screen."""
 
 
-class FloatScreen:
+class FloatScreen(abc.ABC):
     """A screen in a graphical terminal application that can float above other screens.
 
     Args:
         multi_screen: A reference to the MultiScreenApp containing this instance.
-        root_container: A Container or widget. This is the top-level container in the screen.
 
     Attributes:
         multi_screen: A reference to the MultiScreenApp containing this instance.
-        root_container: A FloatContainer. This is the top-level container in the screen.
     """
-    def __init__(self, multi_screen: "MultiScreenApp", root_container) -> None:
+    def __init__(self, multi_screen: "MultiScreenApp") -> None:
         self.multi_screen = multi_screen
-        self.root_container = root_container
+
+    @abc.abstractmethod
+    def get_root_container(self):
+        """Get the top-level container for the screen."""
 
 
 class MultiScreenApp:
@@ -207,8 +213,9 @@ class MultiScreenApp:
         Args:
             screen: The screen to set as active.
         """
-        self.app.layout.container = screen.root_container
-        self.app.layout.focus(screen.root_container)
+        root_container = screen.get_root_container()
+        self.app.layout.container = root_container
+        self.app.layout.focus(root_container)
         self._screen_history.append(screen)
 
     def set_previous(self) -> None:
@@ -222,8 +229,9 @@ class MultiScreenApp:
         Args:
             screen: The screen to add.
         """
-        self.app.layout.container.floats.append(Float(screen.root_container))
-        self.app.layout.focus(screen.root_container)
+        root_container = screen.get_root_container()
+        self.app.layout.container.floats.append(Float(root_container))
+        self.app.layout.focus(root_container)
 
     def clear_floating(self) -> None:
         """Remove all floating windows."""
