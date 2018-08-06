@@ -21,9 +21,10 @@ import os
 import json
 import getpass
 import datetime
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from prompt_toolkit import prompt
+from prompt_toolkit.formatted_text import FormattedText
 
 from crackit.constants import SCORES_FILE, CONFIG_DIR
 from crackit.utils import format_duration, LateInit, bool_prompt, format_table
@@ -120,15 +121,16 @@ class Scores:
             return None
 
 
-def format_scores(scores: List[GameSession], header=True) -> str:
+def format_scores(scores: List[GameSession], header=True, header_style="bold") -> Union[FormattedText, str]:
     """Format the given scores in a table.
 
     Args:
         scores: The scores to format.
         header: Print a header row containing a name for each column.
+        header_style: The style to apply to the header row if there is one. If None, don't apply any style.
 
     Returns:
-        A formatted table of scores.
+        A FormattedText instance if a header style is provided, and a str otherwise.
     """
     output_header = [("#", "Username", "Score", "Date")]
     output_data = [
@@ -136,12 +138,15 @@ def format_scores(scores: List[GameSession], header=True) -> str:
         for i, session in enumerate(scores)
     ]
 
-    if header:
-        output = output_header + output_data
+    if not header:
+        return format_table(output_data)
+    elif header_style is None:
+        return format_table(output_header + output_data)
     else:
-        output = output_data
-
-    return format_table(output)
+        output_lines = format_table(output_header + output_data).splitlines()
+        header_text = output_lines[0] + "\n"
+        data_text = "\n".join(output_lines[1:])
+        return FormattedText([(header_style, header_text), ("", data_text)])
 
 
 def process_result(session: GameSession) -> None:

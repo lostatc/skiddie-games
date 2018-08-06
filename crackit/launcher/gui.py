@@ -306,7 +306,7 @@ class HighScoreScreen(Screen):
         score_store = Scores()
         score_store.read()
         high_scores = score_store.get_scores(self._selected_game, self._selected_difficulty)
-        score_table = format_scores(high_scores)
+        score_table = format_scores(high_scores, header_style=None)
 
         text_area = TextArea(
             text=score_table,

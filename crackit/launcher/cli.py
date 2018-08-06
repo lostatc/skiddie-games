@@ -19,6 +19,8 @@ along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 """
 import click
 
+from prompt_toolkit import print_formatted_text
+
 from crackit.utils import format_duration
 from crackit.launcher import gui
 from crackit.launcher.common import Game, GameSession, GAMES, Difficulty
@@ -86,4 +88,4 @@ def scores(game, difficulty, number):
     if not high_scores:
         return
 
-    print(format_scores(high_scores))
+    print_formatted_text(format_scores(high_scores))
