@@ -19,7 +19,7 @@ along with crackit.  If not, see <http://www.gnu.org/licenses/>.
 """
 import functools
 import collections
-from typing import Callable
+from typing import Callable, List
 
 from prompt_toolkit import Application
 from prompt_toolkit.document import Document
@@ -32,7 +32,7 @@ from prompt_toolkit.layout.margins import ScrollbarMargin
 from prompt_toolkit.layout.controls import BufferControl
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.layout.containers import FloatContainer, Window
-from prompt_toolkit.filters import to_filter
+from prompt_toolkit.filters import to_filter, has_focus
 from prompt_toolkit.key_binding import KeyBindings
 
 from crackit.launcher.scores import Scores
@@ -45,11 +45,16 @@ from crackit.launcher.scores import process_result, format_scores
 MENU_BUTTON_WIDTH = 20
 
 
+def _create_menu_keybindings(buttons: List[Button]) -> KeyBindings:
+    """Create the keybindings for interactive menus."""
+    bindings = KeyBindings()
+    bindings.add("down", filter=~has_focus(buttons[-1]))(focus_next)
+    bindings.add("up", filter=~has_focus(buttons[0]))(focus_previous)
+    return bindings
+
+
 class GameSelectScreen(Screen):
     """The screen used for selecting a game to play.
-
-    Args:
-        menu_keybindings: The keybindings for interactive menus.
 
     Attributes:
         _menu_keybindings: The keybindings for interactive menus.
@@ -59,12 +64,10 @@ class GameSelectScreen(Screen):
             for each game.
 
     """
-    def __init__(self, multi_screen: MultiScreenApp, menu_keybindings: KeyBindings) -> None:
-        self._menu_keybindings = menu_keybindings
-
+    def __init__(self, multi_screen: MultiScreenApp) -> None:
         self._selected_game = None
 
-        self._game_options_screen = GameOptionsScreen(multi_screen, menu_keybindings, lambda: self._selected_game)
+        self._game_options_screen = GameOptionsScreen(multi_screen, lambda: self._selected_game)
 
         self._game_buttons = collections.OrderedDict([(
                 Button(
@@ -79,19 +82,24 @@ class GameSelectScreen(Screen):
         super().__init__(multi_screen)
 
     def get_root_container(self) -> FloatContainer:
+        buttons = [
+            *self._game_buttons.keys(),
+            HorizontalLine(),
+            Button("Quit", width=MENU_BUTTON_WIDTH, handler=self._exit),
+        ]
+
+        menu_keybindings = _create_menu_keybindings(buttons)
+
         return FloatContainer(
             VSplit([
                 Frame(
-                    HSplit([
-                            *self._game_buttons.keys(),
-                            HorizontalLine(),
-                            Button("Quit", width=MENU_BUTTON_WIDTH, handler=self._exit),
-                        ],
+                    HSplit(
+                        buttons,
                         width=Dimension(min=MENU_BUTTON_WIDTH, max=40),
                         height=Dimension(),
                     ),
                     title="Select a Game",
-                    key_bindings=self._menu_keybindings,
+                    key_bindings=menu_keybindings,
                 ),
                 Frame(
                     Box(
@@ -134,7 +142,6 @@ class GameOptionsScreen(Screen):
     """The screen used for configuring the options for a game.
 
     Args:
-        menu_keybindings: The keybindings for interactive menus.
         selected_game_getter: A function which returns the game which is currently selected.
                 ),
                 Frame(
@@ -142,16 +149,11 @@ class GameOptionsScreen(Screen):
                         Box(
 
     Attributes:
-        _menu_keybindings: The keybindings for interactive menus.
         _selected_game_getter: A function which returns the game which is currently selected.
         _selected_difficulties: A map of games to their currently selected difficulties.
         _difficulty_select_screen: The screen used for setting the difficulty of the selected game.
     """
-    def __init__(
-            self, multi_screen: MultiScreenApp, menu_keybindings: KeyBindings,
-            selected_game_getter: Callable[[], Game]) -> None:
-        self._menu_keybindings = menu_keybindings
-
+    def __init__(self, multi_screen: MultiScreenApp, selected_game_getter: Callable[[], Game]) -> None:
         def selected_difficulty_setter(value: Difficulty) -> None:
             self._selected_difficulty = value
 
@@ -160,36 +162,41 @@ class GameOptionsScreen(Screen):
 
         self._difficulty_select_screen = DifficultySelectScreen(multi_screen, selected_difficulty_setter)
         self._high_score_screen = HighScoreScreen(
-            multi_screen, menu_keybindings, lambda: self._selected_game, lambda: self._selected_difficulty
+            multi_screen, lambda: self._selected_game, lambda: self._selected_difficulty
         )
 
         super().__init__(multi_screen)
 
     def get_root_container(self) -> FloatContainer:
+        buttons = [
+            Button("Play", width=MENU_BUTTON_WIDTH, handler=self._return_session),
+            Button(
+                "Difficulty", width=MENU_BUTTON_WIDTH,
+                handler=lambda: self.multi_screen.add_floating_screen(self._difficulty_select_screen),
+            ),
+            Button(
+                "High Scores", width=MENU_BUTTON_WIDTH,
+                handler=lambda: self.multi_screen.set_screen(self._high_score_screen)
+            ),
+            HorizontalLine(),
+            Button(
+                "Back", width=MENU_BUTTON_WIDTH,
+                handler=self.multi_screen.set_previous,
+            ),
+        ]
+
+        menu_keybindings = _create_menu_keybindings(buttons)
+
         return FloatContainer(
             VSplit([
                 Frame(
-                    HSplit([
-                            Button("Play", width=MENU_BUTTON_WIDTH, handler=self._return_session),
-                            Button(
-                                "Difficulty", width=MENU_BUTTON_WIDTH,
-                                handler=lambda: self.multi_screen.add_floating_screen(self._difficulty_select_screen),
-                            ),
-                            Button(
-                                "High Scores", width=MENU_BUTTON_WIDTH,
-                                handler=lambda: self.multi_screen.set_screen(self._high_score_screen)
-                            ),
-                            HorizontalLine(),
-                            Button(
-                                "Back", width=MENU_BUTTON_WIDTH,
-                                handler=self.multi_screen.set_previous,
-                            ),
-                        ],
+                    HSplit(
+                        buttons,
                         width=Dimension(min=MENU_BUTTON_WIDTH, max=40),
                         height=Dimension(),
                     ),
                     title="Options",
-                    key_bindings=self._menu_keybindings,
+                    key_bindings=menu_keybindings,
                 ),
                 Frame(
                     HSplit([
@@ -290,14 +297,12 @@ class HighScoreScreen(Screen):
         selected_difficulty_getter: A function which returns the currently selected difficulty.
 
     Attributes:
-        _menu_keybindings: The keybindings for interactive menus.
         _selected_game_getter: A function which returns the game which is currently selected.
         _selected_difficulty_getter: A function which returns the currently selected difficulty.
     """
     def __init__(
-            self, multi_screen: MultiScreenApp, menu_keybindings: KeyBindings,
-            selected_game_getter: Callable[[], Game], selected_difficulty_getter: Callable[[], Difficulty]) -> None:
-        self._menu_keybindings = menu_keybindings
+            self, multi_screen: MultiScreenApp, selected_game_getter: Callable[[], Game],
+            selected_difficulty_getter: Callable[[], Difficulty]) -> None:
         self._selected_game_getter = selected_game_getter
         self._selected_difficulty_getter = selected_difficulty_getter
         super().__init__(multi_screen)
@@ -316,17 +321,22 @@ class HighScoreScreen(Screen):
 
         text_area.window.cursorline = to_filter(True)
 
+        buttons = [
+            Button("Back", width=MENU_BUTTON_WIDTH, handler=self.multi_screen.set_previous),
+        ]
+
+        menu_keybindings = _create_menu_keybindings(buttons)
+
         return FloatContainer(
             VSplit([
                 Frame(
-                    HSplit([
-                            Button("Back", width=MENU_BUTTON_WIDTH, handler=self.multi_screen.set_previous),
-                        ],
+                    HSplit(
+                        buttons,
                         width=Dimension(min=MENU_BUTTON_WIDTH, max=40),
                         height=Dimension(),
                     ),
                     title="High Scores",
-                    key_bindings=self._menu_keybindings,
+                    key_bindings=menu_keybindings,
                 ),
                 Frame(
                     HSplit([
@@ -367,13 +377,11 @@ class Launcher(MultiScreenApp):
 
     Attributes:
         _global_keybindings: The application-wide keybindings.
-        _menu_keybindings: The keybindings for windows containing button menus.
         _game_select_screen: The screen used for selecting a game to play.
     """
     def __init__(self) -> None:
         self._global_keybindings = self._create_global_keybindings()
-        self._menu_keybindings = self._create_menu_keybindings()
-        self._game_select_screen = GameSelectScreen(self, self._menu_keybindings)
+        self._game_select_screen = GameSelectScreen(self)
 
         # Define layout.
         layout = Layout(container=self._game_select_screen.get_root_container())
@@ -404,15 +412,6 @@ class Launcher(MultiScreenApp):
         @bindings.add("q")
         def _exit(event):
             event.app.exit()
-
-        return bindings
-
-    @staticmethod
-    def _create_menu_keybindings() -> KeyBindings:
-        """Create keybindings for interactive menus."""
-        bindings = KeyBindings()
-        bindings.add("down")(focus_next)
-        bindings.add("up")(focus_previous)
 
         return bindings
 
