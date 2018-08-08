@@ -210,7 +210,7 @@ class SolutionValidator(Validator):
             raise ValidationError(message="Must be a number", cursor_position=len(text))
 
         if int(text) != self.solution:
-            raise ValidationError(message="Invalid port number", cursor_position=len(text))
+            raise ValidationError(message="Wrong port number", cursor_position=len(text))
 
 
 def main(challenges_to_win: int, number_of_examples: int, max_section_number: int) -> None:
