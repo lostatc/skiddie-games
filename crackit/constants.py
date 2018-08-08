@@ -35,4 +35,6 @@ GUI_STYLE = Style([
     ("dialog.body", "fg:ansidefault bg:ansidefault"),
     ("dialog shadow", "fg:ansibrightblack bg:ansibrightblack"),
     ("dialog frame.label", "fg:ansigreen"),
+    ("cursor-line", "fg:ansidefault bg:ansidefault reverse nounderline"),
+    ("cursor-column", "fg:ansidefault bg:ansidefault reverse"),
 ])

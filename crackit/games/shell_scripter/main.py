@@ -23,6 +23,7 @@ from prompt_toolkit.validation import Validator
 from prompt_toolkit import PromptSession
 
 from crackit.utils import print_banner
+from crackit.constants import GUI_STYLE
 from crackit.games.shell_scripter.command import Command
 from crackit.games.shell_scripter.constants import INPUT_FILE_NAMES, OUTPUT_FILE_NAMES, COMMANDS
 
@@ -50,7 +51,7 @@ def main(
     Command.input_names = INPUT_FILE_NAMES
     Command.output_names = OUTPUT_FILE_NAMES
 
-    session = PromptSession(validate_while_typing=False, mouse_support=True)
+    session = PromptSession(validate_while_typing=False, mouse_support=True, style=GUI_STYLE)
 
     # Print random commands and prompt the user to type them in until they type them in correctly.
     for _ in range(commands_to_win):

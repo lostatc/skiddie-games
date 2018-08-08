@@ -24,6 +24,7 @@ from typing import List, Set, Iterable
 from prompt_toolkit.validation import Validator
 from prompt_toolkit import PromptSession
 
+from crackit.constants import GUI_STYLE
 from crackit.utils import print_banner
 
 # The string that prefixes every line in the grid.
@@ -35,7 +36,7 @@ VALID_CHARS = "0123456789abcdef"
 
 class CharGrid:
     """Represent a grid of characters.
-    
+
     Attributes:
         valid_chars: The string of characters that are allowed in the grid.
         num_columns: The number of columns in the grid.
@@ -45,20 +46,20 @@ class CharGrid:
         self.valid_chars = set(valid_chars)
         self.num_columns = num_columns
         self.rows = []
-        
+
     @property
     def columns(self) -> List[List[str]]:
         """The columns of the grid.
-        
+
         Ignore rows which aren't full.
         """
         full_rows = [row for row in self.rows if len(row) == self.num_columns]
         return [list(chars) for chars in zip(*full_rows)]
-    
+
     @property
     def unused_row(self) -> List[Set[str]]:
         """The characters that are unused in each row.
-        
+
         Returns:
             A list containing a set of characters for each row.
         """
@@ -67,7 +68,7 @@ class CharGrid:
     @property
     def unused_column(self) -> List[Set[str]]:
         """The characters that are unused in each column.
-        
+
         Returns:
             A list containing a set of characters for each column.
         """
@@ -75,11 +76,11 @@ class CharGrid:
         output = [self.valid_chars - set(chars) for chars in self.columns]
         output += [self.valid_chars] * (self.num_columns - len(output))
         return output
-    
+
     def format(self) -> str:
         """Format the grid as a single string."""
         return "\n".join("".join(row) for row in self.rows)
-    
+
     def is_valid(self) -> bool:
         """The grid is valid.
 
@@ -90,11 +91,11 @@ class CharGrid:
                 return False
             elif len(set(row)) < len(row):
                 return False
-            
+
         for column in self.columns:
             if len(set(column)) < len(column):
                 return False
-            
+
         return True
 
     def check_row(self, row: str) -> bool:
@@ -105,17 +106,17 @@ class CharGrid:
             return False
         return True
 
-            
+
 def create_grid(rows: int, columns: int, valid_chars: str = VALID_CHARS) -> CharGrid:
     """Generate a random grid of characters.
-    
+
     The same character will not appear more than once in any row or column.
-    
+
     Args:
         rows: The number of rows in the grid.
         columns: The number of columns in the grid.
         valid_chars: A string of characters that may be used in the grid.
-            
+
     Returns:
         A CharGrid object representing the grid of characters.
     """
@@ -125,7 +126,7 @@ def create_grid(rows: int, columns: int, valid_chars: str = VALID_CHARS) -> Char
         char_grid.rows.append([])
         row_num = len(char_grid.rows) - 1
         current_row = char_grid.rows[-1]
-        
+
         # These are characters that have been tried and found to not work. They are stored in this list to prevent the
         # algorithm from selecting them a second time.
         invalid_row_chars = [set() for _ in range(columns)]
@@ -164,7 +165,7 @@ def main(rows_to_win: int, starting_rows: int, columns: int) -> None:
     print(textwrap.indent(char_grid.format(), PREFIX_STRING))
 
     validator = Validator.from_callable(char_grid.check_row, error_message="Invalid row", move_cursor_to_end=True)
-    session = PromptSession(validator=validator, validate_while_typing=False, mouse_support=True)
+    session = PromptSession(validator=validator, validate_while_typing=False, mouse_support=True, style=GUI_STYLE)
 
     while len(char_grid.rows) < rows_to_win:
         session.prompt(PREFIX_STRING)
