@@ -57,7 +57,6 @@ class GameSelectScreen(Screen):
     """The screen used for selecting a game to play.
 
     Attributes:
-        _menu_keybindings: The keybindings for interactive menus.
         _selected_game: The currently selected game.
         _game_options_screen: The screen for configuring options for the selected game.
         _game_buttons: A map of buttons to the games they represent. These buttons are used to access the options menu
@@ -317,6 +316,7 @@ class HighScoreScreen(Screen):
             text=score_table,
             read_only=True,
             scrollbar=True,
+            wrap_lines=False,
         )
 
         text_area.window.cursorline = to_filter(True)
