@@ -26,12 +26,12 @@ Games
 =====
 hash_cracker
 ------------
-.. include:: crackit/descriptions/hash_cracker.txt
+.. include:: crackit/descriptions/hash_cracker.rst
 
 port_scanner
 ------------
-.. include:: crackit/descriptions/port_scanner.txt
+.. include:: crackit/descriptions/port_scanner.rst
 
 shell_scripter
 --------------
-.. include:: crackit/descriptions/shell_scripter.txt
+.. include:: crackit/descriptions/shell_scripter.rst
