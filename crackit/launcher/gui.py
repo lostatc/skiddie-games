@@ -22,16 +22,12 @@ import collections
 from typing import Callable, List
 
 from prompt_toolkit import Application
-from prompt_toolkit.document import Document
 from prompt_toolkit.layout.containers import VSplit, HSplit
 from prompt_toolkit.widgets import Button, Frame, Label, HorizontalLine, Dialog, RadioList, Box, TextArea
 from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
 from prompt_toolkit.layout.dimension import Dimension
 from prompt_toolkit.layout.layout import Layout
-from prompt_toolkit.layout.margins import ScrollbarMargin
-from prompt_toolkit.layout.controls import BufferControl
-from prompt_toolkit.buffer import Buffer
-from prompt_toolkit.layout.containers import FloatContainer, Window
+from prompt_toolkit.layout.containers import FloatContainer
 from prompt_toolkit.filters import to_filter, has_focus
 from prompt_toolkit.key_binding import KeyBindings
 
