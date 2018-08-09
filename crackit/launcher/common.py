@@ -57,32 +57,32 @@ TimerFunc = Callable[[Difficulty], float]
 def _start_hash_cracker(difficulty: Difficulty) -> None:
     """Start the game "hash_cracker" with a given difficulty."""
     if difficulty is Difficulty.EASY:
-        hash_cracker.main(rows_to_win=8, starting_rows=4, columns=6)
+        hash_cracker.play(rows_to_win=8, starting_rows=4, columns=6)
     if difficulty is Difficulty.NORMAL:
-        hash_cracker.main(rows_to_win=8, starting_rows=4, columns=8)
+        hash_cracker.play(rows_to_win=8, starting_rows=4, columns=8)
     if difficulty is Difficulty.HARD:
-        hash_cracker.main(rows_to_win=8, starting_rows=4, columns=10)
+        hash_cracker.play(rows_to_win=8, starting_rows=4, columns=10)
 
 
 def _start_port_scanner(difficulty: Difficulty) -> None:
     """Start the game "port_scanner" with a given difficulty."""
     if difficulty is Difficulty.EASY:
-        port_scanner.main(challenges_to_win=3, number_of_examples=1, max_section_number=63)
+        port_scanner.play(challenges_to_win=3, number_of_examples=1, max_section_number=63)
     if difficulty is Difficulty.NORMAL:
-        port_scanner.main(challenges_to_win=3, number_of_examples=1, max_section_number=127)
+        port_scanner.play(challenges_to_win=3, number_of_examples=1, max_section_number=127)
     if difficulty is Difficulty.HARD:
-        port_scanner.main(challenges_to_win=3, number_of_examples=1, max_section_number=255)
+        port_scanner.play(challenges_to_win=3, number_of_examples=1, max_section_number=255)
 
 
 def _start_shell_scripter(difficulty: Difficulty) -> None:
     """Start the game "shell_scripter" with a given difficulty."""
     # With these settings, the average number of characters per command increases linearly with each difficulty level.
     if difficulty is Difficulty.EASY:
-        shell_scripter.main(commands_to_win=15, min_args=0, max_args=3, redirect_probability=0.1, pipe_probability=0.2)
+        shell_scripter.play(commands_to_win=15, min_args=0, max_args=3, redirect_probability=0.1, pipe_probability=0.2)
     if difficulty is Difficulty.NORMAL:
-        shell_scripter.main(commands_to_win=15, min_args=1, max_args=4, redirect_probability=0.3, pipe_probability=0.4)
+        shell_scripter.play(commands_to_win=15, min_args=1, max_args=4, redirect_probability=0.3, pipe_probability=0.4)
     if difficulty is Difficulty.HARD:
-        shell_scripter.main(commands_to_win=15, min_args=2, max_args=5, redirect_probability=0.4, pipe_probability=0.5)
+        shell_scripter.play(commands_to_win=15, min_args=2, max_args=5, redirect_probability=0.4, pipe_probability=0.5)
 
 
 def get_timer(launcher_func: LauncherFunc) -> TimerFunc:
@@ -155,9 +155,9 @@ class GameSession:
         self.completed = datetime.datetime.now()
 
 
-GAME_HASH_CRACKER = Game("hash_cracker", get_description("hash_cracker.rst"), get_timer(_start_hash_cracker))
-GAME_PORT_SCANNER = Game("port_scanner", get_description("port_scanner.rst"), get_timer(_start_port_scanner))
-GAME_SHELL_SCRIPTER = Game("shell_scripter", get_description("shell_scripter.rst"), get_timer(_start_shell_scripter))
+GAME_HASH_CRACKER = Game("hash_cracker", get_description("hash_cracker.md"), get_timer(_start_hash_cracker))
+GAME_PORT_SCANNER = Game("port_scanner", get_description("port_scanner.md"), get_timer(_start_port_scanner))
+GAME_SHELL_SCRIPTER = Game("shell_scripter", get_description("shell_scripter.md"), get_timer(_start_shell_scripter))
 
 # A list of all available games. This must be updated whenever new games are added.
 GAMES = [GAME_HASH_CRACKER, GAME_PORT_SCANNER, GAME_SHELL_SCRIPTER]
