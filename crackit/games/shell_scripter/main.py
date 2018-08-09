@@ -31,7 +31,7 @@ from crackit.games.shell_scripter.constants import INPUT_FILE_NAMES, OUTPUT_FILE
 COMMAND_PROMPT = "$ "
 
 
-def main(
+def play(
         commands_to_win: int, min_args: int, max_args: int,
         redirect_probability: float, pipe_probability: float) -> None:
     """Play the game.

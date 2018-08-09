@@ -153,7 +153,7 @@ def create_grid(rows: int, columns: int, valid_chars: str = VALID_CHARS) -> Char
     return char_grid
 
 
-def main(rows_to_win: int, starting_rows: int, columns: int) -> None:
+def play(rows_to_win: int, starting_rows: int, columns: int) -> None:
     """Play the game.
 
     Args:
