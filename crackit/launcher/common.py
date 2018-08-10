@@ -22,7 +22,7 @@ import time
 import datetime
 from typing import Callable
 
-from crackit.games import hash_cracker, shell_scripter, port_scanner
+from crackit.games import hash_cracker, shell_scripter, port_scanner, hex_editor
 from crackit.utils import get_description
 
 
@@ -64,6 +64,25 @@ def _start_hash_cracker(difficulty: Difficulty) -> None:
         hash_cracker.play(rows_to_win=8, starting_rows=4, columns=10)
 
 
+def _start_hex_editor(difficulty: Difficulty) -> None:
+    """Start the game "hex_editor" with a given difficulty."""
+    if difficulty is Difficulty.EASY:
+        hex_editor.play(
+            grids_to_win=1, grid_width=12, grid_height=6, forward_weight=4, sideways_weight=2,
+            min_distance=1, max_distance=4,
+        )
+    if difficulty is Difficulty.NORMAL:
+        hex_editor.play(
+            grids_to_win=1, grid_width=16, grid_height=8, forward_weight=4, sideways_weight=3,
+            min_distance=1, max_distance=3,
+        )
+    if difficulty is Difficulty.HARD:
+        hex_editor.play(
+            grids_to_win=1, grid_width=20, grid_height=10, forward_weight=4, sideways_weight=4,
+            min_distance=1, max_distance=2,
+        )
+
+
 def _start_port_scanner(difficulty: Difficulty) -> None:
     """Start the game "port_scanner" with a given difficulty."""
     if difficulty is Difficulty.EASY:
@@ -78,11 +97,17 @@ def _start_shell_scripter(difficulty: Difficulty) -> None:
     """Start the game "shell_scripter" with a given difficulty."""
     # With these settings, the average number of characters per command increases linearly with each difficulty level.
     if difficulty is Difficulty.EASY:
-        shell_scripter.play(commands_to_win=15, min_args=0, max_args=3, redirect_probability=0.1, pipe_probability=0.2)
+        shell_scripter.play(
+            commands_to_win=15, min_args=0, max_args=3, redirect_probability=0.1, pipe_probability=0.2,
+        )
     if difficulty is Difficulty.NORMAL:
-        shell_scripter.play(commands_to_win=15, min_args=1, max_args=4, redirect_probability=0.3, pipe_probability=0.4)
+        shell_scripter.play(
+            commands_to_win=15, min_args=1, max_args=4, redirect_probability=0.3, pipe_probability=0.4,
+        )
     if difficulty is Difficulty.HARD:
-        shell_scripter.play(commands_to_win=15, min_args=2, max_args=5, redirect_probability=0.4, pipe_probability=0.5)
+        shell_scripter.play(
+            commands_to_win=15, min_args=2, max_args=5, redirect_probability=0.4, pipe_probability=0.5,
+        )
 
 
 def get_timer(launcher_func: LauncherFunc) -> TimerFunc:
@@ -156,8 +181,9 @@ class GameSession:
 
 
 GAME_HASH_CRACKER = Game("hash_cracker", get_description("hash_cracker.md"), get_timer(_start_hash_cracker))
+GAME_HEX_EDITOR = Game("hex_editor", get_description("hex_editor.md"), get_timer(_start_hex_editor))
 GAME_PORT_SCANNER = Game("port_scanner", get_description("port_scanner.md"), get_timer(_start_port_scanner))
 GAME_SHELL_SCRIPTER = Game("shell_scripter", get_description("shell_scripter.md"), get_timer(_start_shell_scripter))
 
 # A list of all available games. This must be updated whenever new games are added.
-GAMES = [GAME_HASH_CRACKER, GAME_PORT_SCANNER, GAME_SHELL_SCRIPTER]
+GAMES = [GAME_HASH_CRACKER, GAME_HEX_EDITOR, GAME_PORT_SCANNER, GAME_SHELL_SCRIPTER]
