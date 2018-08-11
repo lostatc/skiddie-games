@@ -24,7 +24,7 @@
             "index": "pypi",
             "version": "==6.7"
         },
-        "crackit": {
+        "skiddie": {
             "editable": true,
             "path": "."
         },

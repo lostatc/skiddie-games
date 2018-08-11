@@ -2,20 +2,20 @@
 
 Copyright © 2017 Wren Powell <wrenp@duck.com>
 
-This file is part of crackit.
+This file is part of skiddie.
 
-crackit is free software: you can redistribute it and/or modify
+skiddie is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-crackit is distributed in the hope that it will be useful,
+skiddie is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with crackit.  If not, see <http://www.gnu.org/licenses/>.
+along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 from prompt_toolkit import Application
 from prompt_toolkit.buffer import Buffer
@@ -27,9 +27,9 @@ from prompt_toolkit.layout.processors import BeforeInput
 from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit.widgets import Label, HorizontalLine, ValidationToolbar
 
-from crackit.utils import Screen, MultiScreenApp
-from crackit.constants import GUI_STYLE
-from crackit.games.hex_editor.generator import MazeGrid
+from skiddie.utils import Screen, MultiScreenApp
+from skiddie.constants import GUI_STYLE
+from skiddie.games.hex_editor.generator import MazeGrid
 
 
 class CoordinateValidator(Validator):

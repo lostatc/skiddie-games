@@ -2,30 +2,30 @@
 
 Copyright © 2017 Wren Powell <wrenp@duck.com>
 
-This file is part of crackit.
+This file is part of skiddie.
 
-crackit is free software: you can redistribute it and/or modify
+skiddie is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-crackit is distributed in the hope that it will be useful,
+skiddie is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with crackit.  If not, see <http://www.gnu.org/licenses/>.
+along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import random
 
 from prompt_toolkit.validation import Validator
 from prompt_toolkit import PromptSession
 
-from crackit.utils import print_banner
-from crackit.constants import GUI_STYLE
-from crackit.games.shell_scripter.command import Command
-from crackit.games.shell_scripter.constants import INPUT_FILE_NAMES, OUTPUT_FILE_NAMES, COMMANDS
+from skiddie.utils import print_banner
+from skiddie.constants import GUI_STYLE
+from skiddie.games.shell_scripter.command import Command
+from skiddie.games.shell_scripter.constants import INPUT_FILE_NAMES, OUTPUT_FILE_NAMES, COMMANDS
 
 # The string that is printed before each command and line of user input.
 COMMAND_PROMPT = "$ "

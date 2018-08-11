@@ -2,20 +2,20 @@
 
 Copyright © 2017 Wren Powell <wrenp@duck.com>
 
-This file is part of crackit.
+This file is part of skiddie.
 
-crackit is free software: you can redistribute it and/or modify
+skiddie is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-crackit is distributed in the hope that it will be useful,
+skiddie is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with crackit.  If not, see <http://www.gnu.org/licenses/>.
+along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import functools
 import collections
@@ -31,11 +31,11 @@ from prompt_toolkit.layout.containers import FloatContainer
 from prompt_toolkit.filters import to_filter, has_focus
 from prompt_toolkit.key_binding import KeyBindings
 
-from crackit.launcher.scores import Scores
-from crackit.constants import GUI_STYLE
-from crackit.utils import Screen, FloatScreen, MultiScreenApp
-from crackit.launcher.common import Difficulty, Game, GameSession, GAMES
-from crackit.launcher.scores import process_result, format_scores
+from skiddie.launcher.scores import Scores
+from skiddie.constants import GUI_STYLE
+from skiddie.utils import Screen, FloatScreen, MultiScreenApp
+from skiddie.launcher.common import Difficulty, Game, GameSession, GAMES
+from skiddie.launcher.scores import process_result, format_scores
 
 # The width of buttons that are used to create menus.
 MENU_BUTTON_WIDTH = 20

@@ -2,20 +2,20 @@
 
 Copyright © 2017 Wren Powell <wrenp@duck.com>
 
-This file is part of crackit.
+This file is part of skiddie.
 
-crackit is free software: you can redistribute it and/or modify
+skiddie is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-crackit is distributed in the hope that it will be useful,
+skiddie is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with crackit.  If not, see <http://www.gnu.org/licenses/>.
+along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import random
 from typing import List, Tuple
@@ -23,7 +23,7 @@ from typing import List, Tuple
 from prompt_toolkit import PromptSession
 from prompt_toolkit.validation import Validator, ValidationError
 
-from crackit.utils import LateInit, print_banner
+from skiddie.utils import LateInit, print_banner
 
 # The number of sections in the IP address.
 ADDRESS_SECTIONS = 4

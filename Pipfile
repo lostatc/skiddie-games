@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 prompt-toolkit = "*"
 click = "*"
-crackit = {editable = true, path = "."}
+skiddie = {editable = true, path = "."}
 
 [dev-packages]
 

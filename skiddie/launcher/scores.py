@@ -2,20 +2,20 @@
 
 Copyright © 2017 Wren Powell <wrenp@duck.com>
 
-This file is part of crackit.
+This file is part of skiddie.
 
-crackit is free software: you can redistribute it and/or modify
+skiddie is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-crackit is distributed in the hope that it will be useful,
+skiddie is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with crackit.  If not, see <http://www.gnu.org/licenses/>.
+along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import os
 import json
@@ -26,9 +26,9 @@ from typing import List, Optional, Union
 from prompt_toolkit import prompt
 from prompt_toolkit.formatted_text import FormattedText
 
-from crackit.constants import SCORES_FILE, CONFIG_DIR
-from crackit.utils import format_duration, LateInit, bool_prompt, format_table
-from crackit.launcher.common import GameSession, Game, Difficulty
+from skiddie.constants import SCORES_FILE, CONFIG_DIR
+from skiddie.utils import format_duration, LateInit, bool_prompt, format_table
+from skiddie.launcher.common import GameSession, Game, Difficulty
 
 # The string that immediately precedes the users time whenever their time is printed to stdout.
 TIMER_RESULT_PREFIX = "Your time is: "

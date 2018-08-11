@@ -1,15 +1,15 @@
 import setuptools
 
-with open("README.rst") as file:
+with open("README.md") as file:
     readme_contents = file.read()
 
 setuptools.setup(
-    name="crackit",
+    name="skiddie",
     version="0.1",
     description="Hollywood-style hacking minigames",
     long_description=readme_contents,
-    long_description_content_type="text/x-rst",
-    url="https://github.com/lostatc/crackit",
+    long_description_content_type="text/markdown",
+    url="https://github.com/lostatc/skiddie",
     author="Wren Powell",
     author_email="wrenp@duck.com",
     license="GPLv3",
@@ -28,7 +28,7 @@ setuptools.setup(
     ),
     entry_points={
         "console_scripts": [
-            "crackit=crackit.launcher.cli:cli"
+            "skiddie=skiddie.launcher.cli:cli"
         ]
     },
 )
