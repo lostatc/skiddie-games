@@ -198,7 +198,7 @@ class MazeGrid:
 
     def format_grid(
             self, visited_style: str = "reverse", add_coords: bool = True,
-            coords_style: str = "italic bold") -> FormattedText:
+            coords_style: str = "italic bold fg:ansibrightcyan") -> FormattedText:
         """Format the grid as a single string.
 
         Args:
