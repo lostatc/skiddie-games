@@ -68,18 +68,15 @@ def _start_hex_editor(difficulty: Difficulty) -> None:
     """Start the game "hex_editor" with a given difficulty."""
     if difficulty is Difficulty.EASY:
         hex_editor.play(
-            grids_to_win=1, grid_width=12, grid_height=6, forward_weight=2, sideways_weight=1,
-            min_distance=1, max_distance=2,
+            grids_to_win=1, grid_width=12, grid_height=6, min_distance=1, max_distance=2, branch_probability=0.1,
         )
     if difficulty is Difficulty.NORMAL:
         hex_editor.play(
-            grids_to_win=1, grid_width=16, grid_height=8, forward_weight=2, sideways_weight=2,
-            min_distance=1, max_distance=2,
+            grids_to_win=1, grid_width=16, grid_height=8, min_distance=1, max_distance=2, branch_probability=0.15,
         )
     if difficulty is Difficulty.HARD:
         hex_editor.play(
-            grids_to_win=1, grid_width=20, grid_height=10, forward_weight=2, sideways_weight=2,
-            min_distance=1, max_distance=1,
+            grids_to_win=1, grid_width=20, grid_height=10, min_distance=1, max_distance=2, branch_probability=0.2,
         )
 
 

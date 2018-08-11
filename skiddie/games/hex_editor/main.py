@@ -26,22 +26,21 @@ from skiddie.utils import print_banner
 
 
 def play(
-        grids_to_win: int, grid_width: int, grid_height: int, forward_weight: int, sideways_weight: int,
-        min_distance: int, max_distance: int) -> None:
+        grids_to_win: int, grid_width: int, grid_height: int,
+        min_distance: int, max_distance: int, branch_probability: float) -> None:
     """Play the game.
 
     Args:
         grids_to_win: The number of grids that need to be completed to win the game.
         grid_width: The number of columns in the grid.
         grid_height: The number of rows in the grid.
-        forward_weight: The relative weight given to forward moves when generating the path.
-        sideways_weight: The relative weight given to sideways moves when generating the path.
         min_distance: The minimum length for a segment of the generated path through the maze grid.
         max_distance: The maximum length for a segment of the generated path through the maze grid.
+        branch_probability: The probability for each tile that a dead end branch will be generated.
     """
     for _ in range(grids_to_win):
         grid = MazeGrid.create_random(
-            grid_width, grid_height, forward_weight, sideways_weight, min_distance, max_distance
+            grid_width, grid_height, min_distance, max_distance, branch_probability
         )
 
         interface = GameInterface(grid)

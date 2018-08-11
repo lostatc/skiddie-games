@@ -20,9 +20,12 @@ along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 import re
 import random
 import itertools
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Optional
 
 from prompt_toolkit.formatted_text import FormattedText
+
+# A pair of x and y coordinates.
+Coordinates = NamedTuple("Coordinates", [("x", int), ("y", int)])
 
 # All the valid characters that can be used for each tile.
 VALID_TILE_CHARS = "0123456789abcdef"
@@ -39,8 +42,17 @@ GRID_COLUMN_SEPARATOR = "  "
 # The regex pattern used to match the x and y coordinates in a string.
 COORDINATE_PATTERN = "^\s*\(?\s*([0-9]+)\s*,\s*([0-9]+)\s*\)?\s*$"
 
-# A pair of x and y coordinates.
-Coordinates = NamedTuple("Coordinates", [("x", int), ("y", int)])
+# The relative weight given to forward moves when generating the path.
+FORWARD_WALK_WEIGHT = 1
+
+# The relative weight given to sideways moves when generating the path.
+SIDEWAYS_WALK_WEIGHT = 2
+
+# The minimum length for dead-end branches that are generated along the path.
+MIN_BRANCH_LENGTH = 1
+
+# The maximum length for dead-end branches that are generated along the path.
+MAX_BRANCH_LENGTH = 4
 
 
 class MazeTile:
@@ -49,6 +61,7 @@ class MazeTile:
     Attributes:
         label: The text that is displayed to represent the tile in the maze.
         coordinates: The x and y coordinates of the tile in the grid.
+        visited: Whether the tile has been visited.
     """
     def __init__(self, label: str, coordinates: Coordinates):
         self.label = label
@@ -92,9 +105,11 @@ class MazeGrid:
 
     Attributes:
         grid: A list of rows, each of which is a list of columns.
+        _used_coordinates: The set of coordinates of tiles that new paths can not overlap.
     """
     def __init__(self, grid: List[List[MazeTile]]):
         self.grid = grid
+        self._used_coordinates = None
 
     @property
     def width(self) -> int:
@@ -248,17 +263,16 @@ class MazeGrid:
 
     @classmethod
     def create_random(
-            cls, width: int, height: int, forward_weight: int, sideways_weight: int,
-            min_distance: int, max_distance: int) -> "MazeGrid":
+            cls, width: int, height: int, min_distance: int, max_distance: int,
+            branch_probability: float) -> "MazeGrid":
         """Create a new random grid with at least one valid path connecting both sides.
 
         Args:
             width: The number of columns in the grid.
             height: The number of rows in the grid.
-            forward_weight: The relative weight given to forward moves when generating the path.
-            sideways_weight: The relative weight given to sideways moves when generating the path.
             min_distance: The minimum length for a segment of the generated path through the maze grid.
             max_distance: The maximum length for a segment of the generated path through the maze grid.
+            branch_probability: The probability for each tile that a dead end branch will be generated.
         """
         # Generate a completely random grid.
         grid = [
@@ -275,30 +289,60 @@ class MazeGrid:
         maze_grid.grid[start_coordinates.y][start_coordinates.x] = start_tile
         start_tile.visit()
 
-        # This list contains the coordinate offsets for moving in each direction. Each offset appears in here multiple
-        # times, with the relative number of times corresponding to the likelihood that it will be picked.
-        weighted_offsets = (
-            [Coordinates(1, 0)] * forward_weight
-            + [Coordinates(0, 1)] * sideways_weight
-            + [Coordinates(0, -1)] * sideways_weight
-        )
-
-        current_coordinates = start_coordinates
         previous_tile = start_tile
 
         # This is a set of all the coordinates that have been used in the path so far.
-        used_coordinates = {start_coordinates}
+        maze_grid._used_coordinates = {start_coordinates}
 
         # Until the path reaches the right edge, walk a random distance in a random direction.
-        while not any(coordinates.x == (width - 1) for coordinates in used_coordinates):
+        while not any(coordinates.x == (width - 1) for coordinates in maze_grid._used_coordinates):
+            previous_tile = maze_grid._walk_random(previous_tile, min_distance, max_distance)
+
+        # Get the coordinates of the tiles to create branches off of.
+        sample_size = round(len(maze_grid._used_coordinates) * branch_probability)
+        branch_coordinates = random.sample(maze_grid._used_coordinates, sample_size)
+
+        # Create dead-end branches.
+        for branch_start_coordinates in branch_coordinates:
+            branch_start_tile = maze_grid.get_from_coordinates(branch_start_coordinates)
+            maze_grid._walk_random(branch_start_tile, MIN_BRANCH_LENGTH, MAX_BRANCH_LENGTH)
+
+        return maze_grid
+
+    def _walk_random(self, start_tile: MazeTile, min_distance: int, max_distance: int) -> MazeTile:
+        """Add a random path to the grid.
+
+        Args:
+            start_tile: The tile to start walking from.
+            min_distance: The minimum distance to walk.
+            max_distance: The maximum distance to walk.
+
+        Returns:
+            The tile that the walk ended on. If there is no direction that you can walk from this tile, this is the
+            start tile.
+        """
+        # The coordinate offsets for moving in each direction. Each offset appears in here multiple
+        # times, with the relative number of times corresponding to the likelihood that it will be picked.
+        weighted_offsets = (
+            [Coordinates(1, 0)] * FORWARD_WALK_WEIGHT
+            + [Coordinates(0, 1)] * SIDEWAYS_WALK_WEIGHT
+            + [Coordinates(0, -1)] * SIDEWAYS_WALK_WEIGHT
+        )
+
+        previous_tile = start_tile
+        while previous_tile == start_tile:
+            if not weighted_offsets:
+                # There is no direction that you can walk from this tile.
+                return start_tile
+
             offset_coordinates = random.choice(weighted_offsets)
             walk_distance = random.randint(min_distance, max_distance)
 
             # Get the coordinates at the end of this walk.
             end_coordinates = Coordinates(
-                current_coordinates.x + (offset_coordinates.x * walk_distance),
-                current_coordinates.y + (offset_coordinates.y * walk_distance),
-            )
+                previous_tile.coordinates.x + (offset_coordinates.x * walk_distance),
+                previous_tile.coordinates.y + (offset_coordinates.y * walk_distance),
+                )
 
             # Get all the coordinates between the current tile and the end tile. Make sure both ranges are at least the
             # same length so that they can be iterated over together.
@@ -310,8 +354,8 @@ class MazeGrid:
                 else:
                     return range(start+1, end+1)
 
-            x_range = get_range(current_coordinates.x, end_coordinates.x)
-            y_range = get_range(current_coordinates.y, end_coordinates.y)
+            x_range = get_range(previous_tile.coordinates.x, end_coordinates.x)
+            y_range = get_range(previous_tile.coordinates.y, end_coordinates.y)
 
             # These are all the coordinates between the current tile and the end tile.
             walk_coordinates = [Coordinates(x, y) for x, y in zip(x_range, y_range)]
@@ -320,22 +364,24 @@ class MazeGrid:
             for coordinate_pair in walk_coordinates:
                 # Check if the coordinates are out of bounds.
                 try:
-                    maze_grid.get_from_coordinates(coordinate_pair)
+                    self.get_from_coordinates(coordinate_pair)
                 except ValueError:
                     break
 
                 # Check if the path intersects itself.
-                if coordinate_pair in used_coordinates:
+                if coordinate_pair in self._used_coordinates:
                     break
 
                 # Create the new tile.
                 new_tile = MazeTile.from_existing(previous_tile, coordinate_pair)
 
                 # Add the new tile to the grid.
-                maze_grid.grid[coordinate_pair.y][coordinate_pair.x] = new_tile
-                used_coordinates.add(coordinate_pair)
+                self.grid[coordinate_pair.y][coordinate_pair.x] = new_tile
+                self._used_coordinates.add(coordinate_pair)
 
                 previous_tile = new_tile
-                current_coordinates = coordinate_pair
 
-        return maze_grid
+            # Don't attempt to walk in this direction again.
+            weighted_offsets.remove(offset_coordinates)
+
+        return previous_tile
