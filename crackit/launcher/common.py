@@ -69,12 +69,12 @@ def _start_hex_editor(difficulty: Difficulty) -> None:
     if difficulty is Difficulty.EASY:
         hex_editor.play(
             grids_to_win=1, grid_width=12, grid_height=6, forward_weight=4, sideways_weight=2,
-            min_distance=1, max_distance=4,
+            min_distance=1, max_distance=2,
         )
     if difficulty is Difficulty.NORMAL:
         hex_editor.play(
             grids_to_win=1, grid_width=16, grid_height=8, forward_weight=4, sideways_weight=3,
-            min_distance=1, max_distance=3,
+            min_distance=1, max_distance=2,
         )
     if difficulty is Difficulty.HARD:
         hex_editor.play(
