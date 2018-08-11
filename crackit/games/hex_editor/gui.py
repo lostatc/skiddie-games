@@ -45,6 +45,9 @@ class CoordinateValidator(Validator):
         except ValueError as e:
             raise ValidationError(message=str(e), cursor_position=len(text))
 
+        if tile.visited:
+            raise ValidationError(message="This tile has already been visited", cursor_position=len(text))
+
         if not self._maze_grid.check_visitable(tile):
             raise ValidationError(message="This tile is not next a valid tile", cursor_position=len(text))
 
