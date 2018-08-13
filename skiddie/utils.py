@@ -28,7 +28,7 @@ from prompt_toolkit import Application
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.validation import Validator
 from prompt_toolkit import print_formatted_text, prompt
-from prompt_toolkit.layout import Float, FloatContainer, Container
+from prompt_toolkit.layout import Float, FloatContainer, Container, Layout
 
 # The relative path to the directory containing the instructions for each game.
 INSTRUCTIONS_DIR = "descriptions"
@@ -171,23 +171,6 @@ class Screen(abc.ABC):
         self.multi_screen = multi_screen
 
     @abc.abstractmethod
-    def get_root_container(self) -> FloatContainer:
-        """Get the top-level container for the screen."""
-
-
-class FloatScreen(abc.ABC):
-    """A screen in a graphical terminal application that can float above other screens.
-
-    Args:
-        multi_screen: A reference to the MultiScreenApp containing this instance.
-
-    Attributes:
-        multi_screen: A reference to the MultiScreenApp containing this instance.
-    """
-    def __init__(self, multi_screen: "MultiScreenApp") -> None:
-        self.multi_screen = multi_screen
-
-    @abc.abstractmethod
     def get_root_container(self):
         """Get the top-level container for the screen."""
 
@@ -196,7 +179,7 @@ class MultiScreenApp:
     """A graphical terminal application that supports switching between multiple screens.
 
     Args:
-        app: The application instance to use.
+        app: The application instance to use. This should not define a layout.
         default_screen: The screen that shows by default when the application starts.
 
     Attributes:
@@ -205,6 +188,8 @@ class MultiScreenApp:
     """
     def __init__(self, app: Application, default_screen: Screen) -> None:
         self.app = app
+        self.app.layout = Layout(container=default_screen.get_root_container())
+
         self._screen_history = [default_screen]
 
     def set_screen(self, screen: Screen) -> None:
@@ -223,7 +208,7 @@ class MultiScreenApp:
         self._screen_history.pop()
         self.set_screen(self._screen_history.pop())
 
-    def add_floating_screen(self, screen: FloatScreen) -> None:
+    def add_floating_screen(self, screen: Screen) -> None:
         """Add a screen to the layout as a floating window.
 
         Args:
@@ -237,7 +222,3 @@ class MultiScreenApp:
         """Remove all floating windows."""
         self.app.layout.container.floats.clear()
         self.app.layout.focus(self.app.layout.container)
-
-    def exit(self, *args, **kwargs):
-        """Exit the application."""
-        self.app.exit(*args, **kwargs)

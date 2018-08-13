@@ -23,7 +23,7 @@ from typing import List
 from prompt_toolkit import Application
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
-from prompt_toolkit.layout import FloatContainer, HSplit, Window, WindowAlign, FormattedTextControl, Layout, Dimension, \
+from prompt_toolkit.layout import FloatContainer, HSplit, Window, WindowAlign, FormattedTextControl, Dimension, \
     VSplit
 from prompt_toolkit.widgets import Label, HorizontalLine, Frame, Box, Button
 
@@ -50,8 +50,7 @@ class PatternScreen(Screen):
         solution_containers = [
             HSplit([
                 self._get_grid_container(grid),
-                # Button("Select", handler=lambda: self.multi_screen.app.exit(result=grid)),
-                Button("Select", functools.partial(self.multi_screen.exit, result=grid)),
+                Button("Select", functools.partial(self.multi_screen.app.exit, result=grid)),
             ])
             for grid in self.solution_grids
         ]
@@ -94,9 +93,7 @@ class GameInterface(MultiScreenApp):
         self._pattern_screen = PatternScreen(self, challenge_grid, solution_grids)
         self._global_keybindings = self._create_global_keybindings()
 
-        layout = Layout(container=self._pattern_screen.get_root_container())
-
-        app = Application(layout, style=GUI_STYLE, key_bindings=self._global_keybindings)
+        app = Application(style=GUI_STYLE, key_bindings=self._global_keybindings)
 
         super().__init__(app, self._pattern_screen)
 

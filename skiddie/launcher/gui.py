@@ -26,14 +26,13 @@ from prompt_toolkit.layout.containers import VSplit, HSplit
 from prompt_toolkit.widgets import Button, Frame, Label, HorizontalLine, Dialog, RadioList, Box, TextArea
 from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
 from prompt_toolkit.layout.dimension import Dimension
-from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.containers import FloatContainer
 from prompt_toolkit.filters import to_filter, has_focus
 from prompt_toolkit.key_binding import KeyBindings
 
 from skiddie.launcher.scores import Scores
 from skiddie.constants import GUI_STYLE
-from skiddie.utils import Screen, FloatScreen, MultiScreenApp
+from skiddie.utils import Screen, MultiScreenApp
 from skiddie.launcher.common import Difficulty, Game, GameSession, GAMES
 from skiddie.launcher.scores import process_result, format_scores
 
@@ -245,7 +244,7 @@ class GameOptionsScreen(Screen):
         )
 
 
-class DifficultySelectScreen(FloatScreen):
+class DifficultySelectScreen(Screen):
     """The screen used for setting the difficulty of a game.
 
     Attributes:
@@ -382,16 +381,8 @@ class Launcher(MultiScreenApp):
         self._global_keybindings = self._create_global_keybindings()
         self._game_select_screen = GameSelectScreen(self)
 
-        # Define layout.
-        layout = Layout(container=self._game_select_screen.get_root_container())
-
-        # Define style.
-        style = GUI_STYLE
-
-        # Define application.
         app = Application(
-            layout=layout,
-            style=style,
+            style=GUI_STYLE,
             full_screen=True,
             mouse_support=True,
             key_bindings=self._global_keybindings

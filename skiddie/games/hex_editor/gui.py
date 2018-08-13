@@ -22,7 +22,7 @@ from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.document import Document
 from prompt_toolkit.filters import is_done
 from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.layout import FloatContainer, HSplit, BufferControl, Layout, Window, ConditionalContainer
+from prompt_toolkit.layout import FloatContainer, HSplit, BufferControl, Window, ConditionalContainer
 from prompt_toolkit.layout.processors import BeforeInput
 from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit.widgets import Label, HorizontalLine, ValidationToolbar
@@ -107,9 +107,7 @@ class GameInterface(MultiScreenApp):
         self._maze_screen = MazeScreen(self, maze_grid)
         self._global_keybindings = self._create_global_keybindings()
 
-        layout = Layout(container=self._maze_screen.get_root_container())
-
-        app = Application(layout, style=GUI_STYLE, key_bindings=self._global_keybindings)
+        app = Application(style=GUI_STYLE, key_bindings=self._global_keybindings)
 
         super().__init__(app, self._maze_screen)
 
