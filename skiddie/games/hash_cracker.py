@@ -157,9 +157,11 @@ def play(rows_to_win: int, starting_rows: int, columns: int) -> None:
     """Play the game.
 
     Args:
-        columns: The number of columns in the grid.
-        starting_rows: The number of rows in the grid when the game starts.
-        rows_to_win: The total number of rows that must be in the grid to win the game.
+        columns: The number of columns in the grid. Increasing this makes the game more difficult.
+        starting_rows: The number of rows in the grid when the game starts. Increasing this makes the game more
+            difficult.
+        rows_to_win: The total number of rows that must be in the grid to win the game. Increasing this makes the game
+            more difficult.
     """
     char_grid = create_grid(starting_rows, columns)
     print(textwrap.indent(char_grid.format(), PREFIX_STRING))

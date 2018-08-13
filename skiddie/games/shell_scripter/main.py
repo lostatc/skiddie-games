@@ -37,11 +37,16 @@ def play(
     """Play the game.
 
     Args:
-        commands_to_win: The number of commands that must be correctly entered to win the game.
-        min_args: The minimum number of non-required arguments that a command can have.
-        max_args: The maximum number of non-required arguments that a command can have.
-        redirect_probability: The probability that a command will send its output to a pipe or file.
-        pipe_probability: The probability that a command will use a pipe when redirecting its output.
+        commands_to_win: The number of commands that must be correctly entered to win the game. Increasing this makes
+            the game more difficult.
+        min_args: The minimum number of non-required arguments that a command can have. Increasing this makes the game
+            more difficult.
+        max_args: The maximum number of non-required arguments that a command can have. Increasing this makes the game
+            more difficult.
+        redirect_probability: The probability that a command will send its output to a pipe or file. Increasing this
+            makes the game more difficult.
+        pipe_probability: The probability that a command will use a pipe when redirecting its output. Increasing this
+            makes the game more difficult.
     """
     # Set class attributes that determine how commands are generated.
     Command.min_args = min_args

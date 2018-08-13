@@ -217,9 +217,12 @@ def play(challenges_to_win: int, number_of_examples: int, max_section_number: in
     """Play the game.
 
     Args:
-        number_of_examples: The number of completed IP addresses that come before each challenge.
-        challenges_to_win: The number of challenges that must be completed to win the game.
-        max_section_number: The maximum possible number for each section of the IP address.
+        number_of_examples: The number of completed IP addresses that come before each challenge. Decreasing this makes
+            the game more difficult.
+        challenges_to_win: The number of challenges that must be completed to win the game. Increasing this makes the
+            game more difficult.
+        max_section_number: The maximum possible number for each section of the IP address. Increasing this makes the
+            game more difficult.
     """
     AddressChallenge.max_section_number = max_section_number
 

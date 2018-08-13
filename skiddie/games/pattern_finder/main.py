@@ -31,12 +31,14 @@ def play(challenges_to_win: int, grid_width: int, grid_height: int, choices: int
     """Play the game.
 
     Args:
-        challenges_to_win: The number of challenges the user has to complete to win the game.
-        grid_width: The number of columns in the grid.
-        grid_height: The number of rows in the grid.
-        choices: The number of possible solutions the user has to choose from.
+        challenges_to_win: The number of challenges the user has to complete to win the game. Increasing this makes the
+            game more difficult.
+        grid_width: The number of columns in the grid. Increasing this makes the game more difficult.
+        grid_height: The number of rows in the grid. Increasing this makes the game more difficult.
+        choices: The number of possible solutions the user has to choose from. Increasing this makes the game more
+            difficult.
         cells_to_flip: The number of cells to flip the state of for each false solution. Decrease this number to make
-            the game more difficult.
+            the game more difficult. Decreasing this makes the game more difficult.
     """
     completed_challenges = 0
 

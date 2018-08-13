@@ -31,12 +31,16 @@ def play(
     """Play the game.
 
     Args:
-        grids_to_win: The number of grids that need to be completed to win the game.
-        grid_width: The number of columns in the grid.
-        grid_height: The number of rows in the grid.
-        min_distance: The minimum length for a segment of the generated path through the maze grid.
-        max_distance: The maximum length for a segment of the generated path through the maze grid.
-        branch_probability: The probability for each tile that a dead end branch will be generated.
+        grids_to_win: The number of grids that need to be completed to win the game. Increasing this makes the game more
+            difficult.
+        grid_width: The number of columns in the grid. Increasing this makes the game more difficult.
+        grid_height: The number of rows in the grid. Increasing this makes the game more difficult.
+        min_distance: The minimum length for a segment of the generated path through the maze grid. Decreasing this
+            makes the game more difficult.
+        max_distance: The maximum length for a segment of the generated path through the maze grid. Decreasing this
+            makes the game more difficult.
+        branch_probability: The probability for each tile that a dead end branch will be generated. Increasing this
+            makes the game more difficult.
     """
     for _ in range(grids_to_win):
         grid = MazeGrid.create_random(
