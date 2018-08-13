@@ -22,7 +22,7 @@ import time
 import datetime
 from typing import Callable
 
-from skiddie.games import hash_cracker, shell_scripter, port_scanner, hex_editor
+from skiddie.games import hash_cracker, shell_scripter, port_scanner, hex_editor, pattern_finder
 from skiddie.utils import get_description
 
 
@@ -78,6 +78,16 @@ def _start_hex_editor(difficulty: Difficulty) -> None:
         hex_editor.play(
             grids_to_win=1, grid_width=20, grid_height=10, min_distance=1, max_distance=2, branch_probability=0.2,
         )
+
+
+def _start_pattern_finder(difficulty: Difficulty) -> None:
+    """Start the game "pattern_finder" with a given difficulty."""
+    if difficulty is Difficulty.EASY:
+        pattern_finder.play(challenges_to_win=5, grid_width=5, grid_height=5, choices=4, cells_to_flip=1)
+    if difficulty is Difficulty.NORMAL:
+        pattern_finder.play(challenges_to_win=5, grid_width=6, grid_height=6, choices=4, cells_to_flip=1)
+    if difficulty is Difficulty.HARD:
+        pattern_finder.play(challenges_to_win=5, grid_width=7, grid_height=7, choices=4, cells_to_flip=1)
 
 
 def _start_port_scanner(difficulty: Difficulty) -> None:
@@ -179,8 +189,9 @@ class GameSession:
 
 GAME_HASH_CRACKER = Game("hash_cracker", get_description("hash_cracker.md"), get_timer(_start_hash_cracker))
 GAME_HEX_EDITOR = Game("hex_editor", get_description("hex_editor.md"), get_timer(_start_hex_editor))
+GAME_PATTERN_FINDER = Game("pattern_finder", get_description("pattern_finder.md"), get_timer(_start_pattern_finder))
 GAME_PORT_SCANNER = Game("port_scanner", get_description("port_scanner.md"), get_timer(_start_port_scanner))
 GAME_SHELL_SCRIPTER = Game("shell_scripter", get_description("shell_scripter.md"), get_timer(_start_shell_scripter))
 
 # A list of all available games. This must be updated whenever new games are added.
-GAMES = [GAME_HASH_CRACKER, GAME_HEX_EDITOR, GAME_PORT_SCANNER, GAME_SHELL_SCRIPTER]
+GAMES = [GAME_HASH_CRACKER, GAME_HEX_EDITOR, GAME_PATTERN_FINDER, GAME_PORT_SCANNER, GAME_SHELL_SCRIPTER]

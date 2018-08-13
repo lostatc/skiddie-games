@@ -237,3 +237,7 @@ class MultiScreenApp:
         """Remove all floating windows."""
         self.app.layout.container.floats.clear()
         self.app.layout.focus(self.app.layout.container)
+
+    def exit(self, *args, **kwargs):
+        """Exit the application."""
+        self.app.exit(*args, **kwargs)
