@@ -93,7 +93,7 @@ class GameSelectScreen(Screen):
                         width=Dimension(min=MENU_BUTTON_WIDTH, max=40),
                         height=Dimension(),
                     ),
-                    title="Select a Game",
+                    title="Games",
                     key_bindings=menu_keybindings,
                 ),
                 Frame(
@@ -205,10 +205,13 @@ class GameOptionsScreen(Screen):
                         ),
                         HorizontalLine(),
                         Box(
-                            Label(
+                            TextArea(
                                 text=self._selected_game.description,
                                 dont_extend_height=False,
                                 width=Dimension(min=40),
+                                read_only=True,
+                                scrollbar=True,
+                                wrap_lines=False,
                             ),
                             padding=0,
                             padding_left=1,
