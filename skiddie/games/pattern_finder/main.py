@@ -20,7 +20,7 @@ along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 import time
 import random
 
-from skiddie.games.pattern_finder.generator import PatternGrid
+from skiddie.games.pattern_finder.logic import PatternGrid
 from skiddie.games.pattern_finder.gui import GameInterface
 from skiddie.utils import print_banner
 

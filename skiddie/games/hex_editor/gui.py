@@ -29,7 +29,7 @@ from prompt_toolkit.widgets import Label, HorizontalLine, ValidationToolbar
 
 from skiddie.utils import Screen, MultiScreenApp
 from skiddie.constants import GUI_STYLE
-from skiddie.games.hex_editor.generator import MazeGrid
+from skiddie.games.hex_editor.logic import MazeGrid
 
 
 class CoordinateValidator(Validator):

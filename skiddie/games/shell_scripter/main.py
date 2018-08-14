@@ -24,7 +24,7 @@ from prompt_toolkit import PromptSession
 
 from skiddie.utils import print_banner
 from skiddie.constants import GUI_STYLE
-from skiddie.games.shell_scripter.command import Command
+from skiddie.games.shell_scripter.logic import Command
 from skiddie.games.shell_scripter.constants import INPUT_FILE_NAMES, OUTPUT_FILE_NAMES, COMMANDS
 
 # The string that is printed before each command and line of user input.

@@ -17,7 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
-from skiddie.games.shell_scripter.command import Command, Argument
+from skiddie.games.shell_scripter.logic import Command, Argument
 
 # Directory paths to be used as arguments in commands.
 ARG_DIR_PATHS = [
