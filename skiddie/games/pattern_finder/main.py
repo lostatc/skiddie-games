@@ -40,9 +40,10 @@ def play(
         grid_height: The number of rows in the grid. Increasing this makes the game more difficult.
         choices: The number of possible solutions the user has to choose from. Increasing this makes the game more
             difficult.
-        cells_to_flip: The number of cells to flip the state of for each false solution. Decrease this number to make
-            the game more difficult. Decreasing this makes the game more difficult.
-        incorrect_penalty: The number of seconds to make the user wait after an incorrect answer.
+        cells_to_flip: The number of cells to flip the state of for each false solution. Decreasing this makes the game
+            more difficult.
+        incorrect_penalty: The number of seconds to make the user wait after an incorrect answer. Increasing this makes
+            the game more difficult.
     """
     completed_challenges = 0
 
