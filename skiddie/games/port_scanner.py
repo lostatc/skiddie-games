@@ -203,7 +203,7 @@ class AddressChallenge:
             lower_bound = constrain(MIN_PORT - max_possible_sum, current_sign)
             upper_bound = constrain(MAX_PORT - min_possible_sum, current_sign)
 
-            section = random.randrange(lower_bound, upper_bound)
+            section = random.randint(lower_bound, upper_bound)
             sections.append(section)
 
         return cls(sections)
