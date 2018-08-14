@@ -93,11 +93,11 @@ def _start_pattern_finder(difficulty: Difficulty) -> None:
 def _start_port_scanner(difficulty: Difficulty) -> None:
     """Start the game "port_scanner" with a given difficulty."""
     if difficulty is Difficulty.EASY:
-        port_scanner.play(challenges_to_win=3, number_of_examples=1, max_section_number=63)
+        port_scanner.play(challenges_to_win=3, number_of_examples=1, max_section_number=31)
     if difficulty is Difficulty.NORMAL:
-        port_scanner.play(challenges_to_win=3, number_of_examples=1, max_section_number=127)
+        port_scanner.play(challenges_to_win=3, number_of_examples=1, max_section_number=63)
     if difficulty is Difficulty.HARD:
-        port_scanner.play(challenges_to_win=3, number_of_examples=1, max_section_number=255)
+        port_scanner.play(challenges_to_win=3, number_of_examples=1, max_section_number=127)
 
 
 def _start_shell_scripter(difficulty: Difficulty) -> None:
