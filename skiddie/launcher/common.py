@@ -83,11 +83,17 @@ def _start_hex_editor(difficulty: Difficulty) -> None:
 def _start_pattern_finder(difficulty: Difficulty) -> None:
     """Start the game "pattern_finder" with a given difficulty."""
     if difficulty is Difficulty.EASY:
-        pattern_finder.play(challenges_to_win=5, grid_width=5, grid_height=5, choices=4, cells_to_flip=1)
+        pattern_finder.play(
+            challenges_to_win=5, grid_width=5, grid_height=5, choices=4, cells_to_flip=1, incorrect_penalty=5,
+        )
     if difficulty is Difficulty.NORMAL:
-        pattern_finder.play(challenges_to_win=5, grid_width=6, grid_height=6, choices=4, cells_to_flip=1)
+        pattern_finder.play(
+            challenges_to_win=5, grid_width=6, grid_height=6, choices=4, cells_to_flip=1, incorrect_penalty=5,
+        )
     if difficulty is Difficulty.HARD:
-        pattern_finder.play(challenges_to_win=5, grid_width=7, grid_height=7, choices=4, cells_to_flip=1)
+        pattern_finder.play(
+            challenges_to_win=5, grid_width=7, grid_height=7, choices=4, cells_to_flip=1, incorrect_penalty=5,
+        )
 
 
 def _start_port_scanner(difficulty: Difficulty) -> None:

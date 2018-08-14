@@ -17,6 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
+import time
 import random
 
 from skiddie.games.pattern_finder.generator import PatternGrid
@@ -27,7 +28,9 @@ from skiddie.utils import print_banner
 GRID_COVERAGE = 0.5
 
 
-def play(challenges_to_win: int, grid_width: int, grid_height: int, choices: int, cells_to_flip: int) -> None:
+def play(
+        challenges_to_win: int, grid_width: int, grid_height: int, choices: int, cells_to_flip: int,
+        incorrect_penalty: float) -> None:
     """Play the game.
 
     Args:
@@ -39,13 +42,11 @@ def play(challenges_to_win: int, grid_width: int, grid_height: int, choices: int
             difficult.
         cells_to_flip: The number of cells to flip the state of for each false solution. Decrease this number to make
             the game more difficult. Decreasing this makes the game more difficult.
+        incorrect_penalty: The number of seconds to make the user wait after an incorrect answer.
     """
     completed_challenges = 0
 
-    while True:
-        if completed_challenges >= challenges_to_win:
-            break
-
+    while completed_challenges < challenges_to_win:
         # Generate the challenge grid and the solutions grids.
         challenge_grid = PatternGrid.create_random(grid_width, grid_height, GRID_COVERAGE)
         solution_grids = [PatternGrid.create_negative(challenge_grid) for _ in range(choices)]
@@ -59,9 +60,11 @@ def play(challenges_to_win: int, grid_width: int, grid_height: int, choices: int
         interface = GameInterface(challenge_grid, solution_grids)
         selected_grid = interface.app.run()
 
+        # Check the user's answer.
         if selected_grid.check_negative(challenge_grid):
             completed_challenges += 1
         else:
             print_banner("INCORRECT", style="ansired bold")
+            time.sleep(incorrect_penalty)
 
     print_banner("ACCESS GRANTED", style="ansigreen bold")
