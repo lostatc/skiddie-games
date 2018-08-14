@@ -33,6 +33,14 @@ PREFIX_STRING = "0x"
 # The string of characters that may be used in the grid.
 VALID_CHARS = "0123456789abcdef"
 
+# A list of possible usernames to be used for formatting the output.
+USERNAMES = [
+    "lostatc", "root", "daemon", "bin", "sys", "sync", "games", "man", "mail", "news", "uucp", "proxy", "www-data",
+    "backup", "list",  "irc", "nobody", "systemd-network", "systemd-resolve", "syslog", "messagebus", "uuidd", "usbmux",
+    "dnsmasq", "rtkit", "saned", "pulse", "avahi", "colord", "gdm", "libvirt-qemu", "chrony", "lp", "nscd", "polkitd",
+    "postfix", "sshd", "mysql", "svn", "redis", "statd", "rpc", "kernoops",
+]
+
 
 class CharGrid:
     """Represent a grid of characters.
@@ -153,6 +161,25 @@ def create_grid(rows: int, columns: int, valid_chars: str = VALID_CHARS) -> Char
     return char_grid
 
 
+def format_line(username: str, pad_width: int, hash: str) -> str:
+    """Format a line of output stylized as a /etc/passwd file.
+
+    Args:
+        username: The username to display on this line.
+        pad_width: The length of the longest username that will appear.
+        hash: The password hash.
+
+    Returns:
+        The formatted string.
+    """
+    return "{0:>{1}}:  {2}{3}".format(
+        username,
+        pad_width,
+        PREFIX_STRING,
+        hash,
+    )
+
+
 def play(rows_to_win: int, starting_rows: int, columns: int) -> None:
     """Play the game.
 
@@ -164,12 +191,22 @@ def play(rows_to_win: int, starting_rows: int, columns: int) -> None:
             more difficult.
     """
     char_grid = create_grid(starting_rows, columns)
-    print(textwrap.indent(char_grid.format(), PREFIX_STRING))
+    usernames = random.sample(USERNAMES, rows_to_win)
+    pad_width = len(max(usernames, key=len))
 
+    # Format and print the initial grid.
+    starting_grid = "\n".join(
+        format_line(usernames.pop(), pad_width, line)
+        for line in char_grid.format().splitlines()
+    )
+    print(starting_grid)
+
+    # Create the prompt session.
     validator = Validator.from_callable(char_grid.check_row, error_message="Invalid row", move_cursor_to_end=True)
     session = PromptSession(validator=validator, validate_while_typing=False, mouse_support=True, style=GUI_STYLE)
 
+    # Prompt the user until they complete enough lines.
     while len(char_grid.rows) < rows_to_win:
-        session.prompt(PREFIX_STRING)
+        session.prompt(format_line(usernames.pop(), pad_width, ""))
 
     print_banner("ACCESS GRANTED", style="ansigreen bold")
