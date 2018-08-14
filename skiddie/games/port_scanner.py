@@ -40,13 +40,24 @@ SECTION_SEPARATOR = "."
 # The string that separates the IP address from the port.
 PORT_SEPARATOR = ":"
 
-# A list of tuples of string templates. The first value in each tuple is a valid Linux command that can be used to scan
-# ports, and the second is a list of realistic outputs from that command.
-SCAN_COMMAND_TEMPLATES = [(
-        "$ netcat -zv {ip} {port}", [
+# A list of tuples of string templates. The first value in each tuple is a list of valid Linux commands that can be used
+# to scan ports, and the second is a list of realistic outputs from those commands.
+SCAN_COMMAND_TEMPLATES = [
+    (
+        [
+            "$ netcat -zv {ip} {port}",
+            "$ nc -zv {ip} {port}",
+        ], [
             "Connection to {ip} {port} port [{protocol}] succeeded!",
             "nc: connect to {ip} port {port} ({protocol}) failed: Network is unreachable",
-        ]
+        ],
+    ), (
+        [
+            "$ nmap -p {port} {ip}",
+        ], [
+            "{port} open {protocol}",
+            "{port} filtered {protocol}",
+        ],
     ),
 ]
 
@@ -68,8 +79,8 @@ def print_filler(ip_address: str, port: str) -> None:
         ip_address: The ip address to include in the output.
         port: The port number to include in the output.
     """
-    command_template, output_templates = random.choice(SCAN_COMMAND_TEMPLATES)
-    command = command_template.format(ip=ip_address, port=port)
+    command_templates, output_templates = random.choice(SCAN_COMMAND_TEMPLATES)
+    command = random.choice(command_templates).format(ip=ip_address, port=port)
     output = random.choice(output_templates).format(
         ip=ip_address, port=port, protocol=random.choice(PROTOCOLS)
     )
