@@ -83,7 +83,7 @@ class Scores:
             .setdefault(session.difficulty.value, [])
             .append(new_score))
 
-    def get_scores(self, game: Game, difficulty: Difficulty, sort=True) -> List[GameSession]:
+    def get_scores(self, game: Game, difficulty: Difficulty, sort: bool = True) -> List[GameSession]:
         """Return a list of scores from the given game on the given difficulty.
 
         Returns:
@@ -121,7 +121,8 @@ class Scores:
             return None
 
 
-def format_scores(scores: List[GameSession], header=True, header_style="bold") -> Union[FormattedText, str]:
+def format_scores(
+        scores: List[GameSession], header: bool = True, header_style: str = "bold") -> Union[str, FormattedText]:
     """Format the given scores in a table.
 
     Args:

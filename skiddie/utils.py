@@ -126,12 +126,12 @@ def bool_prompt(message: str, default: bool = False) -> bool:
         return default
 
 
-def format_table(rows: Sequence[Sequence[str]], padding=2, align_right=False) -> str:
+def format_table(rows: Sequence[Sequence[str]], separator: str = "  ", align_right: bool = False) -> str:
     """Return the given data in a formatted table.
 
     Args:
         rows: The rows of data to print.
-        padding: The number of spaces used to separate each column.
+        separator: The string used to separate each column.
         align_right: Align each column to the right instead of to the left.
 
     Returns:
@@ -144,11 +144,10 @@ def format_table(rows: Sequence[Sequence[str]], padding=2, align_right=False) ->
             column_lengths[i] = max(len(item), column_lengths[i])
 
     format_string = "{0:>{1}}" if align_right else "{0:{1}}"
-    padding_string = " "*padding
 
     # Pad and align each row.
     output = "\n".join(
-        padding_string.join(
+        separator.join(
             format_string.format(item, column_lengths[i])
             for i, item in enumerate(row)
         )

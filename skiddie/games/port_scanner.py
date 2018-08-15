@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import random
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.validation import Validator, ValidationError
@@ -106,7 +106,7 @@ class AddressChallenge:
         """The solution to the challenge."""
         return sum(self.sections)
 
-    def format_address(self, use_abs=True) -> str:
+    def format_address(self, use_abs: bool = True) -> str:
         """Format the challenge as an IPV4 address.
 
         Args:
@@ -128,7 +128,7 @@ class AddressChallenge:
         """
         return str(self.solution)
 
-    def format_socket(self, include_solution: bool = True, use_abs=True) -> str:
+    def format_socket(self, include_solution: bool = True, use_abs: bool = True) -> str:
         """Format the challenge as an IPV4 address with a port.
 
         Args:
@@ -145,18 +145,14 @@ class AddressChallenge:
         )
 
     @classmethod
-    def create_random(cls, template=None):
+    def create_random(cls, template: Optional["AddressChallenge"] = None) -> "AddressChallenge":
         """Create a new random challenge.
 
         This will always generate a challenge with a positive solution.
 
         Args:
-            template: An AddressChallenge instance. If provided, then the generated instance will have positive and
-                negative numbers in the same places as the template. If None, positive and negative numbers are decided
-                randomly.
-
-        Returns:
-            A new AddressChallenge instance.
+            template: If provided, then the generated instance will have positive and negative numbers in the same
+                places as the template. If None, positive and negative numbers are decided randomly.
         """
         # Decide which sections should be positive and negative. This is a list of positive and negative integers
         # representing the signs of each section.
