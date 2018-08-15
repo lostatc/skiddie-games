@@ -6,9 +6,9 @@ name = "pypi"
 [packages]
 prompt-toolkit = "*"
 click = "*"
-skiddie = {editable = true, path = "."}
 
 [dev-packages]
+skiddie = {editable = true, path = "."}
 
 [requires]
 python_version = "3.5"
