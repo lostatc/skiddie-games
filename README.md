@@ -4,6 +4,8 @@ meant to emulate Hollywood-style "hacking." These games have nothing to do with
 cybersecurity. Instead, they're just small puzzle games themed around the
 hacking scenes found in many movies.
 
+![GUI Screenshot](images/gui.png)
+
 ## Features
 * No knowledge of programming or cybersecurity required.
 * Multiple difficulty settings for each game.
@@ -19,8 +21,22 @@ skiddie also comes with a command-line interface. For more information, run
 `skiddie --help`.
 
 ## Games
-* [hash_cracker](skiddie/descriptions/hash_cracker.md)
-* [hex_editor](skiddie/descriptions/hex_editor.md)
-* [pattern_finder](skiddie/descriptions/pattern_finder.md)
-* [port_scanner](skiddie/descriptions/port_scanner.md)
-* [shell_scripter](skiddie/descriptions/shell_scripter.md)
+### hash_cracker
+[Description](skiddie/descriptions/hash_cracker.md)
+[Screenshot](images/hash_cracker.png)
+
+### hex_editor
+[Description](skiddie/descriptions/hex_editor.md)
+[Screenshot](images/hex_editor.png)
+
+### pattern_finder
+[Description](skiddie/descriptions/pattern_finder.md)
+[Screenshot](images/pattern_finder.png)
+
+### port_scanner
+[Description](skiddie/descriptions/port_scanner.md)
+[Screenshot](images/port_scanner.png)
+
+### shell_scripter
+[Description](skiddie/descriptions/shell_scripter.md)
+[Screenshot](images/shell_scripter.png)
