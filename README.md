@@ -21,27 +21,22 @@ skiddie also comes with a command-line interface. For more information, run
 `skiddie --help`.
 
 ## Games
-### hash_cracker
-[Description](skiddie/descriptions/hash_cracker.md)
-
+**hash_cracker**  
+[Description](skiddie/descriptions/hash_cracker.md)  
 [Screenshot](images/hash_cracker.png)
 
-### hex_editor
-[Description](skiddie/descriptions/hex_editor.md)
-
+**hex_editor**  
+[Description](skiddie/descriptions/hex_editor.md)  
 [Screenshot](images/hex_editor.png)
 
-### pattern_finder
-[Description](skiddie/descriptions/pattern_finder.md)
-
+**pattern_finder**  
+[Description](skiddie/descriptions/pattern_finder.md)  
 [Screenshot](images/pattern_finder.png)
 
-### port_scanner
-[Description](skiddie/descriptions/port_scanner.md)
-
+**port_scanner**  
+[Description](skiddie/descriptions/port_scanner.md)  
 [Screenshot](images/port_scanner.png)
 
-### shell_scripter
-[Description](skiddie/descriptions/shell_scripter.md)
-
+**shell_scripter**  
+[Description](skiddie/descriptions/shell_scripter.md)  
 [Screenshot](images/shell_scripter.png)
