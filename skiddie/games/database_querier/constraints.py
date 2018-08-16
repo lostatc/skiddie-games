@@ -18,7 +18,10 @@ You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import abc
-from typing import List
+import random
+import time
+import collections
+from typing import Sequence
 
 from prompt_toolkit.formatted_text import FormattedText
 
@@ -26,113 +29,180 @@ from skiddie.games.database_querier.columns import ColumnData
 
 
 class Constraint(abc.ABC):
-    """A method of narrowing down which row has been selected.
+    """A method of narrowing down which row is the solution.
+
+    Each column in the table has a constraint applied to it. These constraints, through the `indices` property, each
+    give a possible range of rows that the solution can be in. When the constraints for each column overlap, there will
+    only be one row which is contained in each constraint. That row is the solution.
 
     Attributes:
         column: The data from the column that this constraint is applied to.
+        overlapping_indices: The indices of all the rows that are overlapping with other constraints.
+        reduce_amount: The number of rows to reduce the number of overlapped rows by. The number of rows contained in
+            both `overlapping_indices` and `indices` will be less than the number contained in just
+            `overlapping_indices` by this amount.
+
     """
-    def __init__(self, column: ColumnData) -> None:
+    def __init__(self, column: ColumnData, overlapping_indices: Sequence[int], reduce_amount: int) -> None:
+        if reduce_amount > len(overlapping_indices):
+            raise ValueError("`reduce_amount` cannot exceed the size of `overlapping_indices`")
+
         self.column = column
+        self.overlapping_indices = overlapping_indices
+        self.reduce_amount = reduce_amount
 
     @property
     @abc.abstractmethod
-    def indexes(self) -> List[int]:
-        """The list of indexes that this constraint limits to."""
+    def indices(self) -> Sequence[int]:
+        """The sequence of indices that are in this constraint."""
 
     @abc.abstractmethod
     def format(self) -> FormattedText:
         """Return a string representation of the constraint to display to the user."""
 
 
-class ContinuousConstraint(Constraint):
-    """A constraint that works on continuous data."""
-    @abc.abstractmethod
-    def format(self) -> FormattedText:
-        pass
-
-
 class DiscreteConstraint(Constraint):
-    """A constraint that works on discrete data."""
+    """A constraint that works on discrete data.
+
+    DiscreteConstraint subclasses may not be able to reduce the number of overlapping rows by exactly
+    `self.reduce_amount`. They will choose the `indices` that come the closest.
+    """
     @abc.abstractmethod
     def format(self) -> FormattedText:
         pass
 
 
-class EqualsConstraint(DiscreteConstraint):
+class EqualConstraint(DiscreteConstraint):
     """The row is equal to this value."""
-    def __init__(self, column: ColumnData, value: str) -> None:
-        self.value = value
-        super().__init__(column)
-
     @property
-    def indexes(self) -> List[int]:
-        return [i for i, item in enumerate(self.column.data) if item == self.value]
+    def indices(self) -> Sequence[int]:
+        # Get the number of times each value occurs in the overlapping region.
+        occurrences_in_overlap = collections.defaultdict(lambda: 0)
+        for i in self.overlapping_indices:
+            value = self.column.data[i]
+            occurrences_in_overlap[value] += 1
+
+        # Get the value with the number of occurrences that's farthest from `self.reduce_amount`. The constraint will
+        # apply to all indices that have this value.
+        closest_value, _ = max(
+            occurrences_in_overlap.items(),
+            key=lambda x: abs(x[1] - self.reduce_amount)
+        )
+
+        # Get all the indices at which this value appears.
+        return [i for i, value in enumerate(self.column.data) if value == closest_value]
 
     def format(self) -> FormattedText:
-        text = "{0} == {1}".format(self.column.name, self.value)
-        return FormattedText(("", text))
+        # Get the first index that is in `self.indices`.
+        first_index = self.indices[0]
+        text = "{0} == {1}".format(self.column.name, self.column.data[first_index])
+        return FormattedText([("", text)])
 
 
-class NotEqualsConstraint(DiscreteConstraint):
+class NotEqualConstraint(DiscreteConstraint):
     """The row is not equal to this value."""
-    def __init__(self, column: ColumnData, value: str) -> None:
-        self.value = value
-        super().__init__(column)
-
     @property
-    def indexes(self) -> List[int]:
-        return [i for i, item in enumerate(self.column.data) if item != self.value]
+    def indices(self) -> Sequence[int]:
+        # Get the number of times each value occurs in the overlapping region.
+        occurrences_in_overlap = collections.defaultdict(lambda: 0)
+        for i in self.overlapping_indices:
+            value = self.column.data[i]
+            occurrences_in_overlap[value] += 1
+
+        # Get the value with the number of occurrences that's closest to `self.reduce_amount`. The constraint will
+        # apply to all indices that do not have this value.
+        closest_value, _ = min(
+            occurrences_in_overlap.items(),
+            key=lambda x: abs(x[1] - self.reduce_amount)
+        )
+
+        # Get all the indices at which this value does not appear.
+        return [i for i, value in enumerate(self.column.data) if value != closest_value]
 
     def format(self) -> FormattedText:
-        text = "{0} != {1}".format(self.column.name, self.value)
-        return FormattedText(("", text))
+        # Get the first index that is not in `self.indices`.
+        first_index = next(i for i in range(self.column.rows) if i not in self.indices)
+        text = "{0} != {1}".format(self.column.name, self.column.data[first_index])
+        return FormattedText([("", text)])
+
+
+class ContinuousConstraint(Constraint):
+    """A constraint that works on continuous data.
+
+    ContinuousConstraint subclasses will always be able to reduce the number of overlapping rows by exactly
+    `self.reduce_amount`.
+    """
+    @abc.abstractmethod
+    def format(self) -> FormattedText:
+        pass
 
 
 class LessThanConstraint(ContinuousConstraint):
     """The row is less than this value."""
-    def __init__(self, column: ColumnData, value: str) -> None:
-        self.value = value
-        super().__init__(column)
-
     @property
-    def indexes(self) -> List[int]:
-        value_index = self.column.data.index(self.value)
-        return [i for i in range(self.column.rows) if i < value_index]
+    def indices(self) -> Sequence[int]:
+        return range(0, self.overlapping_indices[-self.reduce_amount])
 
     def format(self) -> FormattedText:
-        text = "{0} < {1}".format(self.column.name, self.value)
-        return FormattedText(("", text))
+        highest_index = self.indices[-1]
+        text = "{0} <= {1}".format(self.column.name, self.column.data[highest_index])
+        return FormattedText([("", text)])
 
 
 class GreaterThanConstraint(ContinuousConstraint):
     """The row is greater than this value."""
-    def __init__(self, column: ColumnData, value: str) -> None:
-        self.value = value
-        super().__init__(column)
-
     @property
-    def indexes(self) -> List[int]:
-        value_index = self.column.data.index(self.value)
-        return [i for i in range(self.column.rows) if i > value_index]
+    def indices(self) -> Sequence[int]:
+        return range(self.overlapping_indices[self.reduce_amount], self.column.rows)
 
     def format(self) -> FormattedText:
-        text = "{0} > {1}".format(self.column.name, self.value)
-        return FormattedText(("", text))
+        lowest_index = self.indices[0]
+        text = "{0} >= {1}".format(self.column.name, self.column.data[lowest_index])
+        return FormattedText([("", text)])
 
 
 class RangeConstraint(ContinuousConstraint):
-    """The row is within this range."""
-    def __init__(self, column: ColumnData, lower: str, upper: str) -> None:
-        self.lower = lower
-        self.upper = upper
-        super().__init__(column)
+    """The row is within this range.
+
+    Attributes:
+        _random_seed: Generating the `indices` property involves some randomness. The output of this property must be
+            deterministic, while still allowing for differences between instances of the class. This number is set on
+            initialization and is used to seed the random number generator each time the property is called.
+    """
+    def __init__(self, column: ColumnData, overlapping_indices: Sequence[int], reduce_amount: int) -> None:
+        self._random_seed = time.time()
+        super().__init__(column, overlapping_indices, reduce_amount)
 
     @property
-    def indexes(self) -> List[int]:
-        lower_index = self.column.data.index(self.lower)
-        upper_index = self.column.data.index(self.upper)
-        return [i for i in range(self.column.rows) if lower_index < i < upper_index]
+    def indices(self) -> Sequence[int]:
+        random_source = random.Random()
+        random_source.seed(self._random_seed)
+
+        def get_range_above():
+            """Get a range that starts in the overlapping region and ends above it."""
+            lower_bound = self.overlapping_indices[self.reduce_amount]
+            upper_bound = random_source.randrange(self.overlapping_indices[-1] + 1, self.column.rows)
+
+            # Add one to account for the fact that `range` doesn't include the end point.
+            return range(lower_bound, upper_bound + 1)
+
+        def get_range_below():
+            """Get a range that starts below the overlapping region and ends in it."""
+            lower_bound = random_source.randrange(0, self.overlapping_indices[0])
+            upper_bound = self.overlapping_indices[-self.reduce_amount]
+            return range(lower_bound, upper_bound)
+
+        return random_source.choice([
+            get_range_above(),
+            get_range_below(),
+        ])
 
     def format(self) -> FormattedText:
-        text = "{0} < {1} < {2}".format(self.lower, self.column.name, self.upper)
-        return FormattedText(("", text))
+        lowest_index = self.indices[0]
+        highest_index = self.indices[-1]
+        text = "{0} <= {1} <= {2}".format(
+            self.column.data[lowest_index],
+            self.column.name,
+            self.column.data[highest_index]
+        )
+        return FormattedText([("", text)])

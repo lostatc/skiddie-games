@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import random
-from typing import Type
+from typing import Type, Sequence
 
 from skiddie.games.database_querier.columns import ColumnData
 from skiddie.games.database_querier.constraints import Constraint
@@ -39,13 +39,20 @@ class Table:
         self.target_index = random.choice(range(self.rows))
         self.constraints = []
 
-    def create_constraint(self, column: ColumnData, constraint_type: Type[Constraint]) -> Constraint:
+    def _get_overlapping_indices(self) -> Sequence[int]:
+        """Return the sequence of indices that are contained in all constraints."""
+        common_indices = set.intersection(
+            *(set(constraint.indices) for constraint in self.constraints)
+        )
+        return sorted(list(common_indices))
+
+    def create_constraint(
+            self, column: ColumnData, constraint_type: Type[Constraint], reduce_amount: int) -> Constraint:
         """Create a constraint on the given data that satisfies the given conditions.
 
         Args:
             column: The the data for the column that the constraint is being applied to.
             constraint_type: The type of constraint to apply.
-
-        Returns:
-            The constraint to apply.
+            reduce_amount: The number of rows to reduce the number of overlapped rows by.
         """
+        return constraint_type(column, self._get_overlapping_indices(), reduce_amount)
