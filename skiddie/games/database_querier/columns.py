@@ -19,7 +19,7 @@ along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import abc
 import random
-from typing import List
+from typing import List, Optional, Sequence
 
 
 class ColumnData:
@@ -67,6 +67,28 @@ class ContinuousTableColumn(TableColumn):
     def __init__(self, names: List[str]) -> None:
         super().__init__(names)
 
+    @staticmethod
+    def _select_from_range(min_value: int, max_value: int, items: int) -> Sequence[int]:
+        """Randomly select a given number of integers from the given range.
+
+        Args:
+            min_value: The minimum value to select.
+            max_value: The maximum value to select.
+            items: The number of values to select.
+
+        Returns:
+            A sorted sequence of integers without repeats.
+        """
+        remaining_ints = list(range(min_value, max_value+1))
+        result = []
+        for _ in range(items):
+            next_int = random.choice(remaining_ints)
+            result.append(next_int)
+            remaining_ints.remove(next_int)
+
+        result.sort()
+        return result
+
     @abc.abstractmethod
     def generate(self, rows: int) -> ColumnData:
         pass
@@ -82,20 +104,31 @@ class AgeColumn(ContinuousTableColumn):
         super().__init__(names)
 
     def generate(self, rows: int) -> ColumnData:
-        data = [random.randint(self.min_value, self.max_value) for _ in range(rows)]
-        data.sort()
+        values = self._select_from_range(self.min_value, self.max_value, rows)
+        data = [str(value) for value in values]
         return self._generate_from_data(data)
 
 
 class DiscreteTableColumn(TableColumn):
     """A discrete data type that can appear in the table window in the game.
 
+    Args:
+        possible_values: The list of possible values that can appear in the column.
+        max_different_values: The number of different values that appear in the returned data will not exceed this
+            number. If None, then there's no maximum.
+
     Attributes:
+        possible_values: The list of possible values that can appear in the column.
         max_different_values: The number of different values that appear in the returned data will not exceed this
             number.
     """
-    def __init__(self, names: List[str], max_different_values: int) -> None:
-        self.max_different_values = max_different_values
+    def __init__(self, names: List[str], possible_values: List[str], max_different_values: Optional[int] = None) -> None:
+        self.possible_values = possible_values
+        self.max_different_values = max_different_values or len(self.possible_values)
+
+        if self.max_different_values <= 1:
+            raise ValueError("There must be more than one possible value")
+
         super().__init__(names)
 
     def _limit_values(self, values: List[str]) -> List[str]:
@@ -105,20 +138,15 @@ class DiscreteTableColumn(TableColumn):
         except ValueError:
             return values
 
-    @abc.abstractmethod
-    def generate(self, rows: int) -> ColumnData:
-        pass
-
-
-class BooleanColumn(DiscreteTableColumn):
-    """A discrete data type representing boolean values."""
-    possible_values = ["true", "false"]
-
-    def __init__(self, max_different_values: int) -> None:
-        names = ["exists", "preferred", "enabled", "open", "active"]
-        super().__init__(names, max_different_values)
-
     def generate(self, rows: int) -> ColumnData:
         possible_values = self._limit_values(self.possible_values)
         data = [random.choice(possible_values) for _ in range(rows)]
         return self._generate_from_data(data)
+
+
+class BooleanColumn(DiscreteTableColumn):
+    """A discrete data type representing boolean values."""
+    def __init__(self, max_different_values: Optional[int] = None) -> None:
+        names = ["exists", "preferred", "enabled", "open", "active"]
+        possible_values = ["true", "false"]
+        super().__init__(names, possible_values, max_different_values)
