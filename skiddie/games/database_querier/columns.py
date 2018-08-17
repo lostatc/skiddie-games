@@ -27,19 +27,19 @@ class ColumnData:
 
     Attributes:
         name: The name of the column.
-        data: The data contained in the column as a list of rows.
+        rows: The data contained in the column as a list of rows.
     """
-    def __init__(self, name: str, data: List[str]):
+    def __init__(self, name: str, rows: List[str]):
         self.name = name
-        self.data = data
+        self.rows = rows
 
     @property
-    def rows(self) -> int:
+    def num_rows(self) -> int:
         """The number of rows in the column."""
-        return len(self.data)
+        return len(self.rows)
 
 
-class TableColumn(abc.ABC):
+class ColumnGenerator(abc.ABC):
     """A data type that can appear in the table window in the game.
 
     Attributes:
@@ -62,7 +62,18 @@ class TableColumn(abc.ABC):
         """
 
 
-class ContinuousTableColumn(TableColumn):
+class IndexColumnGenerator(ColumnGenerator):
+    """An index that increments for each row."""
+    def __init__(self) -> None:
+        names = ["index"]
+        super().__init__(names)
+
+    def generate(self, rows: int) -> ColumnData:
+        data = [str(i) for i in range(rows)]
+        return self._generate_from_data(data)
+
+
+class ContinuousColumnGenerator(ColumnGenerator):
     """A continuous data type that can appear in the table window in the game."""
     def __init__(self, names: List[str]) -> None:
         super().__init__(names)
@@ -94,7 +105,7 @@ class ContinuousTableColumn(TableColumn):
         pass
 
 
-class AgeColumn(ContinuousTableColumn):
+class AgeColumnGenerator(ContinuousColumnGenerator):
     """A continuous data type representing a person's age."""
     min_value = 0
     max_value = 90
@@ -109,32 +120,31 @@ class AgeColumn(ContinuousTableColumn):
         return self._generate_from_data(data)
 
 
-class DiscreteTableColumn(TableColumn):
+class DiscreteColumnGenerator(ColumnGenerator):
     """A discrete data type that can appear in the table window in the game.
 
     Args:
         possible_values: The list of possible values that can appear in the column.
-        max_different_values: The number of different values that appear in the returned data will not exceed this
-            number. If None, then there's no maximum.
+        max_discrete_values: The maximum number of unique discrete values. If None, then there's no maximum.
 
     Attributes:
         possible_values: The list of possible values that can appear in the column.
-        max_different_values: The number of different values that appear in the returned data will not exceed this
+        max_discrete_values: The number of different values that appear in the returned data will not exceed this
             number.
     """
-    def __init__(self, names: List[str], possible_values: List[str], max_different_values: Optional[int] = None) -> None:
+    def __init__(self, names: List[str], possible_values: List[str], max_discrete_values: Optional[int] = None) -> None:
         self.possible_values = possible_values
-        self.max_different_values = max_different_values or len(self.possible_values)
+        self.max_discrete_values = max_discrete_values or len(self.possible_values)
 
-        if self.max_different_values <= 1:
+        if self.max_discrete_values <= 1:
             raise ValueError("There must be more than one possible value")
 
         super().__init__(names)
 
     def _limit_values(self, values: List[str]) -> List[str]:
-        """Return a random subset of the given values that does not exceed `max_different_values`."""
+        """Return a random subset of the given values that does not exceed `self.max_discrete_values`."""
         try:
-            return random.sample(set(values), self.max_different_values)
+            return random.sample(set(values), self.max_discrete_values)
         except ValueError:
             return values
 
@@ -144,9 +154,9 @@ class DiscreteTableColumn(TableColumn):
         return self._generate_from_data(data)
 
 
-class BooleanColumn(DiscreteTableColumn):
+class BooleanColumnGenerator(DiscreteColumnGenerator):
     """A discrete data type representing boolean values."""
-    def __init__(self, max_different_values: Optional[int] = None) -> None:
+    def __init__(self, max_discrete_values: Optional[int] = None) -> None:
         names = ["exists", "preferred", "enabled", "open", "active"]
         possible_values = ["true", "false"]
-        super().__init__(names, possible_values, max_different_values)
+        super().__init__(names, possible_values, max_discrete_values)

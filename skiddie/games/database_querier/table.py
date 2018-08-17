@@ -18,41 +18,158 @@ You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import random
-from typing import Type, Sequence
+import itertools
+from typing import Sequence, List, NamedTuple
 
-from skiddie.games.database_querier.columns import ColumnData
-from skiddie.games.database_querier.constraints import Constraint
+from prompt_toolkit.formatted_text import FormattedText
+
+from skiddie.games.database_querier.columns import ColumnData, ColumnGenerator, ContinuousColumnGenerator, \
+    DiscreteColumnGenerator, IndexColumnGenerator
+from skiddie.games.database_querier.constraints import Constraint, get_valid_constraints
+
+# The ratio of columns that are discrete as opposed to continuous.
+from skiddie.utils import format_table
+
+DISCRETE_COLUMN_RATIO = 0.25
+
+Column = NamedTuple("Column", [("data", ColumnData), ("constraint", Constraint)])
 
 
 class Table:
     """A table consisting of multiple columns of data.
 
     Attributes:
-        rows: The number of rows in the table.
-        columns: The number of columns in the table.
-        target_index: The index of the row that the user is trying to find.
-        constraints: A list of Constraint instances representing the constraints on each column in the table.
+        num_rows: The number of rows in the table.
+        num_columns: The number of columns in the table.
+        columns: The data and constraints for each column in the table.
     """
     def __init__(self, rows: int, columns: int) -> None:
-        self.rows = rows
-        self.columns = columns
-        self.target_index = random.choice(range(self.rows))
-        self.constraints = []
+        self.num_rows = rows
+        self.num_columns = columns
+        self.columns = []
 
-    def _get_overlapping_indices(self) -> Sequence[int]:
-        """Return the sequence of indices that are contained in all constraints."""
+    @property
+    def overlapping_indices(self) -> Sequence[int]:
+        """The sequence of indices that are contained in all constraints.
+
+        If there are no constraints, this return all indices.
+        """
+        if not self.columns:
+            return range(self.num_rows)
+
         common_indices = set.intersection(
-            *(set(constraint.indices) for constraint in self.constraints)
+            *(set(column.constraint.indices) for column in self.columns)
         )
+
         return sorted(list(common_indices))
 
-    def create_constraint(
-            self, column: ColumnData, constraint_type: Type[Constraint], reduce_amount: int) -> Constraint:
-        """Create a constraint on the given data that satisfies the given conditions.
+    @property
+    def overlapping_rows(self) -> int:
+        """The number of rows that are contained in all constraints."""
+        return len(self.overlapping_indices)
+
+    @property
+    def remaining_columns(self) -> int:
+        """The number of columns that haven't been created yet."""
+        return self.num_columns - len(self.columns)
+
+    def format_constraints(self) -> str:
+        """Get a string representations of each constraint to display to the user."""
+        return "\n".join(column.constraint.format() for column in self.columns)
+
+    def format_table(self) -> str:
+        """Get at formatted string representation of the table."""
+        index_data = IndexColumnGenerator().generate(self.num_rows)
+        column_data = [column.data for column in self.columns]
+        column_data.insert(0, index_data)
+
+        data_columns = [data.rows for data in column_data]
+        data_rows = list(zip(*data_columns))
+
+        header_row = [tuple(data.name for data in column_data)]
+
+        return format_table(header_row + data_rows)
+
+    def _get_random_generators(self, max_discrete_values: int) -> List[ColumnGenerator]:
+        """Return a random ColumnGenerator instance for each column in the table.
+
+        The ratio of discrete columns to continuous columns is controlled by `DISCRETE_COLUMN_RATIO`.
+
+        DiscreteColumnGenerator subclasses will only be repeated once each has been used once. ContinuousColumnGenerator
+        subclasses will only be repeated once each has been used once.
+
+        The discrete columns are all put before the continuous columns. The discrete columns need to come first for
+        there to be exactly one row that is contained in all constraints.
 
         Args:
-            column: The the data for the column that the constraint is being applied to.
-            constraint_type: The type of constraint to apply.
-            reduce_amount: The number of rows to reduce the number of overlapped rows by.
+            max_discrete_values: The maximum number of unique discrete values per column.
         """
-        return constraint_type(column, self._get_overlapping_indices(), reduce_amount)
+        # Get all the subclasses of ContinuousColumnGenerator and DiscreteColumnGenerator.
+        continuous_instances = [
+            subclass() for subclass in ContinuousColumnGenerator.__subclasses__()
+        ]
+        discrete_instances = [
+            subclass(max_discrete_values) for subclass in DiscreteColumnGenerator.__subclasses__()
+        ]
+
+        random.shuffle(continuous_instances)
+        random.shuffle(discrete_instances)
+
+        continuous_cycle = itertools.cycle(continuous_instances)
+        discrete_cycle = itertools.cycle(discrete_instances)
+
+        # Determine how many of each type to get.
+        continuous_range = range(round((1 - DISCRETE_COLUMN_RATIO) * self.num_columns))
+        discrete_range = range(round(DISCRETE_COLUMN_RATIO * self.num_columns))
+
+        continuous_output = [next(continuous_cycle) for _ in continuous_range]
+        discrete_output = [next(discrete_cycle) for _ in discrete_range]
+
+        return discrete_output + continuous_output
+
+    def create_table(self, max_discrete_values: int) -> None:
+        """Create a new random table with a constraint for each column.
+
+        This populates `self.column_data` and `self.constraints`.
+
+        Args:
+            max_discrete_values: The maximum number of unique discrete values per column.
+        """
+        self.columns.clear()
+
+        # Choose random column generators.
+        column_generators = self._get_random_generators(max_discrete_values)
+
+        # Generate random constraints.
+        for column_generator in column_generators:
+            # Generate the random data for this column.
+            column_data = column_generator.generate(self.num_rows)
+
+            # Generate the number to reduce the number of overlapping rows by.
+            # if self.overlapping_rows == 1:
+            #     # If there is only one overlapping row, there is no need to further reduce the number of overlapping
+            #     # rows.
+            #     reduce_amount = 0
+            # else:
+            #     # Each column should reduce the number of overlapping rows by an amount that is at least one, but small
+            #     # enough that each remaining row can also reduce it by one. Once the final column is reached, this
+            #     # variable will be set to the exact number required for there to be only one overlapping row. For this
+            #     # to work, the final column must be continuous.
+            #     min_amount = 1 if self.remaining_columns > 1 else self.overlapping_rows - 1
+            #     max_amount = self.overlapping_rows - self.remaining_columns
+            #     reduce_amount = random.randint(min_amount, max_amount)
+
+            # Generate the number to reduce the number of overlapping rows by. Subtract one to ensure that there is one
+            # row left overlapping at the end.
+            reduce_amount = round(self.overlapping_rows / self.remaining_columns) - 1
+            print(reduce_amount)
+
+            # Generate a random constraint for this column.
+            constraint_class = random.choice(get_valid_constraints(column_generator))
+            constraint = constraint_class(column_data, self.overlapping_indices, reduce_amount)
+
+            # Add the column data and its corresponding constraint.
+            self.columns.append(Column(column_data, constraint))
+
+        # This is necessary because up until this point, the discrete columns all come before the continuous columns.
+        random.shuffle(self.columns)
