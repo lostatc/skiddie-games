@@ -145,24 +145,9 @@ class Table:
             # Generate the random data for this column.
             column_data = column_generator.generate(self.num_rows)
 
-            # Generate the number to reduce the number of overlapping rows by.
-            # if self.overlapping_rows == 1:
-            #     # If there is only one overlapping row, there is no need to further reduce the number of overlapping
-            #     # rows.
-            #     reduce_amount = 0
-            # else:
-            #     # Each column should reduce the number of overlapping rows by an amount that is at least one, but small
-            #     # enough that each remaining row can also reduce it by one. Once the final column is reached, this
-            #     # variable will be set to the exact number required for there to be only one overlapping row. For this
-            #     # to work, the final column must be continuous.
-            #     min_amount = 1 if self.remaining_columns > 1 else self.overlapping_rows - 1
-            #     max_amount = self.overlapping_rows - self.remaining_columns
-            #     reduce_amount = random.randint(min_amount, max_amount)
-
             # Generate the number to reduce the number of overlapping rows by. Subtract one to ensure that there is one
             # row left overlapping at the end.
             reduce_amount = round(self.overlapping_rows / self.remaining_columns) - 1
-            print(reduce_amount)
 
             # Generate a random constraint for this column.
             constraint_class = random.choice(get_valid_constraints(column_generator))
