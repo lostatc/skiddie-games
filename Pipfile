@@ -4,8 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-prompt-toolkit = "*"
-click = "*"
+click = ">=6.0"
+prompt-toolkit = ">=2.0.0"
 
 [dev-packages]
 skiddie = {editable = true, path = "."}

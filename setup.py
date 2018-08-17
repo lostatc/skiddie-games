@@ -13,7 +13,7 @@ setuptools.setup(
     author="Wren Powell",
     author_email="wrenp@duck.com",
     license="GPLv3",
-    install_requires=["prompt_toolkit", "click"],
+    install_requires=["prompt_toolkit>=2.0.0", "click>=6.0"],
     python_requires=">=3.5",
     tests_require=[],
     packages=setuptools.find_packages(),
