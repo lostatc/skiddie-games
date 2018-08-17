@@ -24,11 +24,14 @@ import shutil
 import pkg_resources
 from typing import Sequence
 
+import six
 from prompt_toolkit import Application
+from prompt_toolkit.application import get_app
 from prompt_toolkit.formatted_text import FormattedText
+from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.validation import Validator
 from prompt_toolkit import print_formatted_text, prompt
-from prompt_toolkit.layout import Float, FloatContainer, Container, Layout
+from prompt_toolkit.layout import Float, FloatContainer, Container, Layout, FormattedTextControl, Window
 
 # The relative path to the directory containing the instructions for each game.
 INSTRUCTIONS_DIR = "descriptions"
@@ -221,3 +224,52 @@ class MultiScreenApp:
         """Remove all floating windows."""
         self.app.layout.container.floats.clear()
         self.app.layout.focus(self.app.layout.container)
+
+
+class SelectableLabel:
+    """A selectable text label.
+
+    This is different from the `Button` classs included with prompt_toolkit in that the contents of the button are
+    left-aligned and there are no angle brackets framing the text.
+
+    Args:
+        text: The text to display in the label.
+        handler: The function to call when the label is selected.
+    """
+    def __init__(self, text: six.text_type, handler=None) -> None:
+        self.text = text
+        self.handler = handler
+
+        self.control = FormattedTextControl(
+            self.text,
+            key_bindings=self._get_key_bindings(),
+            focusable=True
+        )
+
+        def get_style():
+            if get_app().layout.has_focus(self):
+                return 'class:selectable-label.focused'
+            else:
+                return 'class:selectable-label'
+
+        self.window = Window(
+            self.control,
+            style=get_style,
+            dont_extend_width=False,
+            dont_extend_height=True,
+            always_hide_cursor=True,
+        )
+
+    def _get_key_bindings(self) -> KeyBindings:
+        bindings = KeyBindings()
+
+        @bindings.add(" ")
+        @bindings.add("enter")
+        def _handle(event):
+            if self.handler is not None:
+                self.handler()
+
+        return bindings
+
+    def __pt_container__(self):
+        return self.window

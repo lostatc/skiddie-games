@@ -23,8 +23,9 @@ from typing import Sequence, List, NamedTuple
 
 from prompt_toolkit.formatted_text import FormattedText
 
-from skiddie.games.database_querier.columns import ColumnData, ColumnGenerator, ContinuousColumnGenerator, \
-    DiscreteColumnGenerator, IndexColumnGenerator
+from skiddie.games.database_querier.columns import (
+    ColumnData, ColumnGenerator, ContinuousColumnGenerator, DiscreteColumnGenerator,
+)
 from skiddie.games.database_querier.constraints import Constraint, get_valid_constraints
 
 # The ratio of columns that are discrete as opposed to continuous.
@@ -73,20 +74,25 @@ class Table:
         """The number of columns that haven't been created yet."""
         return self.num_columns - len(self.columns)
 
-    def format_constraints(self) -> str:
-        """Get a string representations of each constraint to display to the user."""
-        return "\n".join(column.constraint.format() for column in self.columns)
+    def format_constraints(self, separator: str = "\n") -> FormattedText:
+        """Get a formatted text representation of all the constraints to display to the user."""
+        style_tuples = []
+
+        for column in self.columns:
+            style_tuples += column.constraint.format().data
+            style_tuples += [("", separator)]
+
+        # Remove the trailing separator.
+        style_tuples.pop()
+
+        return FormattedText(style_tuples)
 
     def format_table(self) -> str:
         """Get at formatted string representation of the table."""
-        index_data = IndexColumnGenerator().generate(self.num_rows)
-        column_data = [column.data for column in self.columns]
-        column_data.insert(0, index_data)
-
-        data_columns = [data.rows for data in column_data]
+        data_columns = [column.data.rows for column in self.columns]
         data_rows = list(zip(*data_columns))
 
-        header_row = [tuple(data.name for data in column_data)]
+        header_row = [tuple(data.data.name for data in self.columns)]
 
         return format_table(header_row + data_rows)
 

@@ -22,5 +22,5 @@ fulfills all of these rules. Here is an example of each rule:
 
 For each column in the table, there is a rule that helps to narrow down which
 row is the correct one. Only one row in the table will fulfill all of the given
-rules. The index of this row (the number that appears in the "index" column) is
-the correct solution to the puzzle.
+rules. To choose a row, select it using the `Tab` or arrow keys and press
+`Enter`.

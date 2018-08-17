@@ -18,22 +18,37 @@ You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 from skiddie.games.database_querier.table import Table
+from skiddie.games.database_querier.gui import GameInterface
+from skiddie.utils import print_banner
 
 
-def play(table_rows: int, table_columns: int, max_discrete_values: int) -> None:
+def play(challenges_to_win: int, table_rows: int, table_columns: int, max_discrete_values: int) -> None:
     """Play the game.
 
     Args:
+        challenges_to_win: The number of challenges the user has to complete to win the game. Increasing this makes the
+            game more difficult.
         table_rows: The number of rows in the table. Increasing this makes the game more difficult.
         table_columns: The number of columns in the table. Increasing this makes the game more difficult.
         max_discrete_values: The maximum number of unique discrete values per column. Increasing this makes the game
             more difficult.
     """
-    table = Table(table_rows, table_columns)
-    table.create_table(max_discrete_values)
-    print(table.format_table())
-    print(table.format_constraints())
-    print(table.overlapping_indices)
+    completed_challenges = 0
+
+    while completed_challenges < challenges_to_win:
+        table = Table(table_rows, table_columns)
+        table.create_table(max_discrete_values)
+
+        # Prompt the user.
+        interface = GameInterface(table)
+        answer_is_correct = interface.app.run()
+
+        if answer_is_correct:
+            completed_challenges += 1
+        else:
+            print_banner("INCORRECT", style="ansired bold")
+
+    print_banner("ACCESS GRANTED", style="ansigreen bold")
 
 
-play(20, 4, 2)
+play(1, 20, 4, 2)

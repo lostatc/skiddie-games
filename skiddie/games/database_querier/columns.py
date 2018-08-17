@@ -62,17 +62,6 @@ class ColumnGenerator(abc.ABC):
         """
 
 
-class IndexColumnGenerator(ColumnGenerator):
-    """An index that increments for each row."""
-    def __init__(self) -> None:
-        names = ["index"]
-        super().__init__(names)
-
-    def generate(self, rows: int) -> ColumnData:
-        data = [str(i) for i in range(rows)]
-        return self._generate_from_data(data)
-
-
 class ContinuousColumnGenerator(ColumnGenerator):
     """A continuous data type that can appear in the table window in the game."""
     def __init__(self, names: List[str]) -> None:

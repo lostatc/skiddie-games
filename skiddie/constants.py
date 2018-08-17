@@ -37,4 +37,7 @@ GUI_STYLE = Style([
     ("dialog frame.label", "fg:ansigreen"),
     ("cursor-line", "fg:ansidefault bg:ansidefault reverse nounderline"),
     ("cursor-column", "fg:ansidefault bg:ansidefault reverse"),
+    ("selectable-label", ""),
+    ("selectable-label.focused", "reverse"),
+    ("column-name", "bold"),
 ])

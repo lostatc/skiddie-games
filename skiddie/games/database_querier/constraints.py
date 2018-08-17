@@ -23,6 +23,8 @@ import time
 import collections
 from typing import Sequence, List, Type
 
+from prompt_toolkit.formatted_text import FormattedText
+
 from skiddie.games.database_querier.columns import ColumnData, ColumnGenerator, ContinuousColumnGenerator, DiscreteColumnGenerator
 
 
@@ -63,7 +65,7 @@ class Constraint(abc.ABC):
         """The sequence of indices that are in this constraint."""
 
     @abc.abstractmethod
-    def format(self) -> str:
+    def format(self) -> FormattedText:
         """Return a string representation of the constraint to display to the user."""
 
 
@@ -74,7 +76,7 @@ class DiscreteConstraint(Constraint):
     `self.reduce_amount`. They will choose the `indices` that come the closest.
     """
     @abc.abstractmethod
-    def format(self) -> str:
+    def format(self) -> FormattedText:
         pass
 
 
@@ -98,11 +100,14 @@ class EqualConstraint(DiscreteConstraint):
         # Get all the indices at which this value appears.
         return [i for i, value in enumerate(self.data.rows) if value == closest_value]
 
-    def format(self) -> str:
+    def format(self) -> FormattedText:
         # Get the first index that is in `self.indices`.
         first_index = self.indices[0]
-        text = "{0} == {1}".format(self.data.name, self.data.rows[first_index])
-        return text
+        style_tuples = [
+            ("class:column-name", self.data.name),
+            ("", " == {0}".format(self.data.rows[first_index])),
+        ]
+        return FormattedText(style_tuples)
 
 
 class NotEqualConstraint(DiscreteConstraint):
@@ -125,11 +130,14 @@ class NotEqualConstraint(DiscreteConstraint):
         # Get all the indices at which this value does not appear.
         return [i for i, value in enumerate(self.data.rows) if value != closest_value]
 
-    def format(self) -> str:
+    def format(self) -> FormattedText:
         # Get the first index that is not in `self.indices`.
         first_index = next(i for i in range(self.data.num_rows) if i not in self.indices)
-        text = "{0} != {1}".format(self.data.name, self.data.rows[first_index])
-        return text
+        style_tuples = [
+            ("class:column-name", self.data.name),
+            ("", " != {0}".format(self.data.rows[first_index])),
+        ]
+        return FormattedText(style_tuples)
 
 
 class ContinuousConstraint(Constraint):
@@ -149,10 +157,13 @@ class LessThanConstraint(ContinuousConstraint):
     def indices(self) -> Sequence[int]:
         return range(0, self.overlapping_indices[-self.reduce_amount])
 
-    def format(self) -> str:
+    def format(self) -> FormattedText:
         highest_index = self.indices[-1]
-        text = "{0} <= {1}".format(self.data.name, self.data.rows[highest_index])
-        return text
+        style_tuples = [
+            ("class:column-name", self.data.name),
+            ("", " <= {0}".format(self.data.rows[highest_index])),
+        ]
+        return FormattedText(style_tuples)
 
 
 class GreaterThanConstraint(ContinuousConstraint):
@@ -161,10 +172,13 @@ class GreaterThanConstraint(ContinuousConstraint):
     def indices(self) -> Sequence[int]:
         return range(self.overlapping_indices[self.reduce_amount], self.data.num_rows)
 
-    def format(self) -> str:
+    def format(self) -> FormattedText:
         lowest_index = self.indices[0]
-        text = "{0} >= {1}".format(self.data.name, self.data.rows[lowest_index])
-        return text
+        style_tuples = [
+            ("class:column-name", self.data.name),
+            ("", " >= {0}".format(self.data.rows[lowest_index])),
+        ]
+        return FormattedText(style_tuples)
 
 
 class RangeConstraint(ContinuousConstraint):
@@ -224,12 +238,12 @@ class RangeConstraint(ContinuousConstraint):
             get_range_before(),
         ])
 
-    def format(self) -> str:
+    def format(self) -> FormattedText:
         lowest_index = self.indices[0]
         highest_index = self.indices[-1]
-        text = "{0} <= {1} <= {2}".format(
-            self.data.rows[lowest_index],
-            self.data.name,
-            self.data.rows[highest_index]
-        )
-        return text
+        style_tuples = [
+            ("", "{0} <= ".format(self.data.rows[lowest_index])),
+            ("class:column-name", self.data.name),
+            ("", " <= {0}".format(self.data.rows[highest_index])),
+        ]
+        return FormattedText(style_tuples)
