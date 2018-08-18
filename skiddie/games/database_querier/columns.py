@@ -19,13 +19,13 @@ along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import abc
 import datetime
-import itertools
 import random
 from typing import List, Optional, Sequence, TypeVar
 
 from skiddie.utils import take_random_cycle
 
 T = TypeVar("T")
+
 
 class ColumnData:
     """The data that exists in a column.

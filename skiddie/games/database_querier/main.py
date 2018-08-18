@@ -47,6 +47,3 @@ def play(challenges_to_win: int, table_rows: int, table_columns: int) -> None:
             print_banner("INCORRECT", style="ansired bold")
 
     print_banner("ACCESS GRANTED", style="ansigreen bold")
-
-
-play(1, 30, 4)

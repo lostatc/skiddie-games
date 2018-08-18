@@ -24,6 +24,7 @@ skiddie also comes with a command-line interface. For more information, run
 
 Game | Description | Screenshot
 --- | --- | ---
+**database_querier** | [Description](skiddie/descriptions/database_querier.md) | [Screenshot](images/database_querier.png)
 **hash_cracker** | [Description](skiddie/descriptions/hash_cracker.md) | [Screenshot](images/hash_cracker.png)
 **hex_editor** | [Description](skiddie/descriptions/hex_editor.md) | [Screenshot](images/hex_editor.png)
 **pattern_finder** | [Description](skiddie/descriptions/pattern_finder.md) | [Screenshot](images/pattern_finder.png)
