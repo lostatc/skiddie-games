@@ -69,20 +69,9 @@ class ContinuousColumnGenerator(ColumnGenerator):
         super().__init__(names)
 
     @staticmethod
-    def _select_from_range(min_value: int, max_value: int, items: int) -> Sequence[int]:
-        """Randomly select a given number of integers from the given range.
-
-        Args:
-            min_value: The minimum value to select.
-            max_value: The maximum value to select.
-            items: The number of values to select.
-
-        Returns:
-            A sorted sequence of integers without repeats.
-        """
-        result = random.sample(range(min_value, max_value), items)
-        result.sort()
-        return result
+    def _sample_and_sort(sequence: Sequence[int], num_items: int) -> Sequence[int]:
+        """Randomly sample a given number of integers from the given sequence and sort them."""
+        return sorted(random.sample(sequence, num_items))
 
     @abc.abstractmethod
     def generate(self, rows: int) -> ColumnData:
@@ -99,26 +88,42 @@ class AgeColumnGenerator(ContinuousColumnGenerator):
         super().__init__(names)
 
     def generate(self, rows: int) -> ColumnData:
-        values = self._select_from_range(self.min_value, self.max_value, rows)
+        values = self._sample_and_sort(range(self.min_value, self.max_value), rows)
         data = [str(value) for value in values]
         return self._generate_from_data(data)
 
 
 class DateColumnGenerator(ContinuousColumnGenerator):
     """A continuous data type representing a date."""
-    min_value = 0  # 1970-01-01
-    max_value = 946684799  # 1999-12-31
-    max_range = 31556926 * 2  # Two years
+    min_value = round(datetime.datetime(year=1970, month=1, day=1).timestamp())
+    max_value = round(datetime.datetime(year=1999, month=12, day=31).timestamp())
+    max_range = round(datetime.timedelta(days=365 * 2).total_seconds())
 
     def __init__(self) -> None:
-        names = ["date"]
+        names = ["date", "start_date", "end_date"]
         super().__init__(names)
 
     def generate(self, rows: int) -> ColumnData:
         start = random.randrange(self.min_value, self.max_value - self.max_range)
         end = start + self.max_range
-        values = self._select_from_range(start, end, rows)
+        values = self._sample_and_sort(range(start, end), rows)
         data = [datetime.date.fromtimestamp(value).isoformat() for value in values]
+        return self._generate_from_data(data)
+
+
+class PriceColumnGenerator(ContinuousColumnGenerator):
+    """A continuous data type representing a price."""
+    min_value = 10
+    max_value = 1000
+
+    def __init__(self) -> None:
+        names = ["price", "cost", "revenue", "profit"]
+        super().__init__(names)
+
+    def generate(self, rows: int) -> ColumnData:
+        int_values = self._sample_and_sort(range(self.min_value * 100, self.max_value * 100), rows)
+        values = [integer / 100 for integer in int_values]
+        data = ["${0:.2f}".format(value) for value in values]
         return self._generate_from_data(data)
 
 
