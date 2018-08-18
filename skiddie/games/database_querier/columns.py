@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import abc
+import datetime
 import random
 from typing import List, Optional, Sequence
 
@@ -79,13 +80,7 @@ class ContinuousColumnGenerator(ColumnGenerator):
         Returns:
             A sorted sequence of integers without repeats.
         """
-        remaining_ints = list(range(min_value, max_value+1))
-        result = []
-        for _ in range(items):
-            next_int = random.choice(remaining_ints)
-            result.append(next_int)
-            remaining_ints.remove(next_int)
-
+        result = random.sample(range(min_value, max_value), items)
         result.sort()
         return result
 
@@ -106,6 +101,24 @@ class AgeColumnGenerator(ContinuousColumnGenerator):
     def generate(self, rows: int) -> ColumnData:
         values = self._select_from_range(self.min_value, self.max_value, rows)
         data = [str(value) for value in values]
+        return self._generate_from_data(data)
+
+
+class DateColumnGenerator(ContinuousColumnGenerator):
+    """A continuous data type representing a date."""
+    min_value = 0  # 1970-01-01
+    max_value = 946684799  # 1999-12-31
+    max_range = 31556926 * 2  # Two years
+
+    def __init__(self) -> None:
+        names = ["date"]
+        super().__init__(names)
+
+    def generate(self, rows: int) -> ColumnData:
+        start = random.randrange(self.min_value, self.max_value - self.max_range)
+        end = start + self.max_range
+        values = self._select_from_range(start, end, rows)
+        data = [datetime.date.fromtimestamp(value).isoformat() for value in values]
         return self._generate_from_data(data)
 
 
