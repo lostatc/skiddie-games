@@ -25,15 +25,23 @@ from typing import Sequence, List, Type
 
 from prompt_toolkit.formatted_text import FormattedText
 
+from skiddie.utils import get_random_cycle
 from skiddie.games.database_querier.columns import ColumnData, ColumnGenerator, ContinuousColumnGenerator, DiscreteColumnGenerator
 
 
-def get_valid_constraints(column: ColumnGenerator) -> List[Type["Constraint"]]:
-    """Return a list of constraint types that can be used with this type of column."""
-    if isinstance(column, ContinuousColumnGenerator):
-        return ContinuousConstraint.__subclasses__()
-    if isinstance(column, DiscreteColumnGenerator):
-        return DiscreteConstraint.__subclasses__()
+def get_valid_constraints(column_generators: List[ColumnGenerator]) -> List[Type["Constraint"]]:
+    """Return a list containing a valid Constraint class for each given ColumnGenerator."""
+    continuous_cycle = get_random_cycle(ContinuousConstraint.__subclasses__())
+    discrete_cycle = get_random_cycle(DiscreteConstraint.__subclasses__())
+
+    constraint_classes = []
+    for generator in column_generators:
+        if isinstance(generator, ContinuousColumnGenerator):
+            constraint_classes.append(next(continuous_cycle))
+        elif isinstance(generator, DiscreteColumnGenerator):
+            constraint_classes.append(next(discrete_cycle))
+
+    return constraint_classes
 
 
 class Constraint(abc.ABC):

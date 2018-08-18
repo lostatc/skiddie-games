@@ -18,7 +18,6 @@ You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import random
-import itertools
 from typing import Sequence, List, NamedTuple
 
 from prompt_toolkit.formatted_text import FormattedText
@@ -27,9 +26,7 @@ from skiddie.games.database_querier.columns import (
     ColumnData, ColumnGenerator, ContinuousColumnGenerator, DiscreteColumnGenerator,
 )
 from skiddie.games.database_querier.constraints import Constraint, get_valid_constraints
-
-# The ratio of columns that are discrete as opposed to continuous.
-from skiddie.utils import format_table
+from skiddie.utils import format_table, take_random_cycle
 
 DISCRETE_COLUMN_RATIO = 0.25
 
@@ -118,18 +115,13 @@ class Table:
             subclass(max_discrete_values) for subclass in DiscreteColumnGenerator.__subclasses__()
         ]
 
-        random.shuffle(continuous_instances)
-        random.shuffle(discrete_instances)
-
-        continuous_cycle = itertools.cycle(continuous_instances)
-        discrete_cycle = itertools.cycle(discrete_instances)
-
         # Determine how many of each type to get.
-        continuous_range = range(round((1 - DISCRETE_COLUMN_RATIO) * self.num_columns))
-        discrete_range = range(round(DISCRETE_COLUMN_RATIO * self.num_columns))
+        continuous_items = round((1 - DISCRETE_COLUMN_RATIO) * self.num_columns)
+        discrete_items = round(DISCRETE_COLUMN_RATIO * self.num_columns)
 
-        continuous_output = [next(continuous_cycle) for _ in continuous_range]
-        discrete_output = [next(discrete_cycle) for _ in discrete_range]
+        # Randomly select subclasses.
+        continuous_output = take_random_cycle(continuous_instances, continuous_items)
+        discrete_output = take_random_cycle(discrete_instances, discrete_items)
 
         return discrete_output + continuous_output
 
@@ -146,8 +138,11 @@ class Table:
         # Choose random column generators.
         column_generators = self._get_random_generators(max_discrete_values)
 
+        # Choose random constraint classes.
+        constraint_classes = get_valid_constraints(column_generators)
+
         # Generate random constraints.
-        for column_generator in column_generators:
+        for column_generator, constraint_class in zip(column_generators, constraint_classes):
             # Generate the random data for this column.
             column_data = column_generator.generate(self.num_rows)
 
@@ -155,8 +150,7 @@ class Table:
             # row left overlapping at the end.
             reduce_amount = round(self.overlapping_rows / self.remaining_columns) - 1
 
-            # Generate a random constraint for this column.
-            constraint_class = random.choice(get_valid_constraints(column_generator))
+            # Generate a constraint for this column.
             constraint = constraint_class(column_data, self.overlapping_indices, reduce_amount)
 
             # Add the column data and its corresponding constraint.

@@ -18,11 +18,13 @@ You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import abc
+import itertools
 import os
+import random
 import sys
 import shutil
 import pkg_resources
-from typing import Sequence
+from typing import Sequence, Iterator, List, TypeVar
 
 import six
 from prompt_toolkit import Application
@@ -31,10 +33,12 @@ from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.validation import Validator
 from prompt_toolkit import print_formatted_text, prompt
-from prompt_toolkit.layout import Float, FloatContainer, Container, Layout, FormattedTextControl, Window
+from prompt_toolkit.layout import Float, Layout, FormattedTextControl, Window
 
 # The relative path to the directory containing the instructions for each game.
 INSTRUCTIONS_DIR = "descriptions"
+
+T = TypeVar("T")
 
 
 def _format_banner(message: str, padding_char="=") -> str:
@@ -160,6 +164,19 @@ def format_table(rows: Sequence[Sequence[str]], separator: str = "  ", align_rig
     return output
 
 
+def get_random_cycle(sequence: Sequence[T]) -> Iterator[T]:
+    """Return a randomized cycle of the given sequence."""
+    random_sequence = list(sequence)
+    random.shuffle(random_sequence)
+    return itertools.cycle(random_sequence)
+
+
+def take_random_cycle(sequence: Sequence[T], items: int) -> List[T]:
+    """Take a given number of elements from a random cycle."""
+    random_cycle = get_random_cycle(sequence)
+    return [next(random_cycle) for _ in range(items)]
+
+
 class Screen(abc.ABC):
     """A screen in a graphical terminal application.
 
@@ -265,7 +282,7 @@ class SelectableLabel:
 
         @bindings.add(" ")
         @bindings.add("enter")
-        def _handle(event):
+        def _handle(_):
             if self.handler is not None:
                 self.handler()
 
