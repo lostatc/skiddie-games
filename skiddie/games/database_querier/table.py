@@ -93,7 +93,7 @@ class Table:
 
         return format_table(header_row + data_rows)
 
-    def _get_random_generators(self, max_discrete_values: int) -> List[ColumnGenerator]:
+    def _get_random_generators(self) -> List[ColumnGenerator]:
         """Return a random ColumnGenerator instance for each column in the table.
 
         The ratio of discrete columns to continuous columns is controlled by `DISCRETE_COLUMN_RATIO`.
@@ -103,16 +103,13 @@ class Table:
 
         The discrete columns are all put before the continuous columns. The discrete columns need to come first for
         there to be exactly one row that is contained in all constraints.
-
-        Args:
-            max_discrete_values: The maximum number of unique discrete values per column.
         """
         # Get all the subclasses of ContinuousColumnGenerator and DiscreteColumnGenerator.
         continuous_instances = [
             subclass() for subclass in ContinuousColumnGenerator.__subclasses__()
         ]
         discrete_instances = [
-            subclass(max_discrete_values) for subclass in DiscreteColumnGenerator.__subclasses__()
+            subclass() for subclass in DiscreteColumnGenerator.__subclasses__()
         ]
 
         # Determine how many of each type to get.
@@ -125,18 +122,15 @@ class Table:
 
         return discrete_output + continuous_output
 
-    def create_table(self, max_discrete_values: int) -> None:
+    def create_table(self) -> None:
         """Create a new random table with a constraint for each column.
 
         This populates `self.column_data` and `self.constraints`.
-
-        Args:
-            max_discrete_values: The maximum number of unique discrete values per column.
         """
         self.columns.clear()
 
         # Choose random column generators.
-        column_generators = self._get_random_generators(max_discrete_values)
+        column_generators = self._get_random_generators()
 
         # Choose random constraint classes.
         constraint_classes = get_valid_constraints(column_generators)

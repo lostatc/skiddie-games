@@ -19,9 +19,13 @@ along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import abc
 import datetime
+import itertools
 import random
-from typing import List, Optional, Sequence
+from typing import List, Optional, Sequence, TypeVar
 
+from skiddie.utils import take_random_cycle
+
+T = TypeVar("T")
 
 class ColumnData:
     """The data that exists in a column.
@@ -69,7 +73,7 @@ class ContinuousColumnGenerator(ColumnGenerator):
         super().__init__(names)
 
     @staticmethod
-    def _sample_and_sort(sequence: Sequence[int], num_items: int) -> Sequence[int]:
+    def _sample_and_sort(sequence: Sequence[T], num_items: int) -> Sequence[T]:
         """Randomly sample a given number of integers from the given sequence and sort them."""
         return sorted(random.sample(sequence, num_items))
 
@@ -81,7 +85,7 @@ class ContinuousColumnGenerator(ColumnGenerator):
 class AgeColumnGenerator(ContinuousColumnGenerator):
     """A continuous data type representing a person's age."""
     min_value = 0
-    max_value = 90
+    max_value = 100
 
     def __init__(self) -> None:
         names = ["age"]
@@ -117,13 +121,83 @@ class PriceColumnGenerator(ContinuousColumnGenerator):
     max_value = 1000
 
     def __init__(self) -> None:
-        names = ["price", "cost", "revenue", "profit"]
+        names = ["price", "cost", "revenue", "profit", "valuation"]
         super().__init__(names)
 
     def generate(self, rows: int) -> ColumnData:
         int_values = self._sample_and_sort(range(self.min_value * 100, self.max_value * 100), rows)
         values = [integer / 100 for integer in int_values]
         data = ["${0:.2f}".format(value) for value in values]
+        return self._generate_from_data(data)
+
+
+class PostalCodeColumnGenerator(ContinuousColumnGenerator):
+    """A continuous data type representing a postal code."""
+    min_value = 0
+    max_value = 99999
+
+    def __init__(self) -> None:
+        names = ["zip_code", "postal_code", "post_code"]
+        super().__init__(names)
+
+    def generate(self, rows: int) -> ColumnData:
+        values = self._sample_and_sort(range(self.min_value, self.max_value), rows)
+        data = ["{0:05d}".format(value) for value in values]
+        return self._generate_from_data(data)
+
+
+class TimeColumnGenerator(ContinuousColumnGenerator):
+    """A continuous data type representing a time of the day."""
+    min_value = 0
+    max_value = 60*60*24
+
+    def __init__(self) -> None:
+        names = ["time", "start_time", "end_time"]
+        super().__init__(names)
+
+    @staticmethod
+    def _to_time(seconds: int) -> datetime.time:
+        """Convert a number of seconds to a time object."""
+        minutes, seconds = divmod(seconds, 60)
+        hours, minutes = divmod(minutes, 60)
+        return datetime.time(hour=hours, minute=minutes, second=seconds)
+
+    def generate(self, rows: int) -> ColumnData:
+        values = self._sample_and_sort(range(self.min_value, self.max_value), rows)
+        data = [self._to_time(value).isoformat() for value in values]
+        return self._generate_from_data(data)
+
+
+class NameColumnGenerator(ContinuousColumnGenerator):
+    """A continuous data type representing a name."""
+    first_names = [
+        "Simone", "Carmelo", "Carissa", "Janise", "Breanne", "Wilford", "Elsy", "Daryl", "Milford", "Mira", "Delma",
+        "Berry", "Miki", "Emery", "Ruthe", "Gene", "Lenny", "Shela", "Chang", "Rhett", "Cliff", "Dusty", "Vernie",
+        "Fran", "Annita", "Jule", "Taren", "Matilda", "Paola", "Omer", "Luigi", "Alise", "Tama", "Paige", "Ferne",
+        "Risa", "Odell", "Wan", "Theo", "Irwin",
+    ]
+    last_names = [
+        "Stanton", "Delarosa", "Coker", "Peterman", "Buckner", "Alder", "Whitmore", "Seibert", "Aldrich", "Layman",
+        "Dickens", "Redman", "Shrader", "Otero", "Switzer", "Maher", "Passmore", "Nobles", "Wertz", "Piper", "Lim",
+        "Larsen", "Battle", "Overton", "Hargrove", "Manzo", "Kirkland", "Damron", "Kowalski", "Gerald", "Gough", "Nix",
+        "Hoyle", "Westfall", "Cantrell", "Folse", "Sneed", "Venegas", "Baptiste", "Ziegler",
+    ]
+
+    def __init__(self) -> None:
+        names = ["name", "full_name"]
+        super().__init__(names)
+
+    def generate(self, rows: int) -> ColumnData:
+        random_first_names = take_random_cycle(self.first_names, rows)
+        random_last_names = take_random_cycle(self.last_names, rows)
+
+        # Shuffle the names to avoid an obvious repeating cycle.
+        random.shuffle(random_first_names)
+        random.shuffle(random_last_names)
+
+        data = [" ".join(pair) for pair in zip(random_first_names, random_last_names)]
+        data.sort()
+
         return self._generate_from_data(data)
 
 
@@ -166,4 +240,12 @@ class BooleanColumnGenerator(DiscreteColumnGenerator):
     def __init__(self, max_discrete_values: Optional[int] = None) -> None:
         names = ["exists", "preferred", "enabled", "open", "active"]
         possible_values = ["true", "false"]
+        super().__init__(names, possible_values, max_discrete_values)
+
+
+class PriorityColumnGenerator(DiscreteColumnGenerator):
+    """A discrete data type representing priorities."""
+    def __init__(self, max_discrete_values: Optional[int] = None) -> None:
+        names = ["priority", "rank", "importance"]
+        possible_values = ["low", "medium", "high"]
         super().__init__(names, possible_values, max_discrete_values)
