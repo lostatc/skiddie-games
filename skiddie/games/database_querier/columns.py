@@ -24,7 +24,7 @@ import random
 from typing import List, Optional
 
 from skiddie.utils.counting import (
-    take_random_cycle, sample_and_sort, limit_range, sample_decimal_range, sample_logarithmic_partitions,
+    take_random_cycle, sample_and_sort, limit_range, sample_decimal_range, sample_partitions,
 )
 from skiddie.utils.ui import format_bytes
 
@@ -206,10 +206,24 @@ class BytesColumnGenerator(ContinuousColumnGenerator):
         super().__init__(names)
 
     def generate(self, rows: int) -> ColumnData:
-        values = sample_logarithmic_partitions(
+        values = sample_partitions(
             self.min_value, self.max_value, rows, decimal_places=0, partition_magnitude=3
         )
         data = [format_bytes(value) for value in values]
+        return self._generate_from_data(data)
+
+
+class LatLongGenerator(ContinuousColumnGenerator):
+    min_value = -90
+    max_value = 90
+
+    def __init__(self) -> None:
+        names = ["latitude", "longitude"]
+        super().__init__(names)
+
+    def generate(self, rows: int) -> ColumnData:
+        values = sample_decimal_range(self.min_value, self.max_value, rows, decimal_places=4)
+        data = ["{0:.4f}".format(value) for value in values]
         return self._generate_from_data(data)
 
 
