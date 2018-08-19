@@ -79,13 +79,13 @@ class ContinuousColumnGenerator(ColumnGenerator):
         pass
 
 
-class AgeColumnGenerator(ContinuousColumnGenerator):
+class QuantityColumnGenerator(ContinuousColumnGenerator):
     """A continuous data type representing a person's age."""
     min_value = 0
     max_value = 100
 
     def __init__(self) -> None:
-        names = ["age"]
+        names = ["quantity", "amount"]
         super().__init__(names)
 
     def generate(self, rows: int) -> ColumnData:
