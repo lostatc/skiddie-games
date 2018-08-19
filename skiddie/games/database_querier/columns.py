@@ -23,7 +23,9 @@ import datetime
 import random
 from typing import List, Optional
 
-from skiddie.utils.counting import take_random_cycle, sample_and_sort, limit_range, sample_decimal_range
+from skiddie.utils.counting import (
+    take_random_cycle, sample_and_sort, limit_range, sample_decimal_range, sample_logarithmic_partitions,
+)
 from skiddie.utils.ui import format_bytes
 
 
@@ -196,27 +198,17 @@ class NameColumnGenerator(ContinuousColumnGenerator):
 
 class BytesColumnGenerator(ContinuousColumnGenerator):
     """A continuous data type representing a number of bytes."""
-    min_base = 1
-    max_base = 1023
-    exponent_range = range(2, 6)
+    min_value = 1024**1  # 1 KiB
+    max_value = 1024**4  # 1 TiB
 
     def __init__(self) -> None:
         names = ["bytes", "size", "capacity", "space", "storage"]
         super().__init__(names)
 
     def generate(self, rows: int) -> ColumnData:
-        values = []
-        partition_size = math.ceil(rows / len(self.exponent_range))
-
-        # Split the list of rows into partitions. Each partition will generate a number of bytes in a different order of
-        # magnitude so that there is an equal number of numbers in the KiB range as numbers in the TiB range.
-        for exponent in self.exponent_range:
-            base_range = range(self.min_base, self.max_base)
-            values += [value**exponent for value in sample_and_sort(base_range, partition_size)]
-
-        values = values[:rows]
-        values.sort()
-
+        values = sample_logarithmic_partitions(
+            self.min_value, self.max_value, rows, decimal_places=0, partition_magnitude=3
+        )
         data = [format_bytes(value) for value in values]
         return self._generate_from_data(data)
 

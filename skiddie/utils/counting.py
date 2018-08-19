@@ -19,7 +19,8 @@ along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import itertools
 import random
-from typing import Sequence, Iterator, List, TypeVar
+import math
+from typing import Sequence, Iterator, List, TypeVar, Union
 
 T = TypeVar("T")
 
@@ -64,3 +65,53 @@ def sample_decimal_range(min_value: int, max_value: int, num_items: int, decimal
     int_values = sample_and_sort(range(min_value * multiple, max_value * multiple), num_items)
     float_values = [integer / multiple for integer in int_values]
     return float_values
+
+
+def sample_logarithmic_partitions(
+        min_value: int, max_value: int, num_items: int, decimal_places: int = 2,
+        partition_magnitude=1) -> Sequence[Union[float, int]]:
+    """Take samples equally split between multiple unequally-sized partitions.
+
+    Args:
+        min_value: The minimum value for numbers to be selected.
+        max_value: The maximum value for numbers to be selected.
+        num_items: The number of items to select.
+        decimal_places: The number of decimal places that the returned numbers will have. If this is 0, then return
+            ints.
+        partition_magnitude: The size of each partition as a number of orders of magnitude.
+
+    """
+    ranges = []
+    start_exponent = math.floor(math.log10(min_value))
+    stop_exponent = math.floor(math.log10(max_value))
+
+    # Get the range of numbers in each order of magnitude.
+    for exponent in itertools.count(start_exponent, step=partition_magnitude):
+        next_exponent = exponent + partition_magnitude
+        start = 10**exponent
+        stop = max_value if next_exponent == stop_exponent else 10**next_exponent
+
+        ranges.append(range(start, stop))
+
+        if stop >= max_value:
+            break
+
+    # Figure out how many numbers to sample from each range.
+    min_sample_size, remainder = divmod(num_items, len(ranges))
+    sample_sizes = [min_sample_size] * len(ranges)
+    for i in range(remainder):
+        sample_sizes[i] += 1
+    random.shuffle(sample_sizes)
+
+    output = []
+
+    # Take a sample in each range.
+    for sample_range, sample_size in zip(ranges, sample_sizes):
+        output += sample_decimal_range(
+            sample_range[0], sample_range[-1], sample_size, decimal_places=decimal_places
+        )
+
+    if decimal_places == 0:
+        output = [round(number) for number in output]
+
+    return output
