@@ -18,11 +18,12 @@ You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import abc
+import math
 import datetime
 import random
 from typing import List, Optional, Sequence, TypeVar
 
-from skiddie.utils import take_random_cycle
+from skiddie.utils import take_random_cycle, format_bytes
 
 T = TypeVar("T")
 
@@ -77,6 +78,21 @@ class ContinuousColumnGenerator(ColumnGenerator):
         """Randomly sample a given number of integers from the given sequence and sort them."""
         return sorted(random.sample(sequence, num_items))
 
+    @staticmethod
+    def _limit_range(min_value: int, max_value: int, range_size: int) -> Sequence[int]:
+        """Choose a random range between the minimum and maximum given values."""
+        start = random.randrange(min_value, max_value - range_size)
+        end = start + range_size
+        return range(start, end)
+
+    def _sample_decimal_range(
+            self, min_value: int, max_value: int, num_items: int, decimal_places: int = 2) -> Sequence[float]:
+        """Sample from a range of decimal numbers between the given minimum and maximum values."""
+        multiple = 10**decimal_places
+        int_values = self._sample_and_sort(range(min_value * multiple, max_value * multiple), num_items)
+        float_values = [integer / multiple for integer in int_values]
+        return float_values
+
     @abc.abstractmethod
     def generate(self, rows: int) -> ColumnData:
         pass
@@ -108,9 +124,8 @@ class DateColumnGenerator(ContinuousColumnGenerator):
         super().__init__(names)
 
     def generate(self, rows: int) -> ColumnData:
-        start = random.randrange(self.min_value, self.max_value - self.max_range)
-        end = start + self.max_range
-        values = self._sample_and_sort(range(start, end), rows)
+        limited_range = self._limit_range(self.min_value, self.max_value, self.max_range)
+        values = self._sample_and_sort(limited_range, rows)
         data = [datetime.date.fromtimestamp(value).isoformat() for value in values]
         return self._generate_from_data(data)
 
@@ -125,8 +140,7 @@ class PriceColumnGenerator(ContinuousColumnGenerator):
         super().__init__(names)
 
     def generate(self, rows: int) -> ColumnData:
-        int_values = self._sample_and_sort(range(self.min_value * 100, self.max_value * 100), rows)
-        values = [integer / 100 for integer in int_values]
+        values = self._sample_decimal_range(self.min_value, self.max_value, rows)
         data = ["${0:.2f}".format(value) for value in values]
         return self._generate_from_data(data)
 
@@ -198,6 +212,33 @@ class NameColumnGenerator(ContinuousColumnGenerator):
         data = [" ".join(pair) for pair in zip(random_first_names, random_last_names)]
         data.sort()
 
+        return self._generate_from_data(data)
+
+
+class BytesColumnGenerator(ContinuousColumnGenerator):
+    """A continuous data type representing a number of bytes."""
+    min_base = 1
+    max_base = 1023
+    exponent_range = range(2, 6)
+
+    def __init__(self) -> None:
+        names = ["bytes", "size", "capacity", "space", "storage"]
+        super().__init__(names)
+
+    def generate(self, rows: int) -> ColumnData:
+        values = []
+        partition_size = math.ceil(rows / len(self.exponent_range))
+
+        # Split the list of rows into partitions. Each partition will generate a number of bytes in a different order of
+        # magnitude so that there is an equal number of numbers in the KiB range as numbers in the TiB range.
+        for exponent in self.exponent_range:
+            base_range = range(self.min_base, self.max_base)
+            values += [value**exponent for value in self._sample_and_sort(base_range, partition_size)]
+
+        values = values[:rows]
+        values.sort()
+
+        data = [format_bytes(value) for value in values]
         return self._generate_from_data(data)
 
 

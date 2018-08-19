@@ -100,15 +100,6 @@ def get_description(file_name: str) -> str:
     return pkg_resources.resource_string(__name__, relative_path).decode("utf-8")
 
 
-def format_duration(seconds: float) -> str:
-    """Return a formatted string representing a duration in seconds.
-
-    A duration of 63.29 seconds would be formatted as "1m 3.3s".
-    """
-    minutes, seconds = divmod(seconds, 60)
-    return "{0:.0f}m {1:.1f}s".format(minutes, seconds)
-
-
 def bool_prompt(message: str, default: bool = False) -> bool:
     """Prompt the user to answer yes or no.
 
@@ -131,6 +122,26 @@ def bool_prompt(message: str, default: bool = False) -> bool:
         return answer.lower() in true_answers
     else:
         return default
+
+
+def format_duration(seconds: float) -> str:
+    """Return a formatted string representing a duration in seconds.
+
+    A duration of 63.29 seconds would be formatted as "1m 3.3s".
+    """
+    minutes, seconds = divmod(seconds, 60)
+    return "{0:.0f}m {1:.1f}s".format(minutes, seconds)
+
+
+def format_bytes(num_bytes: int, decimal_places: int = 1) -> str:
+    """Format a number of bytes as a human-readable string."""
+    remaining_bytes = num_bytes
+    for unit in ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB"]:
+        if remaining_bytes < 1024:
+            return "{0:.{1}f}{2}".format(remaining_bytes, decimal_places, unit)
+        remaining_bytes /= 1024
+
+    return "{0:.{1}f}YiB".format(remaining_bytes, decimal_places, unit)
 
 
 def format_table(rows: Sequence[Sequence[str]], separator: str = "  ", align_right: bool = False) -> str:
