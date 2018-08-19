@@ -23,7 +23,7 @@ import datetime
 from typing import Callable
 
 from skiddie.games import hash_cracker, shell_scripter, port_scanner, hex_editor, pattern_finder, database_querier
-from skiddie.utils import get_description
+from skiddie.utils.ui import get_description
 
 
 class Difficulty(enum.Enum):

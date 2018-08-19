@@ -25,7 +25,7 @@ from typing import Sequence, List, Type
 
 from prompt_toolkit.formatted_text import FormattedText
 
-from skiddie.utils import get_random_cycle
+from skiddie.utils.counting import get_random_cycle
 from skiddie.games.database_querier.columns import ColumnData, ColumnGenerator, ContinuousColumnGenerator, DiscreteColumnGenerator
 
 

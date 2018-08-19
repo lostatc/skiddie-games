@@ -21,11 +21,10 @@ import abc
 import math
 import datetime
 import random
-from typing import List, Optional, Sequence, TypeVar
+from typing import List, Optional
 
-from skiddie.utils import take_random_cycle, format_bytes
-
-T = TypeVar("T")
+from skiddie.utils.counting import take_random_cycle, sample_and_sort, limit_range, sample_decimal_range
+from skiddie.utils.ui import format_bytes
 
 
 class ColumnData:
@@ -73,26 +72,6 @@ class ContinuousColumnGenerator(ColumnGenerator):
     def __init__(self, names: List[str]) -> None:
         super().__init__(names)
 
-    @staticmethod
-    def _sample_and_sort(sequence: Sequence[T], num_items: int) -> Sequence[T]:
-        """Randomly sample a given number of integers from the given sequence and sort them."""
-        return sorted(random.sample(sequence, num_items))
-
-    @staticmethod
-    def _limit_range(min_value: int, max_value: int, range_size: int) -> Sequence[int]:
-        """Choose a random range between the minimum and maximum given values."""
-        start = random.randrange(min_value, max_value - range_size)
-        end = start + range_size
-        return range(start, end)
-
-    def _sample_decimal_range(
-            self, min_value: int, max_value: int, num_items: int, decimal_places: int = 2) -> Sequence[float]:
-        """Sample from a range of decimal numbers between the given minimum and maximum values."""
-        multiple = 10**decimal_places
-        int_values = self._sample_and_sort(range(min_value * multiple, max_value * multiple), num_items)
-        float_values = [integer / multiple for integer in int_values]
-        return float_values
-
     @abc.abstractmethod
     def generate(self, rows: int) -> ColumnData:
         pass
@@ -108,7 +87,7 @@ class AgeColumnGenerator(ContinuousColumnGenerator):
         super().__init__(names)
 
     def generate(self, rows: int) -> ColumnData:
-        values = self._sample_and_sort(range(self.min_value, self.max_value), rows)
+        values = sample_and_sort(range(self.min_value, self.max_value), rows)
         data = [str(value) for value in values]
         return self._generate_from_data(data)
 
@@ -124,8 +103,8 @@ class DateColumnGenerator(ContinuousColumnGenerator):
         super().__init__(names)
 
     def generate(self, rows: int) -> ColumnData:
-        limited_range = self._limit_range(self.min_value, self.max_value, self.max_range)
-        values = self._sample_and_sort(limited_range, rows)
+        limited_range = limit_range(self.min_value, self.max_value, self.max_range)
+        values = sample_and_sort(limited_range, rows)
         data = [datetime.date.fromtimestamp(value).isoformat() for value in values]
         return self._generate_from_data(data)
 
@@ -140,7 +119,7 @@ class PriceColumnGenerator(ContinuousColumnGenerator):
         super().__init__(names)
 
     def generate(self, rows: int) -> ColumnData:
-        values = self._sample_decimal_range(self.min_value, self.max_value, rows)
+        values = sample_decimal_range(self.min_value, self.max_value, rows)
         data = ["${0:.2f}".format(value) for value in values]
         return self._generate_from_data(data)
 
@@ -155,7 +134,7 @@ class PostalCodeColumnGenerator(ContinuousColumnGenerator):
         super().__init__(names)
 
     def generate(self, rows: int) -> ColumnData:
-        values = self._sample_and_sort(range(self.min_value, self.max_value), rows)
+        values = sample_and_sort(range(self.min_value, self.max_value), rows)
         data = ["{0:05d}".format(value) for value in values]
         return self._generate_from_data(data)
 
@@ -177,7 +156,7 @@ class TimeColumnGenerator(ContinuousColumnGenerator):
         return datetime.time(hour=hours, minute=minutes, second=seconds)
 
     def generate(self, rows: int) -> ColumnData:
-        values = self._sample_and_sort(range(self.min_value, self.max_value), rows)
+        values = sample_and_sort(range(self.min_value, self.max_value), rows)
         data = [self._to_time(value).isoformat() for value in values]
         return self._generate_from_data(data)
 
@@ -233,7 +212,7 @@ class BytesColumnGenerator(ContinuousColumnGenerator):
         # magnitude so that there is an equal number of numbers in the KiB range as numbers in the TiB range.
         for exponent in self.exponent_range:
             base_range = range(self.min_base, self.max_base)
-            values += [value**exponent for value in self._sample_and_sort(base_range, partition_size)]
+            values += [value**exponent for value in sample_and_sort(base_range, partition_size)]
 
         values = values[:rows]
         values.sort()

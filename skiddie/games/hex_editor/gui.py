@@ -27,7 +27,7 @@ from prompt_toolkit.layout.processors import BeforeInput
 from prompt_toolkit.validation import Validator, ValidationError
 from prompt_toolkit.widgets import Label, HorizontalLine, ValidationToolbar
 
-from skiddie.utils import Screen, MultiScreenApp
+from skiddie.utils.ui import Screen, MultiScreenApp
 from skiddie.constants import GUI_STYLE
 from skiddie.games.hex_editor.logic import MazeGrid
 

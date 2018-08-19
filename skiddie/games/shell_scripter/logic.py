@@ -21,7 +21,7 @@ import random
 import weakref
 from typing import List
 
-from skiddie.utils import LateInit
+from skiddie.utils.misc import LateInit
 
 
 class Argument:

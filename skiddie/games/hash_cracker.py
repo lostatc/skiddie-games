@@ -25,7 +25,7 @@ from prompt_toolkit.validation import Validator
 from prompt_toolkit import PromptSession
 
 from skiddie.constants import GUI_STYLE
-from skiddie.utils import print_banner
+from skiddie.utils.ui import print_banner
 
 # The string that prefixes every line in the grid.
 PREFIX_STRING = "0x"

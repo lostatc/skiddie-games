@@ -19,7 +19,7 @@ along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 from skiddie.games.database_querier.table import Table
 from skiddie.games.database_querier.gui import GameInterface
-from skiddie.utils import print_banner
+from skiddie.utils.ui import print_banner
 
 
 def play(challenges_to_win: int, table_rows: int, table_columns: int) -> None:

@@ -1,4 +1,4 @@
-"""Program-wide utilities.
+"""Functions and classes related to user interfaces and displaying information.
 
 Copyright © 2017 Wren Powell <wrenp@duck.com>
 
@@ -18,27 +18,21 @@ You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import abc
-import itertools
 import os
-import random
-import sys
 import shutil
-import pkg_resources
-from typing import Sequence, Iterator, List, TypeVar
-
+import sys
 import six
-from prompt_toolkit import Application
+from typing import Sequence
+
+import pkg_resources
+from prompt_toolkit import print_formatted_text, prompt, Application
 from prompt_toolkit.application import get_app
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.layout import Layout, Float, FormattedTextControl, Window
 from prompt_toolkit.validation import Validator
-from prompt_toolkit import print_formatted_text, prompt
-from prompt_toolkit.layout import Float, Layout, FormattedTextControl, Window
 
-# The relative path to the directory containing the instructions for each game.
-INSTRUCTIONS_DIR = "descriptions"
-
-T = TypeVar("T")
+from skiddie.constants import DESCRIPTIONS_DIR
 
 
 def _format_banner(message: str, padding_char="=") -> str:
@@ -71,33 +65,15 @@ def print_banner(message: str, padding_char: str = "=", style: str = "") -> None
         print(banner)
 
 
-class LateInit:
-    """Raise an exception if the attribute is unset.
-
-    Args:
-        message: The message passed to the exception when the value is accessed before it is set.
-    """
-    def __init__(self, message: str = "this value must not be None") -> None:
-        self._value = None
-        self._message = message
-
-    def __get__(self, instance, owner):
-        if self._value is None:
-            raise ValueError(self._message)
-        return self._value
-
-    def __set__(self, instance, value):
-        self._value = value
-
-
 def get_description(file_name: str) -> str:
     """Get the descriptions of a game.
 
     Args:
         file_name: The name of the text file containing the description relative to INSTRUCTIONS_DIR.
     """
-    relative_path = os.path.join(INSTRUCTIONS_DIR, file_name)
-    return pkg_resources.resource_string(__name__, relative_path).decode("utf-8")
+    # This must not use os.path because resource names are not filesystem paths.
+    resource_name = "/".join([DESCRIPTIONS_DIR, file_name])
+    return pkg_resources.resource_string("skiddie", resource_name).decode("utf-8")
 
 
 def bool_prompt(message: str, default: bool = False) -> bool:
@@ -173,19 +149,6 @@ def format_table(rows: Sequence[Sequence[str]], separator: str = "  ", align_rig
     )
 
     return output
-
-
-def get_random_cycle(sequence: Sequence[T]) -> Iterator[T]:
-    """Return a randomized cycle of the given sequence."""
-    random_sequence = list(sequence)
-    random.shuffle(random_sequence)
-    return itertools.cycle(random_sequence)
-
-
-def take_random_cycle(sequence: Sequence[T], items: int) -> List[T]:
-    """Take a given number of elements from a random cycle."""
-    random_cycle = get_random_cycle(sequence)
-    return [next(random_cycle) for _ in range(items)]
 
 
 class Screen(abc.ABC):

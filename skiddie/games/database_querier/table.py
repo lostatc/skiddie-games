@@ -26,7 +26,8 @@ from skiddie.games.database_querier.columns import (
     ColumnData, ColumnGenerator, ContinuousColumnGenerator, DiscreteColumnGenerator,
 )
 from skiddie.games.database_querier.constraints import Constraint, get_valid_constraints
-from skiddie.utils import format_table, take_random_cycle
+from skiddie.utils.ui import format_table
+from skiddie.utils.counting import take_random_cycle
 
 DISCRETE_COLUMN_RATIO = 0.25
 

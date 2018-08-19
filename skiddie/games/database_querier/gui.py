@@ -27,7 +27,7 @@ from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
 from prompt_toolkit.layout.containers import FloatContainer
 from prompt_toolkit.key_binding import KeyBindings
 
-from skiddie.utils import Screen, MultiScreenApp, SelectableLabel
+from skiddie.utils.ui import Screen, MultiScreenApp, SelectableLabel
 from skiddie.constants import GUI_STYLE
 
 from skiddie.games.database_querier.table import Table
