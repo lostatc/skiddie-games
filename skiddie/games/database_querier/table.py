@@ -30,8 +30,6 @@ from skiddie.games.database_querier.constraints import Constraint, get_valid_con
 from skiddie.utils.ui import format_table
 from skiddie.utils.counting import take_random_cycle
 
-DISCRETE_COLUMN_RATIO = 0.25
-
 Column = NamedTuple("Column", [("data", ColumnData), ("constraint", Constraint)])
 
 
@@ -40,13 +38,20 @@ class Table:
 
     Attributes:
         num_rows: The number of rows in the table.
-        num_columns: The number of columns in the table.
+        continuous_columns: The number of continuous columns in the table.
+        discrete_columns: The number of discrete columns in the table.
         columns: The data and constraints for each column in the table.
     """
-    def __init__(self, rows: int, columns: int) -> None:
+    def __init__(self, rows: int, continuous_columns: int, discrete_columns: int) -> None:
         self.num_rows = rows
-        self.num_columns = columns
+        self.num_continuous = continuous_columns
+        self.num_discrete = discrete_columns
         self.columns = []
+
+    @property
+    def num_columns(self) -> int:
+        """The total number of columns in the table."""
+        return self.num_continuous + self.num_discrete
 
     @property
     def overlapping_indices(self) -> Sequence[int]:
@@ -98,10 +103,8 @@ class Table:
     def _get_random_generators(self) -> List[ColumnGenerator]:
         """Return a random ColumnGenerator instance for each column in the table.
 
-        The ratio of discrete columns to continuous columns is controlled by `DISCRETE_COLUMN_RATIO`.
-
         DiscreteColumnGenerator subclasses will only be repeated once each has been used once. ContinuousColumnGenerator
-        subclasses will only be repeated once each has been used once.
+        subclasses will do the same.
 
         The discrete columns are all put before the continuous columns. The discrete columns need to come first for
         there to be exactly one row that is contained in all constraints.
@@ -114,13 +117,9 @@ class Table:
             subclass() for subclass in DiscreteColumnGenerator.__subclasses__()
         ]
 
-        # Determine how many of each type to get.
-        continuous_items = round((1 - DISCRETE_COLUMN_RATIO) * self.num_columns)
-        discrete_items = round(DISCRETE_COLUMN_RATIO * self.num_columns)
-
         # Randomly select subclasses.
-        continuous_output = take_random_cycle(continuous_instances, continuous_items)
-        discrete_output = take_random_cycle(discrete_instances, discrete_items)
+        continuous_output = take_random_cycle(continuous_instances, self.num_continuous)
+        discrete_output = take_random_cycle(discrete_instances, self.num_discrete)
 
         return discrete_output + continuous_output
 

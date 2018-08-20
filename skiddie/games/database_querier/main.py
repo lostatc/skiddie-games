@@ -22,19 +22,23 @@ from skiddie.games.database_querier.gui import GameInterface
 from skiddie.utils.ui import print_banner
 
 
-def play(challenges_to_win: int, table_rows: int, table_columns: int) -> None:
+def play(challenges_to_win: int, rows: int, continuous_columns: int, discrete_columns: int) -> None:
     """Play the game.
 
     Args:
         challenges_to_win: The number of challenges the user has to complete to win the game. Increasing this makes the
             game more difficult.
-        table_rows: The number of rows in the table. Increasing this makes the game more difficult.
-        table_columns: The number of columns in the table. Increasing this makes the game more difficult.
+        rows: The number of rows in the table. Increasing this makes the game more difficult.
+        continuous_columns: The number of continuous columns in the table. These are columns that have a range of
+            possible values. Increasing this makes the game more difficult.
+        discrete_columns: The number of discrete columns in the table. These are columns that have a limited number of
+            possible values. Increasing this makes the game more difficult. Increasing this relative to
+            `continuous_columns` also makes the game more difficult.
     """
     completed_challenges = 0
 
     while completed_challenges < challenges_to_win:
-        table = Table(table_rows, table_columns)
+        table = Table(rows, continuous_columns, discrete_columns)
         table.create_table()
 
         # Prompt the user.
