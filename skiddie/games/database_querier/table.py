@@ -17,6 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
+import math
 import random
 from typing import Sequence, List, NamedTuple
 
@@ -143,7 +144,7 @@ class Table:
 
             # Generate the number to reduce the number of overlapping rows by. Subtract one to ensure that there is one
             # row left overlapping at the end.
-            reduce_amount = round(self.overlapping_rows / self.remaining_columns) - 1
+            reduce_amount = math.ceil(self.overlapping_rows / self.remaining_columns) - 1
 
             # Generate a constraint for this column.
             constraint = constraint_class(column_data, self.overlapping_indices, reduce_amount)
