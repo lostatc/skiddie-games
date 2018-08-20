@@ -169,13 +169,15 @@ class NameColumnGenerator(ContinuousColumnGenerator):
         "Simone", "Carmelo", "Carissa", "Janise", "Breanne", "Wilford", "Elsy", "Daryl", "Milford", "Mira", "Delma",
         "Berry", "Miki", "Emery", "Ruthe", "Gene", "Lenny", "Shela", "Chang", "Rhett", "Cliff", "Dusty", "Vernie",
         "Fran", "Annita", "Jule", "Taren", "Matilda", "Paola", "Omer", "Luigi", "Alise", "Tama", "Paige", "Ferne",
-        "Risa", "Odell", "Wan", "Theo", "Irwin",
+        "Risa", "Odell", "Wan", "Theo", "Irwin", "Hilda", "Janelle", "Jacque", "Luana", "Nelle", "Grover", "Chi",
+        "Cleo", "Jarvis", "Esther",
     ]
     last_names = [
         "Stanton", "Delarosa", "Coker", "Peterman", "Buckner", "Alder", "Whitmore", "Seibert", "Aldrich", "Layman",
         "Dickens", "Redman", "Shrader", "Otero", "Switzer", "Maher", "Passmore", "Nobles", "Wertz", "Piper", "Lim",
         "Larsen", "Battle", "Overton", "Hargrove", "Manzo", "Kirkland", "Damron", "Kowalski", "Gerald", "Gough", "Nix",
-        "Hoyle", "Westfall", "Cantrell", "Folse", "Sneed", "Venegas", "Baptiste", "Ziegler",
+        "Hoyle", "Westfall", "Cantrell", "Folse", "Sneed", "Venegas", "Baptiste", "Ziegler", "Horvath", "Hogan",
+        "Kinchloe", "Carter", "LeBeau", "Newkirk", "Klink", "Schultz", "Burkhalter", "Hochstetter",
     ]
 
     def __init__(self) -> None:
@@ -214,6 +216,7 @@ class BytesColumnGenerator(ContinuousColumnGenerator):
 
 
 class LatLongGenerator(ContinuousColumnGenerator):
+    """A continuous data type representing a latitude or longitude"""
     min_value = -90
     max_value = 90
 
@@ -224,6 +227,36 @@ class LatLongGenerator(ContinuousColumnGenerator):
     def generate(self, rows: int) -> ColumnData:
         values = sample_decimal_range(self.min_value, self.max_value, rows, decimal_places=4)
         data = ["{0:.4f}".format(value) for value in values]
+        return self._generate_from_data(data)
+
+
+class DurationColumnGenerator(ContinuousColumnGenerator):
+    """A continuous data type representing a duration in seconds."""
+    min_value = 100
+    max_value = 100000000
+
+    def __init__(self) -> None:
+        names = ["duration", "seconds", "elapsed_time"]
+        super().__init__(names)
+
+    def generate(self, rows: int) -> ColumnData:
+        values = sample_partitions(self.min_value, self.max_value, rows, decimal_places=0)
+        data = ["{0:.4e}".format(value) for value in values]
+        return self._generate_from_data(data)
+
+
+class IDColumn(ContinuousColumnGenerator):
+    """A continuous data type representing a unique id."""
+    min_value = 0x00000000
+    max_value = 0xffffffff
+
+    def __init__(self) -> None:
+        names = ["id", "key"]
+        super().__init__(names)
+
+    def generate(self, rows: int) -> ColumnData:
+        values = sample_and_sort(range(self.min_value, self.max_value), rows)
+        data = ["{0:08x}".format(value) for value in values]
         return self._generate_from_data(data)
 
 
@@ -262,16 +295,48 @@ class DiscreteColumnGenerator(ColumnGenerator):
 
 
 class BooleanColumnGenerator(DiscreteColumnGenerator):
-    """A discrete data type representing boolean values."""
-    def __init__(self, max_discrete_values: Optional[int] = None) -> None:
+    """A discrete data type representing a boolean value."""
+    def __init__(self) -> None:
         names = ["exists", "preferred", "enabled", "open", "active"]
         possible_values = ["true", "false"]
-        super().__init__(names, possible_values, max_discrete_values)
+        super().__init__(names, possible_values)
+
+
+class StatusColumnGenerator(DiscreteColumnGenerator):
+    """A discrete data type representing a status."""
+    def __init__(self) -> None:
+        names = ["status"]
+        possible_values = ["active", "inactive", "standby"]
+        super().__init__(names, possible_values, max_discrete_values=2)
+
+
+class SpecializationColumnGenerator(DiscreteColumnGenerator):
+    """A discrete data type representing a specialization."""
+    def __init__(self) -> None:
+        names = ["specialization", "level"]
+        possible_values = ["primary", "secondary", "tertiary"]
+        super().__init__(names, possible_values, max_discrete_values=2)
 
 
 class PriorityColumnGenerator(DiscreteColumnGenerator):
-    """A discrete data type representing priorities."""
-    def __init__(self, max_discrete_values: Optional[int] = None) -> None:
-        names = ["priority", "rank", "importance"]
+    """A discrete data type representing a priority."""
+    def __init__(self) -> None:
+        names = ["priority", "rank"]
         possible_values = ["low", "medium", "high"]
-        super().__init__(names, possible_values, max_discrete_values)
+        super().__init__(names, possible_values)
+
+
+class ConditionColumnGenerator(DiscreteColumnGenerator):
+    """A discrete data type representing a condition."""
+    def __init__(self) -> None:
+        names = ["condition"]
+        possible_values = ["poor", "moderate", "good"]
+        super().__init__(names, possible_values)
+
+
+class SeverityColumnGenerator(DiscreteColumnGenerator):
+    """A discrete data type representing a severity level."""
+    def __init__(self) -> None:
+        names = ["severity", "importance"]
+        possible_values = ["regular", "important", "critical"]
+        super().__init__(names, possible_values)

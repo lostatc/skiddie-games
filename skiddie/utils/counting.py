@@ -69,7 +69,7 @@ def sample_decimal_range(min_value: int, max_value: int, num_items: int, decimal
 
 def sample_partitions(
         min_value: int, max_value: int, num_items: int, decimal_places: int = 2,
-        partition_magnitude=1) -> Sequence[Union[float, int]]:
+        partition_magnitude: int = 1) -> Sequence[Union[float, int]]:
     """Take samples equally split between multiple unequally-sized partitions.
 
     Args:
