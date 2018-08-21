@@ -20,7 +20,6 @@ along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 import abc
 import random
 import time
-import collections
 from typing import Sequence, List, Type
 
 from prompt_toolkit.formatted_text import FormattedText
@@ -93,7 +92,7 @@ class EqualConstraint(DiscreteConstraint):
     @property
     def indices(self) -> Sequence[int]:
         # Get the number of times each value occurs in the overlapping region.
-        occurrences_in_overlap = collections.defaultdict(lambda: 0)
+        occurrences_in_overlap = {value: 0 for value in set(self.data.rows)}
         for i in self.overlapping_indices:
             value = self.data.rows[i]
             occurrences_in_overlap[value] += 1
@@ -123,7 +122,7 @@ class NotEqualConstraint(DiscreteConstraint):
     @property
     def indices(self) -> Sequence[int]:
         # Get the number of times each value occurs in the overlapping region.
-        occurrences_in_overlap = collections.defaultdict(lambda: 0)
+        occurrences_in_overlap = {value: 0 for value in set(self.data.rows)}
         for i in self.overlapping_indices:
             value = self.data.rows[i]
             occurrences_in_overlap[value] += 1
@@ -163,7 +162,9 @@ class LessThanConstraint(ContinuousConstraint):
     """The row is less than this value."""
     @property
     def indices(self) -> Sequence[int]:
-        return range(0, self.overlapping_indices[-self.reduce_amount])
+        # If `reduce_amount` is zero, then the end of the range should be the last index of `self.overlapping_indices`.
+        stop_index = self.overlapping_indices[-(self.reduce_amount+1)]
+        return range(0, stop_index + 1)
 
     def format(self) -> FormattedText:
         highest_index = self.indices[-1]
@@ -217,14 +218,15 @@ class RangeConstraint(ContinuousConstraint):
 
         def get_range_before():
             """Get a range that starts before the overlapping region and ends in it."""
+            # If `reduce_amount` is zero, then the end of the range should be the last index of `self.overlapping_indices`.
             start = random_source.randrange(0, self.overlapping_indices[0])
-            end = self.overlapping_indices[-self.reduce_amount]
-            return range(start, end)
+            end = self.overlapping_indices[-(self.reduce_amount+1)]
+            return range(start, end + 1)
 
         def get_range_inside():
             """Get a range that starts and ends inside the overlapping region."""
             range_size = self.data.num_rows - self.reduce_amount
-            start = random_source.randrange(0, self.data.num_rows - range_size)
+            start = random_source.randint(0, self.data.num_rows - range_size)
             end = start + range_size
             return range(start, end)
 
