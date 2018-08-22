@@ -299,7 +299,7 @@ class BooleanColumnGenerator(DiscreteColumnGenerator):
     def __init__(self) -> None:
         names = ["exists", "preferred", "enabled", "open", "active"]
         possible_values = ["true", "false"]
-        super().__init__(names, possible_values)
+        super().__init__(names, possible_values, max_discrete_values=2)
 
 
 class StatusColumnGenerator(DiscreteColumnGenerator):
@@ -307,6 +307,14 @@ class StatusColumnGenerator(DiscreteColumnGenerator):
     def __init__(self) -> None:
         names = ["status"]
         possible_values = ["active", "inactive", "standby"]
+        super().__init__(names, possible_values, max_discrete_values=2)
+
+
+class ProcessStateColumnGenerator(DiscreteColumnGenerator):
+    """A discrete data type representing the state of a process."""
+    def __init__(self) -> None:
+        names = ["process_state"]
+        possible_values = ["working", "failed", "complete"]
         super().__init__(names, possible_values, max_discrete_values=2)
 
 
@@ -318,12 +326,20 @@ class SpecializationColumnGenerator(DiscreteColumnGenerator):
         super().__init__(names, possible_values, max_discrete_values=2)
 
 
+class VisibilityColumnGenerator(DiscreteColumnGenerator):
+    """A discrete data type representing a visibility."""
+    def __init__(self) -> None:
+        names = ["visibility"]
+        possible_values = ["public", "private", "protected"]
+        super().__init__(names, possible_values, max_discrete_values=2)
+
+
 class PriorityColumnGenerator(DiscreteColumnGenerator):
     """A discrete data type representing a priority."""
     def __init__(self) -> None:
         names = ["priority", "rank"]
-        possible_values = ["low", "medium", "high"]
-        super().__init__(names, possible_values)
+        possible_values = ["low", "medium", "high", "immediate"]
+        super().__init__(names, possible_values, max_discrete_values=3)
 
 
 class ConditionColumnGenerator(DiscreteColumnGenerator):
@@ -331,12 +347,28 @@ class ConditionColumnGenerator(DiscreteColumnGenerator):
     def __init__(self) -> None:
         names = ["condition"]
         possible_values = ["poor", "moderate", "good"]
-        super().__init__(names, possible_values)
+        super().__init__(names, possible_values, max_discrete_values=3)
 
 
 class SeverityColumnGenerator(DiscreteColumnGenerator):
     """A discrete data type representing a severity level."""
     def __init__(self) -> None:
         names = ["severity", "importance"]
-        possible_values = ["regular", "important", "critical"]
-        super().__init__(names, possible_values)
+        possible_values = ["minor", "normal", "major", "critical"]
+        super().__init__(names, possible_values, max_discrete_values=3)
+
+
+class MachineStateColumnGenerator(DiscreteColumnGenerator):
+    """A discrete data type representing the state of a machine."""
+    def __init__(self) -> None:
+        names = ["machine_state"]
+        possible_values = ["running", "power_off", "sleeping", "hibernating"]
+        super().__init__(names, possible_values, max_discrete_values=3)
+
+
+class SizeColumnGenerator(DiscreteColumnGenerator):
+    """A discrete data type representing a size."""
+    def __init__(self) -> None:
+        names = ["size"]
+        possible_values = ["small", "medium", "large"]
+        super().__init__(names, possible_values, max_discrete_values=3)
