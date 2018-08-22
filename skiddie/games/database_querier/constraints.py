@@ -82,6 +82,11 @@ class DiscreteConstraint(Constraint):
     DiscreteConstraint subclasses may not be able to reduce the number of overlapping rows by exactly
     `self.reduce_amount`. They will choose the `indices` that come the closest.
     """
+    def _distance(self, occurrences: int) -> int:
+        """Return how close the value with the given number of occurrences will be to `self.reduce_amount`."""
+        reduce_amount = len(self.overlapping_indices) - occurrences
+        return abs(reduce_amount - self.reduce_amount)
+
     @abc.abstractmethod
     def format(self) -> FormattedText:
         pass
@@ -97,15 +102,16 @@ class EqualConstraint(DiscreteConstraint):
             value = self.data.rows[i]
             occurrences_in_overlap[value] += 1
 
-        # Get the value with the number of occurrences that's farthest from `self.reduce_amount`. The constraint will
-        # apply to all indices that have this value.
-        closest_value, _ = max(
+        # Get the value that, if selected, will reduce the number of overlapping rows by the amount that's closest to
+        # `self.reduce_amount`. The constraint will apply to all indices that have this value.
+        closest_value, _ = min(
             occurrences_in_overlap.items(),
-            key=lambda x: abs(x[1] - self.reduce_amount)
+            key=lambda x: self._distance(x[1])
         )
 
         # Get all the indices at which this value appears.
-        return [i for i, value in enumerate(self.data.rows) if value == closest_value]
+        output = [i for i, value in enumerate(self.data.rows) if value == closest_value]
+        return output
 
     def format(self) -> FormattedText:
         # Get the first index that is in `self.indices`.
@@ -127,15 +133,16 @@ class NotEqualConstraint(DiscreteConstraint):
             value = self.data.rows[i]
             occurrences_in_overlap[value] += 1
 
-        # Get the value with the number of occurrences that's closest to `self.reduce_amount`. The constraint will
-        # apply to all indices that do not have this value.
-        closest_value, _ = min(
+        # Get the value that, if selected, will reduce the number of overlapping rows by the amount that's farthest from
+        # `self.reduce_amount`. The constraint will apply to all indices that do not have this value.
+        closest_value, _ = max(
             occurrences_in_overlap.items(),
-            key=lambda x: abs(x[1] - self.reduce_amount)
+            key=lambda x: self._distance(x[1])
         )
 
         # Get all the indices at which this value does not appear.
-        return [i for i, value in enumerate(self.data.rows) if value != closest_value]
+        output = [i for i, value in enumerate(self.data.rows) if value != closest_value]
+        return output
 
     def format(self) -> FormattedText:
         # Get the first index that is not in `self.indices`.
@@ -225,10 +232,39 @@ class RangeConstraint(ContinuousConstraint):
 
         def get_range_inside():
             """Get a range that starts and ends inside the overlapping region."""
-            range_size = self.data.num_rows - self.reduce_amount
-            start = random_source.randint(0, self.data.num_rows - range_size)
-            end = start + range_size
-            return range(start, end)
+            min_index = 0
+            max_index = len(self.overlapping_indices) - 1
+
+            # The range will start between the values of `self.overlapping_indices` at these indices.
+            inner_start = random_source.randint(0, self.reduce_amount)
+            outer_start = inner_start - 1
+
+            # The range will end between the values of `self.overlapping_indices` at these indices.
+            inner_end = inner_start + (max_index - self.reduce_amount)
+            outer_end = inner_end + 1
+
+            # Randomly decide the index to start the range at. Add 1 to the minimum value because selecting it would change
+            # the number of overlapping indices.
+            if inner_start == min_index:
+                start_index = self.overlapping_indices[min_index]
+            else:
+                start_index = random_source.randint(
+                    self.overlapping_indices[outer_start] + 1,
+                    self.overlapping_indices[inner_start],
+                    )
+
+            # Randomly decide the index to end the range at. Subtract 1 from the maximum value because selecting it would
+            # change the number of overlapping indices.
+            if inner_end == max_index:
+                end_index = self.overlapping_indices[max_index]
+            else:
+                end_index = random_source.randint(
+                    self.overlapping_indices[inner_end],
+                    self.overlapping_indices[outer_end] - 1,
+                    )
+
+            output = range(start_index, end_index+1)
+            return output
 
         at_start = self.overlapping_indices[0] == 0
         at_end = self.overlapping_indices[-1] + 1 == self.data.num_rows
@@ -246,6 +282,7 @@ class RangeConstraint(ContinuousConstraint):
         return random_source.choice([
             get_range_after(),
             get_range_before(),
+            get_range_inside(),
         ])
 
     def format(self) -> FormattedText:
