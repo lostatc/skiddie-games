@@ -18,7 +18,6 @@ You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import abc
-import math
 import datetime
 import random
 from typing import List, Optional

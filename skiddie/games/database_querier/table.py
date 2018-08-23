@@ -19,7 +19,7 @@ along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import math
 import random
-from typing import Sequence, List, NamedTuple
+from typing import Sequence, List
 
 from prompt_toolkit.formatted_text import FormattedText
 
@@ -30,7 +30,17 @@ from skiddie.games.database_querier.constraints import Constraint, get_valid_con
 from skiddie.utils.ui import format_table
 from skiddie.utils.counting import take_random_cycle
 
-Column = NamedTuple("Column", [("data", ColumnData), ("constraint", Constraint)])
+
+class Column:
+    """A column in the table.
+
+    Attributes:
+        data: The contents of the column.
+        constraint: The constraint applied to the column.
+    """
+    def __init__(self, data: ColumnData, constraint: Constraint) -> None:
+        self.data = data
+        self.constraint = constraint
 
 
 class Table:
