@@ -22,8 +22,8 @@ import time
 import datetime
 from typing import Callable
 
-from skiddie.games import hash_cracker, shell_scripter, port_scanner, hex_editor, pattern_finder
-from skiddie.utils import get_description
+from skiddie.games import hash_cracker, shell_scripter, port_scanner, hex_editor, pattern_finder, database_querier
+from skiddie.utils.ui import get_description
 
 
 class Difficulty(enum.Enum):
@@ -52,6 +52,16 @@ LauncherFunc = Callable[[Difficulty], None]
 
 # A function which launches a game with a given difficulty and return the number of seconds it took to complete it.
 TimerFunc = Callable[[Difficulty], float]
+
+
+def _start_database_querier(difficulty: Difficulty) -> None:
+    """Start the game "database_querier" with a given difficulty."""
+    if difficulty is Difficulty.EASY:
+        database_querier.play(challenges_to_win=3, rows=20, continuous_columns=4, discrete_columns=2)
+    if difficulty is Difficulty.NORMAL:
+        database_querier.play(challenges_to_win=3, rows=30, continuous_columns=4, discrete_columns=3)
+    if difficulty is Difficulty.HARD:
+        database_querier.play(challenges_to_win=3, rows=40, continuous_columns=4, discrete_columns=4)
 
 
 def _start_hash_cracker(difficulty: Difficulty) -> None:
@@ -193,6 +203,9 @@ class GameSession:
         self.completed = datetime.datetime.now()
 
 
+GAME_DATABASE_QUERIER = Game(
+    "database_querier", get_description("database_querier.md"), get_timer(_start_database_querier)
+)
 GAME_HASH_CRACKER = Game("hash_cracker", get_description("hash_cracker.md"), get_timer(_start_hash_cracker))
 GAME_HEX_EDITOR = Game("hex_editor", get_description("hex_editor.md"), get_timer(_start_hex_editor))
 GAME_PATTERN_FINDER = Game("pattern_finder", get_description("pattern_finder.md"), get_timer(_start_pattern_finder))
@@ -200,4 +213,7 @@ GAME_PORT_SCANNER = Game("port_scanner", get_description("port_scanner.md"), get
 GAME_SHELL_SCRIPTER = Game("shell_scripter", get_description("shell_scripter.md"), get_timer(_start_shell_scripter))
 
 # A list of all available games. This must be updated whenever new games are added.
-GAMES = [GAME_HASH_CRACKER, GAME_HEX_EDITOR, GAME_PATTERN_FINDER, GAME_PORT_SCANNER, GAME_SHELL_SCRIPTER]
+GAMES = [
+    GAME_DATABASE_QUERIER, GAME_HASH_CRACKER, GAME_HEX_EDITOR, GAME_PATTERN_FINDER, GAME_PORT_SCANNER,
+    GAME_SHELL_SCRIPTER
+]

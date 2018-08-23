@@ -21,6 +21,7 @@ import os
 
 from prompt_toolkit.styles import Style
 
+# The path in which to put config files and persistent user data.
 if os.name == "posix":
     CONFIG_DIR = os.path.join(os.getenv("XDG_CONFIG_HOME", os.path.join(os.getenv("HOME"), ".config")), "skiddie")
 elif os.name == "nt":
@@ -28,8 +29,14 @@ elif os.name == "nt":
 else:
     raise NotImplementedError("unsupported platform")
 
+# The path of the file containing the user's scores.
 SCORES_FILE = os.path.join(CONFIG_DIR, "scores.json")
 
+# The path of the directory containing descriptions of each game relative to the root package. Because this is a
+# resource string and not a filesystem path, it must use forward slashes.
+DESCRIPTIONS_DIR = "descriptions"
+
+# The master style sheet for all GUIs.
 GUI_STYLE = Style([
     ("button.focused", "bg:ansired"),
     ("dialog.body", "fg:ansidefault bg:ansidefault"),
@@ -37,4 +44,7 @@ GUI_STYLE = Style([
     ("dialog frame.label", "fg:ansigreen"),
     ("cursor-line", "fg:ansidefault bg:ansidefault reverse nounderline"),
     ("cursor-column", "fg:ansidefault bg:ansidefault reverse"),
+    ("selectable-label", ""),
+    ("selectable-label.focused", "reverse"),
+    ("column-name", "bold"),
 ])

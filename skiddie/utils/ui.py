@@ -1,4 +1,4 @@
-"""Program-wide utilities.
+"""Functions and classes related to user interfaces and displaying information.
 
 Copyright © 2017 Wren Powell <wrenp@duck.com>
 
@@ -19,19 +19,20 @@ along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import abc
 import os
-import sys
 import shutil
-import pkg_resources
+import sys
+import six
 from typing import Sequence
 
-from prompt_toolkit import Application
+import pkg_resources
+from prompt_toolkit import print_formatted_text, prompt, Application
+from prompt_toolkit.application import get_app
 from prompt_toolkit.formatted_text import FormattedText
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.layout import Layout, Float, FormattedTextControl, Window
 from prompt_toolkit.validation import Validator
-from prompt_toolkit import print_formatted_text, prompt
-from prompt_toolkit.layout import Float, FloatContainer, Container, Layout
 
-# The relative path to the directory containing the instructions for each game.
-INSTRUCTIONS_DIR = "descriptions"
+from skiddie.constants import DESCRIPTIONS_DIR
 
 
 def _format_banner(message: str, padding_char="=") -> str:
@@ -64,42 +65,15 @@ def print_banner(message: str, padding_char: str = "=", style: str = "") -> None
         print(banner)
 
 
-class LateInit:
-    """Raise an exception if the attribute is unset.
-
-    Args:
-        message: The message passed to the exception when the value is accessed before it is set.
-    """
-    def __init__(self, message: str = "this value must not be None") -> None:
-        self._value = None
-        self._message = message
-
-    def __get__(self, instance, owner):
-        if self._value is None:
-            raise ValueError(self._message)
-        return self._value
-
-    def __set__(self, instance, value):
-        self._value = value
-
-
 def get_description(file_name: str) -> str:
     """Get the descriptions of a game.
 
     Args:
         file_name: The name of the text file containing the description relative to INSTRUCTIONS_DIR.
     """
-    relative_path = os.path.join(INSTRUCTIONS_DIR, file_name)
-    return pkg_resources.resource_string(__name__, relative_path).decode("utf-8")
-
-
-def format_duration(seconds: float) -> str:
-    """Return a formatted string representing a duration in seconds.
-
-    A duration of 63.29 seconds would be formatted as "1m 3.3s".
-    """
-    minutes, seconds = divmod(seconds, 60)
-    return "{0:.0f}m {1:.1f}s".format(minutes, seconds)
+    # This must not use os.path because resource names are not filesystem paths.
+    resource_name = "/".join([DESCRIPTIONS_DIR, file_name])
+    return pkg_resources.resource_string("skiddie", resource_name).decode("utf-8")
 
 
 def bool_prompt(message: str, default: bool = False) -> bool:
@@ -124,6 +98,26 @@ def bool_prompt(message: str, default: bool = False) -> bool:
         return answer.lower() in true_answers
     else:
         return default
+
+
+def format_duration(seconds: float) -> str:
+    """Return a formatted string representing a duration in seconds.
+
+    A duration of 63.29 seconds would be formatted as "1m 3.3s".
+    """
+    minutes, seconds = divmod(seconds, 60)
+    return "{0:.0f}m {1:.1f}s".format(minutes, seconds)
+
+
+def format_bytes(num_bytes: int, decimal_places: int = 1) -> str:
+    """Format a number of bytes as a human-readable string."""
+    remaining_bytes = num_bytes
+    for unit in ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB"]:
+        if remaining_bytes < 1024:
+            return "{0:.{1}f}{2}".format(remaining_bytes, decimal_places, unit)
+        remaining_bytes /= 1024
+
+    return "{0:.{1}f}YiB".format(remaining_bytes, decimal_places, unit)
 
 
 def format_table(rows: Sequence[Sequence[str]], separator: str = "  ", align_right: bool = False) -> str:
@@ -221,3 +215,52 @@ class MultiScreenApp:
         """Remove all floating windows."""
         self.app.layout.container.floats.clear()
         self.app.layout.focus(self.app.layout.container)
+
+
+class SelectableLabel:
+    """A selectable text label.
+
+    This is different from the `Button` classs included with prompt_toolkit in that the contents of the button are
+    left-aligned and there are no angle brackets framing the text.
+
+    Args:
+        text: The text to display in the label.
+        handler: The function to call when the label is selected.
+    """
+    def __init__(self, text: six.text_type, handler=None) -> None:
+        self.text = text
+        self.handler = handler
+
+        self.control = FormattedTextControl(
+            self.text,
+            key_bindings=self._get_key_bindings(),
+            focusable=True
+        )
+
+        def get_style():
+            if get_app().layout.has_focus(self):
+                return 'class:selectable-label.focused'
+            else:
+                return 'class:selectable-label'
+
+        self.window = Window(
+            self.control,
+            style=get_style,
+            dont_extend_width=False,
+            dont_extend_height=True,
+            always_hide_cursor=True,
+        )
+
+    def _get_key_bindings(self) -> KeyBindings:
+        bindings = KeyBindings()
+
+        @bindings.add(" ")
+        @bindings.add("enter")
+        def _handle(_):
+            if self.handler is not None:
+                self.handler()
+
+        return bindings
+
+    def __pt_container__(self):
+        return self.window

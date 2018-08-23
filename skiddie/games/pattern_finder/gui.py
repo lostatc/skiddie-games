@@ -29,7 +29,7 @@ from prompt_toolkit.widgets import Label, HorizontalLine, Frame, Box, Button
 
 from skiddie.constants import GUI_STYLE
 from skiddie.games.pattern_finder.logic import PatternGrid
-from skiddie.utils import Screen, MultiScreenApp
+from skiddie.utils.ui import Screen, MultiScreenApp
 
 
 class PatternScreen(Screen):

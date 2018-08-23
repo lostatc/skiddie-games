@@ -22,7 +22,7 @@ from skiddie.games.hex_editor.gui import GameInterface
 
 from prompt_toolkit import print_formatted_text
 
-from skiddie.utils import print_banner
+from skiddie.utils.ui import print_banner
 
 
 def play(

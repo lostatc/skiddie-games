@@ -32,7 +32,7 @@ from prompt_toolkit.key_binding import KeyBindings
 
 from skiddie.launcher.scores import Scores
 from skiddie.constants import GUI_STYLE
-from skiddie.utils import Screen, MultiScreenApp
+from skiddie.utils.ui import Screen, MultiScreenApp
 from skiddie.launcher.common import Difficulty, Game, GameSession, GAMES
 from skiddie.launcher.scores import process_result, format_scores
 

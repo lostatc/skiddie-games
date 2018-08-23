@@ -27,7 +27,8 @@ from prompt_toolkit import prompt
 from prompt_toolkit.formatted_text import FormattedText
 
 from skiddie.constants import SCORES_FILE, CONFIG_DIR
-from skiddie.utils import format_duration, LateInit, bool_prompt, format_table
+from skiddie.utils.ui import format_duration, bool_prompt, format_table
+from skiddie.utils.misc import LateInit
 from skiddie.launcher.common import GameSession, Game, Difficulty
 
 # The string that immediately precedes the users time whenever their time is printed to stdout.

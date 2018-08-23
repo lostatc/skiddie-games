@@ -22,7 +22,7 @@ import random
 
 from skiddie.games.pattern_finder.logic import PatternGrid
 from skiddie.games.pattern_finder.gui import GameInterface
-from skiddie.utils import print_banner
+from skiddie.utils.ui import print_banner
 
 # The proportion of cells in the grid that are turned on.
 GRID_COVERAGE = 0.5

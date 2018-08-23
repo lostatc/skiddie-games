@@ -22,7 +22,7 @@ import random
 from prompt_toolkit.validation import Validator
 from prompt_toolkit import PromptSession
 
-from skiddie.utils import print_banner
+from skiddie.utils.ui import print_banner
 from skiddie.constants import GUI_STYLE
 from skiddie.games.shell_scripter.logic import Command
 from skiddie.games.shell_scripter.constants import INPUT_FILE_NAMES, OUTPUT_FILE_NAMES, COMMANDS

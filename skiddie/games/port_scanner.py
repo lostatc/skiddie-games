@@ -23,7 +23,8 @@ from typing import List, Tuple, Optional
 from prompt_toolkit import PromptSession
 from prompt_toolkit.validation import Validator, ValidationError
 
-from skiddie.utils import LateInit, print_banner
+from skiddie.utils.ui import print_banner
+from skiddie.utils.misc import LateInit
 
 # The number of sections in the IP address.
 ADDRESS_SECTIONS = 4
