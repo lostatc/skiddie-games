@@ -95,7 +95,8 @@ class QuantityColumnGenerator(ContinuousColumnGenerator):
 
 class DateColumnGenerator(ContinuousColumnGenerator):
     """A continuous data type representing a date."""
-    min_value = round(datetime.datetime(year=1970, month=1, day=1).timestamp())
+    # Windows systems can't handle 1970-01-01.
+    min_value = round(datetime.datetime(year=1970, month=1, day=2).timestamp())
     max_value = round(datetime.datetime(year=1999, month=12, day=31).timestamp())
     max_range = round(datetime.timedelta(days=365 * 2).total_seconds())
 
