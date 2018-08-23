@@ -321,7 +321,7 @@ class ProcessStateColumnGenerator(DiscreteColumnGenerator):
 class SpecializationColumnGenerator(DiscreteColumnGenerator):
     """A discrete data type representing a specialization."""
     def __init__(self) -> None:
-        names = ["specialization", "level"]
+        names = ["level"]
         possible_values = ["primary", "secondary", "tertiary"]
         super().__init__(names, possible_values, max_discrete_values=2)
 
@@ -337,7 +337,7 @@ class VisibilityColumnGenerator(DiscreteColumnGenerator):
 class PriorityColumnGenerator(DiscreteColumnGenerator):
     """A discrete data type representing a priority."""
     def __init__(self) -> None:
-        names = ["priority", "rank"]
+        names = ["priority"]
         possible_values = ["low", "medium", "high", "immediate"]
         super().__init__(names, possible_values, max_discrete_values=3)
 

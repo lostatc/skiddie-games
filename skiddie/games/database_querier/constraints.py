@@ -159,7 +159,75 @@ class ContinuousConstraint(Constraint):
 
     ContinuousConstraint subclasses will always be able to reduce the number of overlapping rows by exactly
     `self.reduce_amount`.
+
+    Attributes:
+        _random_source: Generating the `indices` property involves some randomness. The output of this property must be
+            deterministic while still allowing for differences between instances of the class. This source of
+            randomness can be re-seeded to ensure deterministic output.
+        _random_seed: A seed that is set on initialization and is unique for each instance of this class.
     """
+    def __init__(self, data: ColumnData, overlapping_indices: Sequence[int], reduce_amount: int) -> None:
+        super().__init__(data, overlapping_indices, reduce_amount)
+        self._random_seed = time.time()
+        self._random_source = random.Random()
+        self._random_source.seed(self._random_seed)
+
+    def _seed_random_source(self) -> None:
+        """Reset the seed for `self._random_source`."""
+        self._random_source.seed(self._random_seed)
+
+    def _get_random_start_index(self, min_index: int, max_index: int) -> int:
+        """Get a random value from `self.overlapping_indices` suitable for the start of a range.
+
+        Args:
+            min_index: The minimum value for the start index will be the value of `self.overlapping_indices` at this
+                index plus 1.
+            max_index: The maximum value for the start index will be the value of `self.overlapping_indices` at this
+                index.
+        """
+        if max_index == 0:
+            start_index = self.overlapping_indices[0]
+        else:
+            start_index = self._random_source.randint(
+                self.overlapping_indices[min_index] + 1,
+                self.overlapping_indices[max_index],
+            )
+
+        return start_index
+
+    def _get_random_end_index(self, min_index: int, max_index: int) -> int:
+        """Get a random value from `self.overlapping_indices` suitable for the end of a range.
+
+        Args:
+            min_index: The minimum value for the end index will be the value of `self.overlapping_indices` at this
+                index.
+            max_index: The maximum value for the end index will be the value of `self.overlapping_indices` at this
+                index minus 1.
+        """
+        if min_index in [len(self.overlapping_indices)-1, -1]:
+            end_index = self.overlapping_indices[len(self.overlapping_indices)-1]
+        else:
+            end_index = self._random_source.randint(
+                self.overlapping_indices[min_index],
+                self.overlapping_indices[max_index] - 1,
+            )
+
+        return end_index
+
+    @property
+    def _start_index(self) -> int:
+        """The start index for a range that starts inside the overlapping region."""
+        max_index = self.reduce_amount
+        min_index = max_index - 1
+        return self._get_random_start_index(min_index, max_index)
+
+    @property
+    def _end_index(self) -> int:
+        """The end index for a range that ends inside the overlapping region."""
+        min_index = -(self.reduce_amount+1)
+        max_index = min_index + 1
+        return self._get_random_end_index(min_index, max_index)
+
     @abc.abstractmethod
     def format(self) -> str:
         pass
@@ -169,9 +237,8 @@ class LessThanConstraint(ContinuousConstraint):
     """The row is less than this value."""
     @property
     def indices(self) -> Sequence[int]:
-        # If `reduce_amount` is zero, then the end of the range should be the last index of `self.overlapping_indices`.
-        stop_index = self.overlapping_indices[-(self.reduce_amount+1)]
-        return range(0, stop_index + 1)
+        self._seed_random_source()
+        return range(0, self._end_index+1)
 
     def format(self) -> FormattedText:
         highest_index = self.indices[-1]
@@ -186,7 +253,8 @@ class GreaterThanConstraint(ContinuousConstraint):
     """The row is greater than this value."""
     @property
     def indices(self) -> Sequence[int]:
-        return range(self.overlapping_indices[self.reduce_amount], self.data.num_rows)
+        self._seed_random_source()
+        return range(self._start_index, self.data.num_rows)
 
     def format(self) -> FormattedText:
         lowest_index = self.indices[0]
@@ -211,57 +279,36 @@ class RangeConstraint(ContinuousConstraint):
 
     @property
     def indices(self) -> Sequence[int]:
-        random_source = random.Random()
-        random_source.seed(self._random_seed)
+        self._seed_random_source()
 
         def get_range_after():
             """Get a range that starts in the overlapping region and ends after it."""
-            start = self.overlapping_indices[self.reduce_amount]
+            start = self._start_index
             # Increase this by one to ensure that this range cannot be smaller than a length of 2.
-            end = random_source.randrange(self.overlapping_indices[-1] + 1, self.data.num_rows)
+            end = self._random_source.randrange(self.overlapping_indices[-1] + 1, self.data.num_rows)
 
             # Add one to account for the fact that `range` doesn't include the end point.
-            return range(start, end + 1)
+            return range(start, end+1)
 
         def get_range_before():
             """Get a range that starts before the overlapping region and ends in it."""
-            # If `reduce_amount` is zero, then the end of the range should be the last index of `self.overlapping_indices`.
-            start = random_source.randrange(0, self.overlapping_indices[0])
-            end = self.overlapping_indices[-(self.reduce_amount+1)]
-            return range(start, end + 1)
+            start = self._random_source.randrange(0, self.overlapping_indices[0])
+            end = self._end_index
+            return range(start, end+1)
 
         def get_range_inside():
             """Get a range that starts and ends inside the overlapping region."""
-            min_index = 0
-            max_index = len(self.overlapping_indices) - 1
-
             # The range will start between the values of `self.overlapping_indices` at these indices.
-            inner_start = random_source.randint(0, self.reduce_amount)
-            outer_start = inner_start - 1
+            max_start = self._random_source.randint(0, self.reduce_amount)
+            min_start = max_start - 1
 
             # The range will end between the values of `self.overlapping_indices` at these indices.
-            inner_end = inner_start + (max_index - self.reduce_amount)
-            outer_end = inner_end + 1
+            min_end = max_start + (len(self.overlapping_indices)-1 - self.reduce_amount)
+            max_end = min_end + 1
 
-            # Randomly decide the index to start the range at. Add 1 to the minimum value because selecting it would change
-            # the number of overlapping indices.
-            if inner_start == min_index:
-                start_index = self.overlapping_indices[min_index]
-            else:
-                start_index = random_source.randint(
-                    self.overlapping_indices[outer_start] + 1,
-                    self.overlapping_indices[inner_start],
-                    )
-
-            # Randomly decide the index to end the range at. Subtract 1 from the maximum value because selecting it would
-            # change the number of overlapping indices.
-            if inner_end == max_index:
-                end_index = self.overlapping_indices[max_index]
-            else:
-                end_index = random_source.randint(
-                    self.overlapping_indices[inner_end],
-                    self.overlapping_indices[outer_end] - 1,
-                    )
+            # Randomly decide the indexes to start and end the range at.
+            start_index = self._get_random_start_index(min_start, max_start)
+            end_index = self._get_random_end_index(min_end, max_end)
 
             output = range(start_index, end_index+1)
             return output
@@ -279,7 +326,7 @@ class RangeConstraint(ContinuousConstraint):
             # The overlapping region ends at the end of the column, so the range cannot end after it.
             return get_range_before()
 
-        return random_source.choice([
+        return self._random_source.choice([
             get_range_after(),
             get_range_before(),
             get_range_inside(),

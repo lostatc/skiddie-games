@@ -57,11 +57,11 @@ TimerFunc = Callable[[Difficulty], float]
 def _start_database_querier(difficulty: Difficulty) -> None:
     """Start the game "database_querier" with a given difficulty."""
     if difficulty is Difficulty.EASY:
-        database_querier.play(challenges_to_win=3, rows=20, continuous_columns=4, discrete_columns=1)
+        database_querier.play(challenges_to_win=3, rows=20, continuous_columns=4, discrete_columns=2)
     if difficulty is Difficulty.NORMAL:
-        database_querier.play(challenges_to_win=3, rows=30, continuous_columns=4, discrete_columns=2)
+        database_querier.play(challenges_to_win=3, rows=30, continuous_columns=4, discrete_columns=3)
     if difficulty is Difficulty.HARD:
-        database_querier.play(challenges_to_win=3, rows=40, continuous_columns=4, discrete_columns=3)
+        database_querier.play(challenges_to_win=3, rows=40, continuous_columns=4, discrete_columns=4)
 
 
 def _start_hash_cracker(difficulty: Difficulty) -> None:
