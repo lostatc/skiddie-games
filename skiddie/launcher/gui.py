@@ -84,28 +84,32 @@ class GameSelectScreen(Screen):
 
         menu_keybindings = _create_menu_keybindings(buttons)
 
+        game_buttons_container = Frame(
+            HSplit(
+                buttons,
+                width=Dimension(min=MENU_BUTTON_WIDTH, max=40),
+                height=Dimension(),
+            ),
+            title="Games",
+            key_bindings=menu_keybindings,
+        )
+
+        game_description_container = Frame(
+            Box(
+                Label(
+                    text=self._get_game_description,
+                    dont_extend_height=False,
+                    width=Dimension(min=40),
+                ),
+                padding=0,
+                padding_left=1,
+            ),
+        )
+
         return FloatContainer(
             VSplit([
-                Frame(
-                    HSplit(
-                        buttons,
-                        width=Dimension(min=MENU_BUTTON_WIDTH, max=40),
-                        height=Dimension(),
-                    ),
-                    title="Games",
-                    key_bindings=menu_keybindings,
-                ),
-                Frame(
-                    Box(
-                        Label(
-                            text=self._get_game_description,
-                            dont_extend_height=False,
-                            width=Dimension(min=40),
-                        ),
-                        padding=0,
-                        padding_left=1,
-                    ),
-                ),
+                game_buttons_container,
+                game_description_container,
             ]),
             floats=[]
         )
@@ -137,10 +141,6 @@ class GameOptionsScreen(Screen):
 
     Args:
         selected_game_getter: A function which returns the game which is currently selected.
-                ),
-                Frame(
-                    HSplit([
-                        Box(
 
     Attributes:
         _selected_game_getter: A function which returns the game which is currently selected.
@@ -181,40 +181,46 @@ class GameOptionsScreen(Screen):
 
         menu_keybindings = _create_menu_keybindings(buttons)
 
+        options_buttons_container = Frame(
+            HSplit(
+                buttons,
+                width=Dimension(min=MENU_BUTTON_WIDTH, max=40),
+                height=Dimension(),
+            ),
+            title="Options",
+            key_bindings=menu_keybindings,
+        )
+
+        difficulty_label_container = Box(
+            Label(
+                text=lambda: "Difficulty: {0}".format(self._selected_difficulty.value),
+                width=Dimension(min=40),
+            ),
+            padding=0,
+            padding_left=1,
+        )
+
+        game_description_container = Box(
+            TextArea(
+                text=self._selected_game.description,
+                dont_extend_height=False,
+                width=Dimension(min=40),
+                read_only=True,
+                scrollbar=True,
+                wrap_lines=False,
+            ),
+            padding=0,
+            padding_left=1,
+        )
+
         return FloatContainer(
             VSplit([
-                Frame(
-                    HSplit(
-                        buttons,
-                        width=Dimension(min=MENU_BUTTON_WIDTH, max=40),
-                        height=Dimension(),
-                    ),
-                    title="Options",
-                    key_bindings=menu_keybindings,
-                ),
+                options_buttons_container,
                 Frame(
                     HSplit([
-                        Box(
-                            Label(
-                                text=lambda: "Difficulty: {0}".format(self._selected_difficulty.value),
-                                width=Dimension(min=40),
-                            ),
-                            padding=0,
-                            padding_left=1,
-                        ),
+                        difficulty_label_container,
                         HorizontalLine(),
-                        Box(
-                            TextArea(
-                                text=self._selected_game.description,
-                                dont_extend_height=False,
-                                width=Dimension(min=40),
-                                read_only=True,
-                                scrollbar=True,
-                                wrap_lines=False,
-                            ),
-                            padding=0,
-                            padding_left=1,
-                        ),
+                        game_description_container,
                     ]),
                     title=self._selected_game.game_name,
                 ),
@@ -310,48 +316,54 @@ class HighScoreScreen(Screen):
         high_scores = score_store.get_scores(self._selected_game, self._selected_difficulty)
         score_table = format_scores(high_scores, header_style=None)
 
-        text_area = TextArea(
-            text=score_table,
-            read_only=True,
-            scrollbar=True,
-            wrap_lines=False,
-        )
-
-        text_area.window.cursorline = to_filter(True)
-
         buttons = [
             Button("Back", width=MENU_BUTTON_WIDTH, handler=self.multi_screen.set_previous),
         ]
 
         menu_keybindings = _create_menu_keybindings(buttons)
 
+        buttons_container = Frame(
+            HSplit(
+                buttons,
+                width=Dimension(min=MENU_BUTTON_WIDTH, max=40),
+                height=Dimension(),
+            ),
+            title="High Scores",
+            key_bindings=menu_keybindings,
+        )
+
+        difficulty_label_container = Box(
+            Label(
+                text=lambda: "Difficulty: {0}".format(self._selected_difficulty.value),
+                width=Dimension(min=40),
+            ),
+            padding=0,
+            padding_left=1,
+        )
+
+        high_scores_text_area = TextArea(
+            text=score_table,
+            read_only=True,
+            scrollbar=True,
+            wrap_lines=False,
+        )
+
+        high_scores_text_area.window.cursorline = to_filter(True)
+
+        high_scores_container = Box(
+            high_scores_text_area,
+            padding=0,
+            padding_left=1,
+        )
+
         return FloatContainer(
             VSplit([
-                Frame(
-                    HSplit(
-                        buttons,
-                        width=Dimension(min=MENU_BUTTON_WIDTH, max=40),
-                        height=Dimension(),
-                    ),
-                    title="High Scores",
-                    key_bindings=menu_keybindings,
-                ),
+                buttons_container,
                 Frame(
                     HSplit([
-                        Box(
-                            Label(
-                                text=lambda: "Difficulty: {0}".format(self._selected_difficulty.value),
-                                width=Dimension(min=40),
-                            ),
-                            padding=0,
-                            padding_left=1,
-                        ),
+                        difficulty_label_container,
                         HorizontalLine(),
-                        Box(
-                            text_area,
-                            padding=0,
-                            padding_left=1,
-                        ),
+                        high_scores_container,
                     ]),
                     title=self._selected_game.game_name,
                 ),

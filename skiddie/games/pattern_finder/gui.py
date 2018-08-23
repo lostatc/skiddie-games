@@ -55,11 +55,15 @@ class PatternScreen(Screen):
             for grid in self.solution_grids
         ]
 
+        challenge_grid_container = Box(
+            self._get_grid_container(self.challenge_grid)
+        )
+
         return FloatContainer(
             Box(
                 Frame(
                     HSplit([
-                            Box(self._get_grid_container(self.challenge_grid)),
+                            challenge_grid_container,
                             VSplit(
                                 solution_containers,
                                 padding=2,

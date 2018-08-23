@@ -61,29 +61,35 @@ class MazeScreen(Screen):
     def get_root_container(self) -> FloatContainer:
         validator = CoordinateValidator(self.maze_grid)
 
+        maze_grid_container = Label(
+            text=self.maze_grid.format_grid,
+        )
+
+        coordinates_input_container = Window(
+            BufferControl(
+                buffer=Buffer(
+                    validator=validator,
+                    validate_while_typing=False,
+                    multiline=False,
+                    accept_handler=self._accept_handler,
+                ),
+                input_processors=[
+                    BeforeInput("Enter coordinates (x, y): "),
+                ],
+            ),
+        )
+
+        validation_toolbar = ConditionalContainer(
+            ValidationToolbar(),
+            filter=~is_done,
+        )
+
         return FloatContainer(
             HSplit([
-                Label(
-                    text=self.maze_grid.format_grid,
-                ),
+                maze_grid_container,
                 HorizontalLine(),
-                Window(
-                    BufferControl(
-                        buffer=Buffer(
-                            validator=validator,
-                            validate_while_typing=False,
-                            multiline=False,
-                            accept_handler=self._accept_handler,
-                        ),
-                        input_processors=[
-                            BeforeInput("Enter coordinates (x, y): "),
-                        ],
-                    ),
-                ),
-                ConditionalContainer(
-                    ValidationToolbar(),
-                    filter=~is_done,
-                ),
+                coordinates_input_container,
+                validation_toolbar,
             ]),
             floats=[],
         )
