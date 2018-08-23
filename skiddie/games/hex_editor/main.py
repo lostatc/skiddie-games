@@ -22,7 +22,7 @@ from skiddie.games.hex_editor.gui import GameInterface
 
 from prompt_toolkit import print_formatted_text
 
-from skiddie.utils.ui import print_banner
+from skiddie.utils.ui import print_correct_message
 
 
 def play(
@@ -50,4 +50,4 @@ def play(
         interface = GameInterface(grid)
         interface.app.run()
 
-    print_banner("ACCESS GRANTED", style="ansigreen bold")
+    print_correct_message()

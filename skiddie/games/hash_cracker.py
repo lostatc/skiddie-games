@@ -18,14 +18,13 @@ You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import random
-import textwrap
 from typing import List, Set, Iterable
 
 from prompt_toolkit.validation import Validator
 from prompt_toolkit import PromptSession
 
 from skiddie.constants import GUI_STYLE
-from skiddie.utils.ui import print_banner
+from skiddie.utils.ui import print_correct_message
 
 # The string that prefixes every line in the grid.
 PREFIX_STRING = "0x"
@@ -161,13 +160,13 @@ def create_grid(rows: int, columns: int, valid_chars: str = VALID_CHARS) -> Char
     return char_grid
 
 
-def format_line(username: str, pad_width: int, hash: str) -> str:
+def format_line(username: str, pad_width: int, hex_string: str) -> str:
     """Format a line of output stylized as a /etc/passwd file.
 
     Args:
         username: The username to display on this line.
         pad_width: The length of the longest username that will appear.
-        hash: The password hash.
+        hex_string: The password hash.
 
     Returns:
         The formatted string.
@@ -176,7 +175,7 @@ def format_line(username: str, pad_width: int, hash: str) -> str:
         username,
         pad_width,
         PREFIX_STRING,
-        hash,
+        hex_string,
     )
 
 
@@ -209,4 +208,4 @@ def play(rows_to_win: int, starting_rows: int, columns: int) -> None:
     while len(char_grid.rows) < rows_to_win:
         session.prompt(format_line(usernames.pop(), pad_width, ""))
 
-    print_banner("ACCESS GRANTED", style="ansigreen bold")
+    print_correct_message()

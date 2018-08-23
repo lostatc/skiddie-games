@@ -23,7 +23,7 @@ from typing import List, Tuple, Optional
 from prompt_toolkit import PromptSession
 from prompt_toolkit.validation import Validator, ValidationError
 
-from skiddie.utils.ui import print_banner
+from skiddie.utils.ui import print_correct_message
 from skiddie.utils.misc import LateInit
 
 # The number of sections in the IP address.
@@ -253,4 +253,4 @@ def play(challenges_to_win: int, number_of_examples: int, max_section_number: in
 
         print_filler(challenge.format_address(), challenge.format_port())
 
-    print_banner("ACCESS GRANTED", style="ansigreen bold")
+    print_correct_message()

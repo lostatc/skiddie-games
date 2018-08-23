@@ -19,7 +19,7 @@ along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 from skiddie.games.database_querier.table import Table
 from skiddie.games.database_querier.gui import GameInterface
-from skiddie.utils.ui import print_banner
+from skiddie.utils.ui import print_correct_message, print_incorrect_message
 
 
 def play(challenges_to_win: int, rows: int, continuous_columns: int, discrete_columns: int) -> None:
@@ -48,6 +48,6 @@ def play(challenges_to_win: int, rows: int, continuous_columns: int, discrete_co
         if answer_is_correct:
             completed_challenges += 1
         else:
-            print_banner("INCORRECT", style="ansired bold")
+            print_incorrect_message()
 
-    print_banner("ACCESS GRANTED", style="ansigreen bold")
+    print_correct_message()

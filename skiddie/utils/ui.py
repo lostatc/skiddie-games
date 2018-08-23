@@ -65,6 +65,16 @@ def print_banner(message: str, padding_char: str = "=", style: str = "") -> None
         print(banner)
 
 
+def print_correct_message(message: str = "ACCESS GRANTED", style: str = "fg:ansigreen bold") -> None:
+    """Print a message indicating that a game has been completed."""
+    print_banner(message, style=style)
+
+
+def print_incorrect_message(message: str = "INCORRECT", style: str = "fg:ansired bold") -> None:
+    """Print a message indicating that an incorrect answer has been given."""
+    print_banner(message, style=style)
+
+
 def get_description(file_name: str) -> str:
     """Get the descriptions of a game.
 

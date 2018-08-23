@@ -22,7 +22,7 @@ import random
 
 from skiddie.games.pattern_finder.logic import PatternGrid
 from skiddie.games.pattern_finder.gui import GameInterface
-from skiddie.utils.ui import print_banner
+from skiddie.utils.ui import print_correct_message, print_incorrect_message
 
 # The proportion of cells in the grid that are turned on.
 GRID_COVERAGE = 0.5
@@ -65,7 +65,7 @@ def play(
         if selected_grid.check_negative(challenge_grid):
             completed_challenges += 1
         else:
-            print_banner("INCORRECT", style="ansired bold")
+            print_incorrect_message()
             time.sleep(incorrect_penalty)
 
-    print_banner("ACCESS GRANTED", style="ansigreen bold")
+    print_correct_message()
