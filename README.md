@@ -20,6 +20,13 @@ just open a terminal and type `skiddie`. To use the interface, use the keys
 skiddie also comes with a command-line interface. For more information, run
 `skiddie --help`.
 
+## Installation
+This program is still in a pre-release stage. To install directly from git, run
+the following command:
+```
+pip install https://github.com/lostatc/skiddie/zipball/master
+```
+
 ## Games
 
 Game | Description | Screenshot
