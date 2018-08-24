@@ -28,22 +28,18 @@ from skiddie.utils.ui import get_description
 
 class Difficulty(enum.Enum):
     """The difficulty level of a game."""
-    EASY = "Easy"
-    NORMAL = "Normal"
-    HARD = "Hard"
+    EASY = ("Easy",)
+    NORMAL = ("Normal",)
+    HARD = ("Hard",)
+
+    def __init__(self, label: str):
+        self.label = label
 
     @classmethod
-    def from_value(cls, value: str) -> "Difficulty":
-        """Get a Difficulty instance from its value.
-
-        Args:
-            value: The value of the difficulty to return. This is not case-sensitive.
-
-        Returns:
-            The first difficulty instance with the given value, or None if there is none.
-        """
+    def from_label(cls, label: str) -> "Difficulty":
+        """Get a Difficulty instance from its label."""
         for difficulty in cls:
-            if difficulty.value.lower() == value.lower():
+            if difficulty.label.lower() == label.lower():
                 return difficulty
 
 

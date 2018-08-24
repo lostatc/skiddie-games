@@ -82,7 +82,7 @@ class Scores:
 
         (self._data
             .setdefault(session.game_name, {})
-            .setdefault(session.difficulty.value, [])
+            .setdefault(session.difficulty.label, [])
             .append(new_score))
 
     def get_scores(self, game: Game, difficulty: Difficulty, sort: bool = True) -> List[GameSession]:
@@ -92,7 +92,7 @@ class Scores:
             A list of sessions of games.
         """
         try:
-            data = self._data[game.game_name][difficulty.value]
+            data = self._data[game.game_name][difficulty.label]
         except KeyError:
             # There are no scores for the given game and difficulty.
             return []
@@ -143,7 +143,7 @@ class ScoreSort(enum.Enum):
 
     @classmethod
     def from_name(cls, name: str) -> "ScoreSort":
-        """Get a ScoreSort instance from its name."""
+        """Get a ScoreSort instance from its column name."""
         for difficulty in cls:
             if difficulty.name.lower() == name.lower():
                 return difficulty

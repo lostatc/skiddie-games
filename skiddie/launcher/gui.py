@@ -192,7 +192,7 @@ class GameOptionsScreen(Screen):
 
         difficulty_label_container = Box(
             Label(
-                text=lambda: "Difficulty: {0}".format(self._selected_difficulty.value),
+                text=lambda: "Difficulty: {0}".format(self._selected_difficulty.label),
                 width=Dimension(min=40),
             ),
             padding=0,
@@ -263,9 +263,9 @@ class DifficultySelectScreen(Screen):
 
     def get_root_container(self) -> Dialog:
         difficulty_radiolist = RadioList([
-            (Difficulty.EASY, Difficulty.EASY.value),
-            (Difficulty.NORMAL, Difficulty.NORMAL.value),
-            (Difficulty.HARD, Difficulty.HARD.value),
+            (Difficulty.EASY, Difficulty.EASY.label),
+            (Difficulty.NORMAL, Difficulty.NORMAL.label),
+            (Difficulty.HARD, Difficulty.HARD.label),
         ])
 
         def ok_handler() -> None:
@@ -346,7 +346,7 @@ class HighScoreScreen(Screen):
 
         difficulty_label_container = Box(
             Label(
-                text=lambda: "Difficulty: {0}".format(self._selected_difficulty.value),
+                text=lambda: "Difficulty: {0}".format(self._selected_difficulty.label),
                 width=Dimension(min=40),
             ),
             padding=0,

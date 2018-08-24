@@ -37,7 +37,7 @@ def _get_game(name: str) -> Game:
 
 def _get_difficulty(name: str) -> Difficulty:
     """Get a difficulty from its name."""
-    selected_difficulty = Difficulty.from_value(name)
+    selected_difficulty = Difficulty.from_label(name)
     if not selected_difficulty:
         raise click.BadParameter("'{0}'".format(name))
     return selected_difficulty
@@ -56,7 +56,7 @@ def cli(ctx):
 @click.argument("game", type=str)
 @click.option(
     "--difficulty", "-d", default="normal", show_default=True,
-    help="The difficulty to play the game on. Accepted values are \"easy\", \"normal\" and \"hard\"."
+    help="The difficulty to play the game on."
 )
 def play(game: str, difficulty: str):
     """Play the game named GAME."""
@@ -76,7 +76,7 @@ def description(game: str):
 @click.argument("game", type=str)
 @click.option(
     "--difficulty", "-d", default="normal", show_default=True,
-    help="The difficulty that the game was played on. Accepted values are \"easy\", \"normal\" and \"hard\"."
+    help="The difficulty that the game was played on."
 )
 @click.option("--number", "-n", default=25, show_default=True, help="The number of high scores to show.")
 @click.option("--sort-column", "-s", default="score", show_default=True, help="The column to sort the scores by.")
