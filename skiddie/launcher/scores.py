@@ -17,11 +17,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
+import enum
 import os
 import json
 import getpass
 import datetime
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Callable, Any
 
 from prompt_toolkit import prompt
 from prompt_toolkit.formatted_text import FormattedText
@@ -98,7 +99,10 @@ class Scores:
 
         scores = [
             GameSession(
-                game, difficulty, username=score["username"], duration=score["duration"],
+                game,
+                difficulty,
+                username=score["username"],
+                duration=score["duration"],
                 completed=datetime.datetime.fromtimestamp(score["completed"]),
             )
             for score in data
@@ -122,22 +126,54 @@ class Scores:
             return None
 
 
+class ScoreSort(enum.Enum):
+    """A method of sorting game sessions.
+
+    Attributes:
+        column_name: The name of the column to sort by.
+        key: The key function used for sorting.
+    """
+    USERNAME = ("Username", lambda x: x.username)
+    SCORE = ("Score", lambda x: x.duration)
+    DATE = ("Date", lambda x: x.completed)
+
+    def __init__(self, column_name: str, key: Callable[[GameSession], Any]) -> None:
+        self.column_name = column_name
+        self.key = key
+
+    @classmethod
+    def from_name(cls, name: str) -> "ScoreSort":
+        """Get a ScoreSort instance from its name."""
+        for difficulty in cls:
+            if difficulty.name.lower() == name.lower():
+                return difficulty
+
+
 def format_scores(
-        scores: List[GameSession], header: bool = True, header_style: str = "bold") -> Union[str, FormattedText]:
+        scores: List[GameSession], header: bool = True, header_style: Optional[str] = "bold",
+        sort_method: Optional[ScoreSort] = None) -> Union[str, FormattedText]:
     """Format the given scores in a table.
 
     Args:
         scores: The scores to format.
         header: Print a header row containing a name for each column.
-        header_style: The style to apply to the header row if there is one. If None, don't apply any style.
+        header_style: The style to apply to the header row if there is one. If None, apply to style.
+        sort_method: The method used to sort the scores. If None, then sort by score.
 
     Returns:
         A FormattedText instance if a header style is provided, and a str otherwise.
     """
+    sort_method = sort_method or ScoreSort.SCORE
     output_header = [("#", "Username", "Score", "Date")]
-    output_data = [
-        (str(i + 1), session.username, format_duration(session.duration), session.completed.strftime("%d %b %Y %H:%M"))
-        for i, session in enumerate(scores)
+
+    sorted_scores = sorted(scores, key=sort_method.key)
+    output_data = [(
+            str(i + 1),
+            session.username,
+            format_duration(session.duration),
+            session.completed.strftime("%d %b %Y %H:%M")
+        )
+        for i, session in enumerate(sorted_scores)
     ]
 
     if not header:

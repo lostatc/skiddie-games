@@ -24,7 +24,7 @@ from prompt_toolkit import print_formatted_text
 from skiddie.utils.ui import format_duration
 from skiddie.launcher import gui
 from skiddie.launcher.common import Game, GameSession, GAMES, Difficulty
-from skiddie.launcher.scores import process_result, Scores, format_scores
+from skiddie.launcher.scores import process_result, Scores, format_scores, ScoreSort
 
 
 def _get_game(name: str) -> Game:
@@ -76,10 +76,11 @@ def description(game: str):
 @click.argument("game", type=str)
 @click.option(
     "--difficulty", "-d", default="normal", show_default=True,
-    help="The difficulty to play the game on. Accepted values are \"easy\", \"normal\" and \"hard\"."
+    help="The difficulty that the game was played on. Accepted values are \"easy\", \"normal\" and \"hard\"."
 )
-@click.option("--number", "-n", default=10, show_default=True, help="The number of high scores to show.")
-def scores(game, difficulty, number):
+@click.option("--number", "-n", default=25, show_default=True, help="The number of high scores to show.")
+@click.option("--sort-column", "-s", default="score", show_default=True, help="The column to sort the scores by.")
+def scores(game, difficulty, number, sort_column):
     """Get the high scores of the game named GAME."""
     score_store = Scores()
     score_store.read()
@@ -88,4 +89,8 @@ def scores(game, difficulty, number):
     if not high_scores:
         return
 
-    print_formatted_text(format_scores(high_scores))
+    sort_method = ScoreSort.from_name(sort_column)
+    if not sort_method:
+        raise click.BadParameter("'{0}'".format(sort_column))
+
+    print_formatted_text(format_scores(high_scores, sort_method=sort_method))

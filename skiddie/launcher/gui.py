@@ -30,11 +30,10 @@ from prompt_toolkit.layout.containers import FloatContainer
 from prompt_toolkit.filters import to_filter, has_focus
 from prompt_toolkit.key_binding import KeyBindings
 
-from skiddie.launcher.scores import Scores
 from skiddie.constants import GUI_STYLE
 from skiddie.utils.ui import Screen, MultiScreenApp
 from skiddie.launcher.common import Difficulty, Game, GameSession, GAMES
-from skiddie.launcher.scores import process_result, format_scores
+from skiddie.launcher.scores import process_result, format_scores, Scores, ScoreSort
 
 # The width of buttons that are used to create menus.
 MENU_BUTTON_WIDTH = 20
@@ -302,21 +301,34 @@ class HighScoreScreen(Screen):
     Attributes:
         _selected_game_getter: A function which returns the game which is currently selected.
         _selected_difficulty_getter: A function which returns the currently selected difficulty.
+        _sort_select_screen: The screen used for setting the sort method for the high scores.
     """
     def __init__(
             self, multi_screen: MultiScreenApp, selected_game_getter: Callable[[], Game],
             selected_difficulty_getter: Callable[[], Difficulty]) -> None:
+        self._selected_sort = None
+
+        def selected_sort_setter(value: ScoreSort) -> None:
+            self._selected_sort = value
+
         self._selected_game_getter = selected_game_getter
         self._selected_difficulty_getter = selected_difficulty_getter
+        self._sort_select_screen = SortSelectScreen(multi_screen, selected_sort_setter)
+
         super().__init__(multi_screen)
 
     def get_root_container(self) -> FloatContainer:
         score_store = Scores()
         score_store.read()
         high_scores = score_store.get_scores(self._selected_game, self._selected_difficulty)
-        score_table = format_scores(high_scores, header_style=None)
+        score_table = format_scores(high_scores, sort_method=self._selected_sort, header_style=None)
 
         buttons = [
+            Button(
+                "Sort By", width=MENU_BUTTON_WIDTH,
+                handler=lambda: self.multi_screen.add_floating_screen(self._sort_select_screen),
+            ),
+            HorizontalLine(),
             Button("Back", width=MENU_BUTTON_WIDTH, handler=self.multi_screen.set_previous),
         ]
 
@@ -380,6 +392,46 @@ class HighScoreScreen(Screen):
     def _selected_difficulty(self) -> Difficulty:
         """The currently selected difficulty."""
         return self._selected_difficulty_getter()
+
+
+class SortSelectScreen(Screen):
+    """The screen used for setting the sorting key of the high scores.
+
+    Attributes:
+        _selected_sort_setter: A function which sets the selected sort key.
+    """
+    def __init__(
+            self, multi_screen: MultiScreenApp,
+            selected_sort_setter: Callable[[ScoreSort], None]) -> None:
+        self._selected_sort_setter = selected_sort_setter
+        super().__init__(multi_screen)
+
+    def get_root_container(self) -> Dialog:
+        sort_radiolist = RadioList([
+            (sort_method, sort_method.column_name) for sort_method in ScoreSort
+        ])
+
+        def ok_handler() -> None:
+            self._selected_sort_setter(sort_radiolist.current_value)
+            self.multi_screen.clear_floating()
+
+        def cancel_handler() -> None:
+            self.multi_screen.clear_floating()
+
+        return Dialog(
+            title="Sort By",
+            body=HSplit([
+                Label(text="Select the column to sort by", dont_extend_height=True),
+                sort_radiolist,
+            ],
+                padding=1,
+            ),
+            buttons=[
+                Button(text="Okay", handler=ok_handler),
+                Button(text="Cancel", handler=cancel_handler),
+            ],
+            with_background=True,
+        )
 
 
 class Launcher(MultiScreenApp):

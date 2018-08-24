@@ -18,7 +18,6 @@ You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import abc
-import os
 import shutil
 import sys
 import six
@@ -187,13 +186,15 @@ class MultiScreenApp:
 
     Attributes:
         app: The application instance to use.
+        current_screen: The currently selected screen.
         _screen_history: A list that keeps track of which screens have been visited.
     """
     def __init__(self, app: Application, default_screen: Screen) -> None:
         self.app = app
-        self.app.layout = Layout(container=default_screen.get_root_container())
+        self.current_screen = default_screen
+        self._screen_history = [self.current_screen]
 
-        self._screen_history = [default_screen]
+        self.app.layout = Layout(container=default_screen.get_root_container())
 
     def set_screen(self, screen: Screen) -> None:
         """Set the active screen.
@@ -204,7 +205,9 @@ class MultiScreenApp:
         root_container = screen.get_root_container()
         self.app.layout.container = root_container
         self.app.layout.focus(root_container)
+
         self._screen_history.append(screen)
+        self.current_screen = screen
 
     def set_previous(self) -> None:
         """Set the active screen to the previous screen."""
@@ -225,6 +228,11 @@ class MultiScreenApp:
         """Remove all floating windows."""
         self.app.layout.container.floats.clear()
         self.app.layout.focus(self.app.layout.container)
+
+        # Re-generate the root layout in case the floating windows changed anything.
+        root_container = self.current_screen.get_root_container()
+        self.app.layout.container = root_container
+        self.app.layout.focus(root_container)
 
 
 class SelectableLabel:

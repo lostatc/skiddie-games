@@ -33,7 +33,7 @@ class Difficulty(enum.Enum):
     HARD = "Hard"
 
     @classmethod
-    def from_value(cls, value: str):
+    def from_value(cls, value: str) -> "Difficulty":
         """Get a Difficulty instance from its value.
 
         Args:
