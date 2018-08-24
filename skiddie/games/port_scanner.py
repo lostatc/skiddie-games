@@ -24,7 +24,6 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.validation import Validator, ValidationError
 
 from skiddie.utils.ui import print_correct_message
-from skiddie.utils.misc import LateInit
 
 # The number of sections in the IP address.
 ADDRESS_SECTIONS = 4
@@ -95,10 +94,7 @@ class AddressChallenge:
 
     Attributes:
         sections: The list of numbers which each form a section of the IP address and sum to form the solution.
-        max_section_number: The maximum possible positive number for each section.
     """
-    max_section_number = LateInit()
-
     def __init__(self, sections: List[int]) -> None:
         self.sections = sections
 
@@ -146,7 +142,8 @@ class AddressChallenge:
         )
 
     @classmethod
-    def create_random(cls, template: Optional["AddressChallenge"] = None) -> "AddressChallenge":
+    def create_random(
+            cls, max_section_number: int, template: Optional["AddressChallenge"] = None) -> "AddressChallenge":
         """Create a new random challenge.
 
         This will always generate a challenge with a positive solution.
@@ -154,6 +151,7 @@ class AddressChallenge:
         Args:
             template: If provided, then the generated instance will have positive and negative numbers in the same
                 places as the template. If None, positive and negative numbers are decided randomly.
+            max_section_number: The maximum possible positive number for each section.
         """
         # Decide which sections should be positive and negative. This is a list of positive and negative integers
         # representing the signs of each section.
@@ -173,7 +171,7 @@ class AddressChallenge:
         # within the bounds of possible numbers.
         def get_constraints(sign: int) -> Tuple[int, int]:
             """Get the minimum and maximum possible values for a section with a given sign."""
-            return (-cls.max_section_number, -1) if sign < 0 else (0, cls.max_section_number)
+            return (-max_section_number, -1) if sign < 0 else (0, max_section_number)
 
         def constrain(number: int, sign: int) -> int:
             """Ensure that the number is within the constraints."""
@@ -232,17 +230,15 @@ def play(challenges_to_win: int, number_of_examples: int, max_section_number: in
         max_section_number: The maximum possible number for each section of the IP address. Increasing this makes the
             game more difficult.
     """
-    AddressChallenge.max_section_number = max_section_number
-
     session = PromptSession(validate_while_typing=False, mouse_support=True)
 
     for _ in range(challenges_to_win):
-        example = AddressChallenge.create_random()
-        challenge = AddressChallenge.create_random(template=example)
+        example = AddressChallenge.create_random(max_section_number)
+        challenge = AddressChallenge.create_random(max_section_number, template=example)
 
         # Print examples.
         for _ in range(number_of_examples):
-            example_copy = AddressChallenge.create_random(template=example)
+            example_copy = AddressChallenge.create_random(max_section_number, template=example)
             print(example_copy.format_socket(include_solution=True))
 
         # Prompt for the challenge.

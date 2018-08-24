@@ -24,7 +24,7 @@ from prompt_toolkit import PromptSession
 
 from skiddie.utils.ui import print_correct_message
 from skiddie.constants import GUI_STYLE
-from skiddie.games.shell_scripter.logic import Command
+from skiddie.games.shell_scripter.logic import Command, CommandGenerator
 from skiddie.games.shell_scripter.constants import INPUT_FILE_NAMES, OUTPUT_FILE_NAMES, COMMANDS
 
 # The string that is printed before each command and line of user input.
@@ -48,19 +48,17 @@ def play(
         pipe_probability: The probability that a command will use a pipe when redirecting its output. Increasing this
             makes the game more difficult.
     """
-    # Set class attributes that determine how commands are generated.
-    Command.min_args = min_args
-    Command.max_args = max_args
-    Command.redirect_probability = redirect_probability
-    Command.pipe_probability = pipe_probability
-    Command.input_names = INPUT_FILE_NAMES
-    Command.output_names = OUTPUT_FILE_NAMES
-
     session = PromptSession(validate_while_typing=False, mouse_support=True, style=GUI_STYLE)
+
+    command_generator = CommandGenerator(
+        commands=COMMANDS, input_names=INPUT_FILE_NAMES, output_names=OUTPUT_FILE_NAMES,
+        min_args=min_args, max_args=max_args,
+        redirect_probability=redirect_probability, pipe_probability=pipe_probability,
+    )
 
     # Print random commands and prompt the user to type them in until they type them in correctly.
     for _ in range(commands_to_win):
-        command_string = random.choice(COMMANDS).get_random()
+        command_string = command_generator.get_random()
         print(COMMAND_PROMPT + command_string)
 
         validator = Validator.from_callable(
