@@ -23,7 +23,7 @@ from prompt_toolkit import print_formatted_text
 
 from skiddie.utils.ui import format_duration
 from skiddie.launcher import gui
-from skiddie.launcher.common import Game, GameSession, GAMES, Difficulty
+from skiddie.launcher.games import Game, GameSession, GAMES, Difficulty
 from skiddie.launcher.scores import process_result, Scores, format_scores, ScoreSort
 
 

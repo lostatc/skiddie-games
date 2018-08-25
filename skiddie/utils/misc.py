@@ -17,6 +17,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
+from typing import MutableMapping, Mapping
+
+
+def recursive_update(update: MutableMapping, other: Mapping) -> MutableMapping:
+    """Recursively update `update` with values from `other`, overwriting existing keys."""
+    for key, value in other.items():
+        if isinstance(value, Mapping):
+            update[key] = recursive_update(update.get(key, {}), value)
+        else:
+            update[key] = value
+    return update
+
+
 class LateInit:
     """Raise an exception if the attribute is unset.
 

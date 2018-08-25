@@ -8,5 +8,7 @@ play it. The contents of this file should be wrapped to 80 characters.
 
 2) Update README.md with a link to the description of the game.
 
-3) Add an entry for the game in `skiddie/launcher/common.py`.
+4) Add difficulty presets for the game in `skiddie/templates/difficuly.json`.
+
+3) Add an entry for the game in `skiddie/launcher/games.py`.
 """

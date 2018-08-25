@@ -27,16 +27,13 @@ from typing import List, Optional, Union, Callable, Any
 from prompt_toolkit import prompt
 from prompt_toolkit.formatted_text import FormattedText
 
-from skiddie.constants import SCORES_FILE, CONFIG_DIR
+from skiddie.constants import SCORES_FILE, CONFIG_DIR, JSON_INDENT
 from skiddie.utils.ui import format_duration, bool_prompt, format_table
 from skiddie.utils.misc import LateInit
-from skiddie.launcher.common import GameSession, Game, Difficulty
+from skiddie.launcher.games import GameSession, Game, Difficulty
 
 # The string that immediately precedes the users time whenever their time is printed to stdout.
 TIMER_RESULT_PREFIX = "Your time is: "
-
-# The number of spaces to indent when serializing JSON.
-JSON_INDENT = 4
 
 # The message to display when the user sets a new high score.
 NEW_HIGH_SCORE_MESSAGE = "You've set a new high score!"

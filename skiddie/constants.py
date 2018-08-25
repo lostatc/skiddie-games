@@ -59,3 +59,6 @@ GUI_STYLE = Style([
     ("selectable-label.focused", "reverse"),
     ("column-name", "bold"),
 ])
+
+# The number of spaces to indent when serializing JSON.
+JSON_INDENT = 4
