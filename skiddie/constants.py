@@ -32,9 +32,20 @@ else:
 # The path of the file containing the user's scores.
 SCORES_FILE = os.path.join(CONFIG_DIR, "scores.json")
 
-# The path of the directory containing descriptions of each game relative to the root package. Because this is a
+# The path of the file containing the user's difficulty presets.
+DIFFICULTY_FILE = os.path.join(CONFIG_DIR, "difficulty.json")
+
+# The name of the directory containing descriptions of each game relative to the root package. Because this is a
 # resource string and not a filesystem path, it must use forward slashes.
 DESCRIPTIONS_DIR = "descriptions"
+
+# The name of the directory containing template files relative to the root package. Because this is a resource string
+# and not a filesystem path, it must use forward slashes.
+TEMPLATES_DIR = "templates"
+
+# The path of the template file containing the default difficulty presets. Because this is a resource string and not a
+# filesystem path, it must use forward slashes.
+DIFFICULTY_TEMPLATE = "/".join([TEMPLATES_DIR, "difficulty.json"])
 
 # The master style sheet for all GUIs.
 GUI_STYLE = Style([

@@ -66,7 +66,7 @@ class Scores:
         """Write the scores to storage."""
         os.makedirs(CONFIG_DIR, exist_ok=True)
         with open(self._path, "w") as file:
-            json.dump(self._data, file, indent=JSON_INDENT)
+            json.dump(self._data, file, indent=JSON_INDENT, sort_keys=True)
 
     def add_score(self, session: GameSession) -> None:
         """Add a score.
