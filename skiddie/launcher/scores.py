@@ -26,11 +26,12 @@ from typing import List, Optional, Union, Callable, Any
 
 from prompt_toolkit import prompt
 from prompt_toolkit.formatted_text import FormattedText
+from skiddie.exceptions import MissingConfigKeyError
 
 from skiddie.constants import SCORES_FILE, CONFIG_DIR, JSON_INDENT
 from skiddie.utils.ui import format_duration, bool_prompt, format_table
-from skiddie.utils.misc import LateInit
-from skiddie.launcher.games import GameSession, Game, Difficulty
+from skiddie.utils.misc import LateInit, get_first_insensitive_key
+from skiddie.launcher.games import GameSession, Game
 
 # The string that immediately precedes the users time whenever their time is printed to stdout.
 TIMER_RESULT_PREFIX = "Your time is: "
@@ -79,19 +80,25 @@ class Scores:
 
         (self._data
             .setdefault(session.game_name, {})
-            .setdefault(session.difficulty.label, [])
+            .setdefault(session.difficulty, [])
             .append(new_score))
 
-    def get_scores(self, game: Game, difficulty: Difficulty, sort: bool = True) -> List[GameSession]:
+    def get_scores(self, game: Game, difficulty: str, sort: bool = True) -> List[GameSession]:
         """Return a list of scores from the given game on the given difficulty.
 
         Returns:
             A list of sessions of games.
         """
         try:
-            data = self._data[game.game_name][difficulty.label]
-        except KeyError:
-            # There are no scores for the given game and difficulty.
+            game_data = get_first_insensitive_key(self._data, game.game_name)
+        except ValueError:
+            raise MissingConfigKeyError("The game '{0}' was not found".format(game.game_name), game.game_name)
+
+        try:
+            difficulty_data = get_first_insensitive_key(game_data, difficulty)
+        except ValueError:
+            # There is no such difficulty. This shouldn't raise an exception, because it could just mean that the user
+            # hasn't set any scores for that difficulty yet.
             return []
 
         scores = [
@@ -102,7 +109,7 @@ class Scores:
                 duration=score["duration"],
                 completed=datetime.datetime.fromtimestamp(score["completed"]),
             )
-            for score in data
+            for score in difficulty_data
         ]
 
         if sort:
@@ -110,7 +117,7 @@ class Scores:
 
         return scores
 
-    def get_high_score(self, game: Game, difficulty: Difficulty) -> Optional[GameSession]:
+    def get_high_score(self, game: Game, difficulty: str) -> Optional[GameSession]:
         """Get the score with the best time for the given game and difficulty.
 
         Returns:

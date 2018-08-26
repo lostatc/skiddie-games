@@ -17,137 +17,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
-import enum
-import time
 import datetime
 from typing import Callable
 
 from skiddie.games import hash_cracker, shell_scripter, port_scanner, hex_editor, pattern_finder, database_querier
+from skiddie.launcher.difficulty import DifficultyPresets
+from skiddie.utils.misc import get_timer
 from skiddie.utils.ui import get_description
-
-
-class Difficulty(enum.Enum):
-    """The difficulty level of a game."""
-    EASY = ("Easy",)
-    NORMAL = ("Normal",)
-    HARD = ("Hard",)
-
-    def __init__(self, label: str):
-        self.label = label
-
-    @classmethod
-    def from_label(cls, label: str) -> "Difficulty":
-        """Get a Difficulty instance from its label."""
-        for difficulty in cls:
-            if difficulty.label.lower() == label.lower():
-                return difficulty
-
-
-# A function which launches a game with a given difficulty.
-LauncherFunc = Callable[[Difficulty], None]
-
-# A function which launches a game with a given difficulty and return the number of seconds it took to complete it.
-TimerFunc = Callable[[Difficulty], float]
-
-
-def _start_database_querier(difficulty: Difficulty) -> None:
-    """Start the game "database_querier" with a given difficulty."""
-    if difficulty is Difficulty.EASY:
-        database_querier.play(challenges_to_win=3, rows=20, continuous_columns=4, discrete_columns=2)
-    if difficulty is Difficulty.NORMAL:
-        database_querier.play(challenges_to_win=3, rows=30, continuous_columns=4, discrete_columns=3)
-    if difficulty is Difficulty.HARD:
-        database_querier.play(challenges_to_win=3, rows=40, continuous_columns=4, discrete_columns=4)
-
-
-def _start_hash_cracker(difficulty: Difficulty) -> None:
-    """Start the game "hash_cracker" with a given difficulty."""
-    if difficulty is Difficulty.EASY:
-        hash_cracker.play(rows_to_win=8, starting_rows=4, columns=6)
-    if difficulty is Difficulty.NORMAL:
-        hash_cracker.play(rows_to_win=8, starting_rows=4, columns=8)
-    if difficulty is Difficulty.HARD:
-        hash_cracker.play(rows_to_win=8, starting_rows=4, columns=10)
-
-
-def _start_hex_editor(difficulty: Difficulty) -> None:
-    """Start the game "hex_editor" with a given difficulty."""
-    if difficulty is Difficulty.EASY:
-        hex_editor.play(
-            grids_to_win=1, grid_width=12, grid_height=6, min_distance=1, max_distance=2, branch_probability=0.1,
-        )
-    if difficulty is Difficulty.NORMAL:
-        hex_editor.play(
-            grids_to_win=1, grid_width=16, grid_height=8, min_distance=1, max_distance=2, branch_probability=0.15,
-        )
-    if difficulty is Difficulty.HARD:
-        hex_editor.play(
-            grids_to_win=1, grid_width=20, grid_height=10, min_distance=1, max_distance=2, branch_probability=0.2,
-        )
-
-
-def _start_pattern_finder(difficulty: Difficulty) -> None:
-    """Start the game "pattern_finder" with a given difficulty."""
-    if difficulty is Difficulty.EASY:
-        pattern_finder.play(
-            challenges_to_win=5, grid_width=5, grid_height=5, choices=4, cells_to_flip=1, incorrect_penalty=5,
-        )
-    if difficulty is Difficulty.NORMAL:
-        pattern_finder.play(
-            challenges_to_win=5, grid_width=6, grid_height=6, choices=4, cells_to_flip=1, incorrect_penalty=5,
-        )
-    if difficulty is Difficulty.HARD:
-        pattern_finder.play(
-            challenges_to_win=5, grid_width=7, grid_height=7, choices=4, cells_to_flip=1, incorrect_penalty=5,
-        )
-
-
-def _start_port_scanner(difficulty: Difficulty) -> None:
-    """Start the game "port_scanner" with a given difficulty."""
-    if difficulty is Difficulty.EASY:
-        port_scanner.play(challenges_to_win=3, number_of_examples=1, max_section_number=31)
-    if difficulty is Difficulty.NORMAL:
-        port_scanner.play(challenges_to_win=3, number_of_examples=1, max_section_number=63)
-    if difficulty is Difficulty.HARD:
-        port_scanner.play(challenges_to_win=3, number_of_examples=1, max_section_number=127)
-
-
-def _start_shell_scripter(difficulty: Difficulty) -> None:
-    """Start the game "shell_scripter" with a given difficulty."""
-    # With these settings, the average number of characters per command increases linearly with each difficulty level.
-    if difficulty is Difficulty.EASY:
-        shell_scripter.play(
-            commands_to_win=15, min_args=0, max_args=3, redirect_probability=0.1, pipe_probability=0.2,
-        )
-    if difficulty is Difficulty.NORMAL:
-        shell_scripter.play(
-            commands_to_win=15, min_args=1, max_args=4, redirect_probability=0.3, pipe_probability=0.4,
-        )
-    if difficulty is Difficulty.HARD:
-        shell_scripter.play(
-            commands_to_win=15, min_args=2, max_args=5, redirect_probability=0.4, pipe_probability=0.5,
-        )
-
-
-def get_timer(launcher_func: LauncherFunc) -> TimerFunc:
-    """Get a function which times how long it takes to finish a game.
-
-    Args:
-        launcher_func: A function that executes a game.
-
-    Returns:
-        A function which returns the number of seconds that the game took to execute.
-    """
-    def timer(difficulty: Difficulty) -> float:
-        start_time = time.monotonic()
-        launcher_func(difficulty)
-        end_time = time.monotonic()
-
-        elapsed_time = end_time - start_time
-
-        return elapsed_time
-
-    return timer
 
 
 class Game:
@@ -156,12 +32,27 @@ class Game:
     Attributes:
         game_name: The name of the game.
         description: A description of the game.
-        launcher: A function used to launch the game which returns the number of seconds taken to complete it.
+        launcher: A function which starts the game.
     """
-    def __init__(self, game_name: str, description: str, launcher: TimerFunc) -> None:
+    def __init__(self, game_name: str, description: str, launcher: Callable[..., None]) -> None:
         self.game_name = game_name
         self.description = description
-        self.launcher = launcher
+        self._launcher = launcher
+
+    def play(self, difficulty: str) -> float:
+        """Play the game and return how long it took to complete in seconds.
+
+        Args:
+            difficulty: The difficulty to play the game on.
+        """
+        difficulty_store = DifficultyPresets()
+        difficulty_store.read()
+        game_args = difficulty_store.get_difficulty_settings(self.game_name, difficulty)
+        difficulty_store.write()
+
+        play_func = get_timer(self._launcher)
+
+        return play_func(**game_args)
 
 
 class GameSession:
@@ -175,8 +66,8 @@ class GameSession:
         completed: The time and date that the game was completed. None if hte game hasn't bee played yet.
     """
     def __init__(
-            self, game: Game, difficulty: Difficulty,
-            username: str = None, duration: float = None, completed: datetime.datetime = None):
+            self, game: Game, difficulty: str, username: str = None, duration: float = None,
+            completed: datetime.datetime = None):
         self.game = game
         self.difficulty = difficulty
         self.username = username
@@ -195,18 +86,16 @@ class GameSession:
 
     def play(self):
         """Play the game with the current difficulty."""
-        self.duration = self.game.launcher(self.difficulty)
+        self.duration = self.game.play(self.difficulty)
         self.completed = datetime.datetime.now()
 
 
-GAME_DATABASE_QUERIER = Game(
-    "database_querier", get_description("database_querier.md"), get_timer(_start_database_querier)
-)
-GAME_HASH_CRACKER = Game("hash_cracker", get_description("hash_cracker.md"), get_timer(_start_hash_cracker))
-GAME_HEX_EDITOR = Game("hex_editor", get_description("hex_editor.md"), get_timer(_start_hex_editor))
-GAME_PATTERN_FINDER = Game("pattern_finder", get_description("pattern_finder.md"), get_timer(_start_pattern_finder))
-GAME_PORT_SCANNER = Game("port_scanner", get_description("port_scanner.md"), get_timer(_start_port_scanner))
-GAME_SHELL_SCRIPTER = Game("shell_scripter", get_description("shell_scripter.md"), get_timer(_start_shell_scripter))
+GAME_DATABASE_QUERIER = Game("database_querier", get_description("database_querier.md"), database_querier.play)
+GAME_HASH_CRACKER = Game("hash_cracker", get_description("hash_cracker.md"), hash_cracker.play)
+GAME_HEX_EDITOR = Game("hex_editor", get_description("hex_editor.md"), hex_editor.play)
+GAME_PATTERN_FINDER = Game("pattern_finder", get_description("pattern_finder.md"), pattern_finder.play)
+GAME_PORT_SCANNER = Game("port_scanner", get_description("port_scanner.md"), port_scanner.play)
+GAME_SHELL_SCRIPTER = Game("shell_scripter", get_description("shell_scripter.md"), shell_scripter.play)
 
 # A list of all available games. This must be updated whenever new games are added.
 GAMES = [

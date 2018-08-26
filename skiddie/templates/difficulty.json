@@ -13,17 +13,17 @@
                 "discrete_columns": 2,
                 "rows": 20
             },
-            "Hard": {
-                "challenges_to_win": 3,
-                "continuous_columns": 4,
-                "discrete_columns": 4,
-                "rows": 40
-            },
             "Normal": {
                 "challenges_to_win": 3,
                 "continuous_columns": 4,
                 "discrete_columns": 3,
                 "rows": 30
+            },
+            "Hard": {
+                "challenges_to_win": 3,
+                "continuous_columns": 4,
+                "discrete_columns": 4,
+                "rows": 40
             }
         }
     },
@@ -39,13 +39,13 @@
                 "rows_to_win": 8,
                 "starting_rows": 4
             },
-            "Hard": {
-                "columns": 10,
+            "Normal": {
+                "columns": 8,
                 "rows_to_win": 8,
                 "starting_rows": 4
             },
-            "Normal": {
-                "columns": 8,
+            "Hard": {
+                "columns": 10,
                 "rows_to_win": 8,
                 "starting_rows": 4
             }
@@ -69,18 +69,18 @@
                 "max_distance": 2,
                 "min_distance": 1
             },
-            "Hard": {
-                "branch_probability": 0.2,
-                "grid_height": 10,
-                "grid_width": 20,
-                "grids_to_win": 1,
-                "max_distance": 2,
-                "min_distance": 1
-            },
             "Normal": {
                 "branch_probability": 0.15,
                 "grid_height": 8,
                 "grid_width": 16,
+                "grids_to_win": 1,
+                "max_distance": 2,
+                "min_distance": 1
+            },
+            "Hard": {
+                "branch_probability": 0.2,
+                "grid_height": 10,
+                "grid_width": 20,
                 "grids_to_win": 1,
                 "max_distance": 2,
                 "min_distance": 1
@@ -105,20 +105,20 @@
                 "grid_width": 5,
                 "incorrect_penalty": 5
             },
-            "Hard": {
-                "cells_to_flip": 1,
-                "challenges_to_win": 5,
-                "choices": 4,
-                "grid_height": 7,
-                "grid_width": 7,
-                "incorrect_penalty": 5
-            },
             "Normal": {
                 "cells_to_flip": 1,
                 "challenges_to_win": 5,
                 "choices": 4,
                 "grid_height": 6,
                 "grid_width": 6,
+                "incorrect_penalty": 5
+            },
+            "Hard": {
+                "cells_to_flip": 1,
+                "challenges_to_win": 5,
+                "choices": 4,
+                "grid_height": 7,
+                "grid_width": 7,
                 "incorrect_penalty": 5
             }
         }
@@ -135,14 +135,14 @@
                 "max_section_number": 31,
                 "number_of_examples": 1
             },
-            "Hard": {
-                "challenges_to_win": 3,
-                "max_section_number": 127,
-                "number_of_examples": 1
-            },
             "Normal": {
                 "challenges_to_win": 3,
                 "max_section_number": 63,
+                "number_of_examples": 1
+            },
+            "Hard": {
+                "challenges_to_win": 3,
+                "max_section_number": 127,
                 "number_of_examples": 1
             }
         }
@@ -163,19 +163,19 @@
                 "pipe_probability": 0.2,
                 "redirect_probability": 0.1
             },
-            "Hard": {
-                "commands_to_win": 15,
-                "max_args": 5,
-                "min_args": 2,
-                "pipe_probability": 0.5,
-                "redirect_probability": 0.4
-            },
             "Normal": {
                 "commands_to_win": 15,
                 "max_args": 4,
                 "min_args": 1,
                 "pipe_probability": 0.4,
                 "redirect_probability": 0.3
+            },
+            "Hard": {
+                "commands_to_win": 15,
+                "max_args": 5,
+                "min_args": 2,
+                "pipe_probability": 0.5,
+                "redirect_probability": 0.4
             }
         }
     }

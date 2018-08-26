@@ -62,3 +62,6 @@ GUI_STYLE = Style([
 
 # The number of spaces to indent when serializing JSON.
 JSON_INDENT = 4
+
+# The name of the default difficulty level.
+DEFAULT_DIFFICULTY = "Normal"

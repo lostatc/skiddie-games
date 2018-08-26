@@ -30,9 +30,10 @@ from prompt_toolkit.layout.containers import FloatContainer
 from prompt_toolkit.filters import to_filter, has_focus
 from prompt_toolkit.key_binding import KeyBindings
 
-from skiddie.constants import GUI_STYLE
+from skiddie.constants import GUI_STYLE, DEFAULT_DIFFICULTY
+from skiddie.launcher.difficulty import DifficultyPresets
 from skiddie.utils.ui import Screen, MultiScreenApp
-from skiddie.launcher.games import Difficulty, Game, GameSession, GAMES
+from skiddie.launcher.games import Game, GameSession, GAMES
 from skiddie.launcher.scores import process_result, format_scores, Scores, ScoreSort
 
 # The width of buttons that are used to create menus.
@@ -147,13 +148,14 @@ class GameOptionsScreen(Screen):
         _difficulty_select_screen: The screen used for setting the difficulty of the selected game.
     """
     def __init__(self, multi_screen: MultiScreenApp, selected_game_getter: Callable[[], Game]) -> None:
-        def selected_difficulty_setter(value: Difficulty) -> None:
+        def selected_difficulty_setter(value: str) -> None:
             self._selected_difficulty = value
 
         self._selected_game_getter = selected_game_getter
-        self._selected_difficulties = {game: Difficulty.NORMAL for game in GAMES}
+        self._selected_difficulties = {game: DEFAULT_DIFFICULTY for game in GAMES}
 
-        self._difficulty_select_screen = DifficultySelectScreen(multi_screen, selected_difficulty_setter)
+        self._difficulty_select_screen = DifficultySelectScreen(
+            multi_screen, selected_difficulty_setter, selected_game_getter)
         self._high_score_screen = HighScoreScreen(
             multi_screen, lambda: self._selected_game, lambda: self._selected_difficulty
         )
@@ -192,7 +194,7 @@ class GameOptionsScreen(Screen):
 
         difficulty_label_container = Box(
             Label(
-                text=lambda: "Difficulty: {0}".format(self._selected_difficulty.label),
+                text=lambda: "Difficulty: {0}".format(self._selected_difficulty),
                 width=Dimension(min=40),
             ),
             padding=0,
@@ -228,12 +230,12 @@ class GameOptionsScreen(Screen):
         )
 
     @property
-    def _selected_difficulty(self) -> Difficulty:
+    def _selected_difficulty(self) -> str:
         """The selected difficulty for the currently selected game."""
         return self._selected_difficulties[self._selected_game]
 
     @_selected_difficulty.setter
-    def _selected_difficulty(self, value: Difficulty) -> None:
+    def _selected_difficulty(self, value: str) -> None:
         """Set the selected difficulty for the currently selected game."""
         self._selected_difficulties[self._selected_game] = value
 
@@ -257,16 +259,18 @@ class DifficultySelectScreen(Screen):
     """
     def __init__(
             self, multi_screen: MultiScreenApp,
-            selected_difficulty_setter: Callable[[Difficulty], None]) -> None:
+            selected_difficulty_setter: Callable[[str], None], selected_game_getter: Callable[[], Game]) -> None:
+        self._selected_game_getter = selected_game_getter
         self._selected_difficulty_setter = selected_difficulty_setter
         super().__init__(multi_screen)
 
     def get_root_container(self) -> Dialog:
-        difficulty_radiolist = RadioList([
-            (Difficulty.EASY, Difficulty.EASY.label),
-            (Difficulty.NORMAL, Difficulty.NORMAL.label),
-            (Difficulty.HARD, Difficulty.HARD.label),
-        ])
+        difficulty_store = DifficultyPresets()
+        difficulty_store.read()
+        difficulty_names = difficulty_store.get_difficulty_names(self._selected_game_getter().game_name)
+        difficulty_store.write()
+
+        difficulty_radiolist = RadioList([(difficulty, difficulty) for difficulty in difficulty_names])
 
         def ok_handler() -> None:
             self._selected_difficulty_setter(difficulty_radiolist.current_value)
@@ -305,7 +309,7 @@ class HighScoreScreen(Screen):
     """
     def __init__(
             self, multi_screen: MultiScreenApp, selected_game_getter: Callable[[], Game],
-            selected_difficulty_getter: Callable[[], Difficulty]) -> None:
+            selected_difficulty_getter: Callable[[], str]) -> None:
         self._selected_sort = None
 
         def selected_sort_setter(value: ScoreSort) -> None:
@@ -346,7 +350,7 @@ class HighScoreScreen(Screen):
 
         difficulty_label_container = Box(
             Label(
-                text=lambda: "Difficulty: {0}".format(self._selected_difficulty.label),
+                text=lambda: "Difficulty: {0}".format(self._selected_difficulty),
                 width=Dimension(min=40),
             ),
             padding=0,
@@ -389,7 +393,7 @@ class HighScoreScreen(Screen):
         return self._selected_game_getter()
 
     @property
-    def _selected_difficulty(self) -> Difficulty:
+    def _selected_difficulty(self) -> str:
         """The currently selected difficulty."""
         return self._selected_difficulty_getter()
 

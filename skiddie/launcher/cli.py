@@ -21,26 +21,19 @@ import click
 
 from prompt_toolkit import print_formatted_text
 
-from skiddie.utils.ui import format_duration
+from skiddie.constants import DEFAULT_DIFFICULTY
 from skiddie.launcher import gui
-from skiddie.launcher.games import Game, GameSession, GAMES, Difficulty
+from skiddie.exceptions import MissingConfigKeyError
+from skiddie.launcher.games import Game, GameSession, GAMES
 from skiddie.launcher.scores import process_result, Scores, format_scores, ScoreSort
 
 
 def _get_game(name: str) -> Game:
     """Get a game from its name."""
     try:
-        return [item for item in GAMES if item.game_name == name][0]
-    except IndexError:
+        return next(item for item in GAMES if item.game_name.lower() == name.lower())
+    except StopIteration:
         raise click.BadParameter("'{0}'".format(name))
-
-
-def _get_difficulty(name: str) -> Difficulty:
-    """Get a difficulty from its name."""
-    selected_difficulty = Difficulty.from_label(name)
-    if not selected_difficulty:
-        raise click.BadParameter("'{0}'".format(name))
-    return selected_difficulty
 
 
 @click.group(invoke_without_command=True)
@@ -55,13 +48,18 @@ def cli(ctx):
 @cli.command(short_help="Play a game.")
 @click.argument("game", type=str)
 @click.option(
-    "--difficulty", "-d", default="normal", show_default=True,
+    "--difficulty", "-d", default=DEFAULT_DIFFICULTY, show_default=True,
     help="The difficulty to play the game on."
 )
 def play(game: str, difficulty: str):
     """Play the game named GAME."""
-    session = GameSession(_get_game(game), _get_difficulty(difficulty))
-    session.play()
+    session = GameSession(_get_game(game), difficulty)
+
+    try:
+        session.play()
+    except MissingConfigKeyError as error:
+        raise click.BadParameter("'{0}'".format(error.key))
+
     process_result(session)
 
 
@@ -75,7 +73,7 @@ def description(game: str):
 @cli.command(short_help="Get the high scores of a game.")
 @click.argument("game", type=str)
 @click.option(
-    "--difficulty", "-d", default="normal", show_default=True,
+    "--difficulty", "-d", default=DEFAULT_DIFFICULTY, show_default=True,
     help="The difficulty that the game was played on."
 )
 @click.option("--number", "-n", default=25, show_default=True, help="The number of high scores to show.")
@@ -84,10 +82,11 @@ def scores(game, difficulty, number, sort_column):
     """Get the high scores of the game named GAME."""
     score_store = Scores()
     score_store.read()
-    high_scores = score_store.get_scores(_get_game(game), _get_difficulty(difficulty))[:number]
 
-    if not high_scores:
-        return
+    try:
+        high_scores = score_store.get_scores(_get_game(game), difficulty)[:number]
+    except MissingConfigKeyError:
+        raise click.BadParameter("'{0}'".format(difficulty))
 
     sort_method = ScoreSort.from_name(sort_column)
     if not sort_method:

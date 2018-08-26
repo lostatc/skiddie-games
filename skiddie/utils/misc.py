@@ -17,7 +17,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
-from typing import MutableMapping, Mapping
+import time
+import functools
+from typing import MutableMapping, Mapping, Callable, Any, TypeVar
+
+T = TypeVar("T")
 
 
 def recursive_update(update: MutableMapping, other: Mapping) -> MutableMapping:
@@ -47,3 +51,40 @@ class LateInit:
 
     def __set__(self, instance, value):
         self._value = value
+
+
+def get_timer(func: Callable) -> Callable[..., float]:
+    """Get a function which times how long it takes to complete the given function.
+
+    Args:
+        func: The function to time the execution of.
+
+    Returns:
+        A function which returns the number of seconds that the given function took to execute.
+    """
+    def timer(*args, **kwargs) -> float:
+        start_time = time.monotonic()
+        func(*args, **kwargs)
+        end_time = time.monotonic()
+
+        elapsed_time = end_time - start_time
+
+        return elapsed_time
+
+    return timer
+
+
+def get_first_insensitive_key(mapping: Mapping[str, T], match_key: str) -> T:
+    """Get the value of the first key which is a case-insensitive match.
+
+    Args:
+        mapping: The mapping to get the value from.
+        match_key: The key to get the value of.
+
+    Raises:
+        ValueError: The given key does not appear in the mapping.
+    """
+    try:
+        return next(value for key, value in mapping.items() if key.lower() == match_key.lower())
+    except StopIteration:
+        raise ValueError("The given key does not appear in the mapping")
