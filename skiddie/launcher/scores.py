@@ -22,7 +22,7 @@ import os
 import json
 import getpass
 import datetime
-from typing import List, Optional, Union, Callable, Any
+from typing import List, Optional, Union, Callable, Any, Dict
 
 from prompt_toolkit import prompt
 from prompt_toolkit.formatted_text import FormattedText
@@ -30,7 +30,7 @@ from skiddie.exceptions import MissingConfigKeyError
 
 from skiddie.constants import SCORES_FILE, CONFIG_DIR, JSON_INDENT
 from skiddie.utils.ui import format_duration, bool_prompt, format_table
-from skiddie.utils.misc import LateInit, get_first_insensitive_key
+from skiddie.utils.misc import LateInit, get_first_insensitive_value, get_first_insensitive_key
 from skiddie.launcher.games import GameSession, Game
 
 # The string that immediately precedes the users time whenever their time is printed to stdout.
@@ -72,6 +72,13 @@ class Scores:
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         self.write()
 
+    def _get_game(self, game_name: str) -> Dict[str, Any]:
+        """Get the data associated with a game."""
+        try:
+            return get_first_insensitive_value(self._data, game_name)
+        except ValueError:
+            raise MissingConfigKeyError("The game '{0}' was not found".format(game_name), game_name)
+
     def add_score(self, session: GameSession) -> None:
         """Add a score.
 
@@ -84,9 +91,16 @@ class Scores:
             "completed": session.completed.timestamp()
         }
 
+        # If there is a difficulty in the scores file which is a case-insensitive match for the given difficulty, use
+        # it. If not, just use the given difficulty.
+        try:
+            difficulty = get_first_insensitive_key(self._get_game(session.game_name), session.difficulty)
+        except ValueError:
+            difficulty = session.difficulty
+
         (self._data
             .setdefault(session.game_name, {})
-            .setdefault(session.difficulty, [])
+            .setdefault(difficulty, [])
             .append(new_score))
 
     def get_scores(self, game: Game, difficulty: str, sort: bool = True) -> List[GameSession]:
@@ -95,13 +109,10 @@ class Scores:
         Returns:
             A list of sessions of games.
         """
-        try:
-            game_data = get_first_insensitive_key(self._data, game.game_name)
-        except ValueError:
-            raise MissingConfigKeyError("The game '{0}' was not found".format(game.game_name), game.game_name)
+        game_data = self._get_game(game.game_name)
 
         try:
-            difficulty_data = get_first_insensitive_key(game_data, difficulty)
+            difficulty_data = get_first_insensitive_value(game_data, difficulty)
         except ValueError:
             # There is no such difficulty. This shouldn't raise an exception, because it could just mean that the user
             # hasn't set any scores for that difficulty yet.

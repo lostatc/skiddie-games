@@ -25,7 +25,7 @@ import pkg_resources
 
 from skiddie.constants import DIFFICULTY_FILE, DIFFICULTY_TEMPLATE, JSON_INDENT
 from skiddie.exceptions import MissingConfigKeyError
-from skiddie.utils.misc import LateInit, recursive_update, get_first_insensitive_key
+from skiddie.utils.misc import LateInit, recursive_update, get_first_insensitive_value
 
 
 class DifficultyPresets:
@@ -71,7 +71,7 @@ class DifficultyPresets:
             game_name: The game to get the data of. This is case-insensitive. The first matching game is returned.
         """
         try:
-            return get_first_insensitive_key(self._data, game_name)
+            return get_first_insensitive_value(self._data, game_name)
         except ValueError:
             raise MissingConfigKeyError("The game '{0}' was not found".format(game_name), game_name)
 
@@ -96,7 +96,7 @@ class DifficultyPresets:
             A dict of arguments that can be passed into the main function of a game.
         """
         try:
-            return get_first_insensitive_key(self._get_game(game_name)["difficulties"], difficulty_name)
+            return get_first_insensitive_value(self._get_game(game_name)["difficulties"], difficulty_name)
         except ValueError:
             raise MissingConfigKeyError("The difficulty '{0}' was not found".format(difficulty_name), difficulty_name)
 

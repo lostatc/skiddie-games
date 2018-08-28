@@ -75,6 +75,23 @@ def get_timer(func: Callable) -> Callable[..., float]:
 
 
 def get_first_insensitive_key(mapping: Mapping[str, T], match_key: str) -> T:
+    """"""
+    """Get the name of the first key which is a case-insensitive match.
+
+    Args:
+        mapping: The mapping to get the key from.
+        match_key: The key to search for.
+
+    Raises:
+        ValueError: The given key does not appear in the mapping.
+    """
+    try:
+        return next(key for key, value in mapping.items() if key.lower() == match_key.lower())
+    except StopIteration:
+        raise ValueError("The given key does not appear in the mapping")
+
+
+def get_first_insensitive_value(mapping: Mapping[str, T], match_key: str) -> T:
     """Get the value of the first key which is a case-insensitive match.
 
     Args:
