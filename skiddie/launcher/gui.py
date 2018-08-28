@@ -266,9 +266,8 @@ class DifficultySelectScreen(Screen):
 
     def get_root_container(self) -> Dialog:
         difficulty_store = DifficultyPresets()
-        difficulty_store.read()
-        difficulty_names = difficulty_store.get_difficulty_names(self._selected_game_getter().game_name)
-        difficulty_store.write()
+        with difficulty_store:
+            difficulty_names = difficulty_store.get_difficulty_names(self._selected_game_getter().game_name)
 
         difficulty_radiolist = RadioList([(difficulty, difficulty) for difficulty in difficulty_names])
 
@@ -323,8 +322,8 @@ class HighScoreScreen(Screen):
 
     def get_root_container(self) -> FloatContainer:
         score_store = Scores()
-        score_store.read()
-        high_scores = score_store.get_scores(self._selected_game, self._selected_difficulty)
+        with score_store:
+            high_scores = score_store.get_scores(self._selected_game, self._selected_difficulty)
         score_table = format_scores(high_scores, sort_method=self._selected_sort, header_style=None)
 
         buttons = [

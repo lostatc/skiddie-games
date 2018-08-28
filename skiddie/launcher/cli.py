@@ -81,12 +81,11 @@ def description(game: str):
 def scores(game, difficulty, number, sort_column):
     """Get the high scores of the game named GAME."""
     score_store = Scores()
-    score_store.read()
-
-    try:
-        high_scores = score_store.get_scores(_get_game(game), difficulty)[:number]
-    except MissingConfigKeyError:
-        raise click.BadParameter("'{0}'".format(difficulty))
+    with score_store:
+        try:
+            high_scores = score_store.get_scores(_get_game(game), difficulty)[:number]
+        except MissingConfigKeyError:
+            raise click.BadParameter("'{0}'".format(difficulty))
 
     sort_method = ScoreSort.from_name(sort_column)
     if not sort_method:

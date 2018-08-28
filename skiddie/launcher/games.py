@@ -46,9 +46,8 @@ class Game:
             difficulty: The difficulty to play the game on.
         """
         difficulty_store = DifficultyPresets()
-        difficulty_store.read()
-        game_args = difficulty_store.get_difficulty_settings(self.game_name, difficulty)
-        difficulty_store.write()
+        with difficulty_store:
+            game_args = difficulty_store.get_difficulty_settings(self.game_name, difficulty)
 
         play_func = get_timer(self._launcher)
 

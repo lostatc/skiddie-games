@@ -49,6 +49,21 @@ class DifficultyPresets:
 
         self._data = recursive_update(template_data, config_data)
 
+    def __enter__(self) -> None:
+        self.read()
+
+    def write(self) -> None:
+        """Write the difficulty presets to storage.
+
+        It is necessary to write to storage even if the difficulty presets have not been modified because new data may
+        have been added to the template. This data needs to be written to the user's config file.
+        """
+        with open(self._config_path, "w") as config_file:
+            json.dump(self._data, config_file, indent=JSON_INDENT)
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        self.write()
+
     def _get_game(self, game_name: str) -> Dict[str, Any]:
         """Get the data associated with a game.
 
@@ -93,12 +108,3 @@ class DifficultyPresets:
                 matching game is used.
         """
         return self._get_game(game_name)["descriptions"]
-
-    def write(self) -> None:
-        """Write the difficulty presets to storage.
-
-        It is necessary to write to storage even if the difficulty presets have not been modified because new data may
-        have been added to the template. This data needs to be written to the user's config file.
-        """
-        with open(self._config_path, "w") as config_file:
-            json.dump(self._data, config_file, indent=JSON_INDENT)

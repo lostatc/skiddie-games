@@ -60,11 +60,17 @@ class Scores:
             # The file has not been created yet.
             self._data = {}
 
+    def __enter__(self) -> None:
+        self.read()
+
     def write(self) -> None:
         """Write the scores to storage."""
         os.makedirs(CONFIG_DIR, exist_ok=True)
         with open(self._path, "w") as file:
             json.dump(self._data, file, indent=JSON_INDENT, sort_keys=True)
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        self.write()
 
     def add_score(self, session: GameSession) -> None:
         """Add a score.
@@ -205,26 +211,24 @@ def process_result(session: GameSession) -> None:
 
     # Get all the user's past scores.
     score_store = Scores()
-    score_store.read()
+    with score_store:
+        # Inform the user if they've set a new high score.
+        high_score = score_store.get_high_score(session.game, session.difficulty)
+        if high_score is None or session.duration < high_score.duration:
+            print(NEW_HIGH_SCORE_MESSAGE)
 
-    # Inform the user if they've set a new high score.
-    high_score = score_store.get_high_score(session.game, session.difficulty)
-    if high_score is None or session.duration < high_score.duration:
-        print(NEW_HIGH_SCORE_MESSAGE)
+        # Print score to stdout.
+        print(TIMER_RESULT_PREFIX + format_duration(session.duration))
 
-    # Print score to stdout.
-    print(TIMER_RESULT_PREFIX + format_duration(session.duration))
+        # Ask user if they want to save their score.
+        save_score = bool_prompt("Would you like to save your score? [Y/n]: ", default=True)
 
-    # Ask user if they want to save their score.
-    save_score = bool_prompt("Would you like to save your score? [Y/n]: ", default=True)
+        if not save_score:
+            return
 
-    if not save_score:
-        return
+        # Prompt user for username.
+        username = prompt(message="Name for the new score: ", default=getpass.getuser())
+        session.username = username
 
-    # Prompt user for username.
-    username = prompt(message="Name for the new score: ", default=getpass.getuser())
-    session.username = username
-
-    # Record score.
-    score_store.add_score(session)
-    score_store.write()
+        # Record score.
+        score_store.add_score(session)
