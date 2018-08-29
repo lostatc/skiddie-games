@@ -1,6 +1,6 @@
 """A game about editing binary data.
 
-Copyright © 2017 Wren Powell <wrenp@duck.com>
+Copyright © 2017-2018 Wren Powell <wrenp@duck.com>
 
 This file is part of skiddie.
 
