@@ -100,6 +100,13 @@ class TreeNode(abc.ABC):
         except AttributeError:
             return True
 
+    @property
+    def _siblings(self) -> List["TreeNode"]:
+        """All the other children of this node's parent."""
+        siblings = self.parent.children
+        siblings.remove(self)
+        return siblings
+
     def format_tree(self, hide_values=False) -> str:
         """Format the tree as a string.
 
@@ -129,28 +136,57 @@ class TreeNode(abc.ABC):
         return "\n".join([root_value, *lines])
 
     @classmethod
-    def create_random(cls, depth: int, min_branches: int, max_branches: int, possible_values: List[str]):
+    def create_random(
+            cls, depth: int, min_branches: int, max_branches: int, num_nodes: int,
+            possible_values: List[str]) -> "TreeNode":
         """Create a random tree that follows the given parameters.
 
         Args:
             depth: The number of levels in the generated tree.
             min_branches: The minimum number of branches at each level of the tree.
             max_branches: The maximum number of branches at each level of the tree.
+            num_nodes: The number of nodes that the tree should have.
             possible_values: The pool of values to select values from.
         """
         value_pool = possible_values.copy()
         random.shuffle(value_pool)
 
-        def add_children(node: TreeNode) -> None:
-            num_children = random.randint(min_branches, max_branches)
-            for _ in range(num_children):
-                node.add_child(value_pool.pop())
-
         def create_tree(node: TreeNode, current_depth: int = 0) -> None:
             if current_depth >= depth:
                 return
 
-            add_children(node)
+            total_nodes = len(root_node.descendants)
+            remaining_nodes = num_nodes - total_nodes
+
+            # Get the minimum and maximum number of possible descendants that this node can have.
+            remaining_levels = depth - current_depth
+            min_possible_descendants = sum(min_branches**i for i in range(1, remaining_levels+1))
+            max_possible_descendants = sum(max_branches**i for i in range(1, remaining_levels+1))
+
+            # Get the minimum and maximum number of descendants that each child of this node could have.
+            min_descendants_per_child = round(min_possible_descendants / min_branches)
+            max_descendants_per_child = round(max_possible_descendants / max_branches)
+
+            # Get the range of numbers of children that this node can have. Shuffle them to avoid bias in which one is
+            # chosen.
+            possible_children = list(range(min_branches, max_branches+1))
+            random.shuffle(possible_children)
+
+            # Determine how many children this node should have. Look at the minimum and maximum number of descendants
+            # that this node could have with a given number of children.
+            children_to_add = 0
+            for num_children in possible_children:
+                range_min = min_descendants_per_child * num_children
+                range_max = max_descendants_per_child * num_children
+                if remaining_nodes in range(range_min, range_max+1):
+                    children_to_add = num_children
+                    break
+
+            # Add children to the node.
+            for _ in range(children_to_add):
+                node.add_child(value_pool.pop())
+
+            # Add children to this node's children.
             for child in node.children:
                 create_tree(child, current_depth+1)
 
