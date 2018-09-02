@@ -20,7 +20,14 @@ along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 import abc
 import random
 import collections
-from typing import List, Optional
+from typing import List, Optional, NamedTuple
+
+from prompt_toolkit.formatted_text import FormattedText
+
+from skiddie.utils.ui import format_table_columns
+
+# The maximum number of rows in each column of the formatted closure table.
+MAX_TABLE_ROWS = 40
 
 
 class TreeNode(abc.ABC):
@@ -109,6 +116,8 @@ class TreeNode(abc.ABC):
     def format_tree(self, hide_values=False) -> str:
         """Format the tree as a string.
 
+        The order that the nodes appear in the output is the same as the order they appear in `self.descendants`.
+
         Args:
             hide_values: Do not show the value for each node.
         """
@@ -180,3 +189,64 @@ class TreeNode(abc.ABC):
             create_minimum_tree(random_node)
 
         return root_node
+
+
+ClosureTableRow = NamedTuple(
+    "ClosureTableRow",
+    [("ancestor", TreeNode), ("descendant", TreeNode), ("distance", int)]
+)
+
+
+class ClosureTable:
+    """An in-code representation of a closure table as used in databases.
+
+    Attributes:
+        tree: The tree that the closure table is based on.
+    """
+    def __init__(self, tree: TreeNode) -> None:
+        self.tree = tree
+
+    @property
+    def table(self) -> List[ClosureTableRow]:
+        """The closure table."""
+        output = []
+
+        for ancestor_node in self.tree.descendants:
+            for descendant_node in ancestor_node.descendants:
+                distance = descendant_node.depth - ancestor_node.depth
+                new_row = ClosureTableRow(ancestor_node, descendant_node, distance)
+                output.append(new_row)
+
+        return output
+
+    def format_table(self, shuffle_rows: bool = True, header_style: str = "bold") -> FormattedText:
+        """Return a formatted string representation of the table.
+
+        Args:
+            shuffle_rows: Shuffle the rows of the table before formatting them. Rows are still grouped by their
+                ancestor.
+            header_style: The style to apply to the header row.
+        """
+        table_header = ("Ancestor", "Descendant", "Distance")
+        table_data = [
+            (ancestor.value, descendant.value, str(distance))
+            for ancestor, descendant, distance in self.table
+        ]
+
+        # Shuffle the rows.
+        if shuffle_rows:
+            random.shuffle(table_data)
+            table_data.sort(key=lambda x: x[0])
+
+        # Format the table.
+        formatted_rows = format_table_columns(table_data, MAX_TABLE_ROWS, header=table_header).splitlines()
+
+        # Convert to formatted text.
+        header_row = formatted_rows[0] + "\n"
+        data_rows = "\n".join(formatted_rows[1:])
+        style_tuples = [
+            (header_style, header_row),
+            ("", data_rows),
+        ]
+
+        return FormattedText(style_tuples)

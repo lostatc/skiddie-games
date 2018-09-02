@@ -21,7 +21,7 @@ import abc
 import shutil
 import sys
 import six
-from typing import Sequence
+from typing import Sequence, Optional
 
 import pkg_resources
 from prompt_toolkit import print_formatted_text, prompt, Application
@@ -158,6 +158,44 @@ def format_table(rows: Sequence[Sequence[str]], separator: str = "  ", align_rig
     )
 
     return output
+
+
+def format_table_columns(
+        rows: Sequence[Sequence[str]], rows_per_column: int, header: Optional[Sequence[str]] = None, **kwargs) -> str:
+    """Return the given data in a formatted table that splits the data across multiple columns.
+
+    This accepts all the same keyword arguments as `format_table`.
+
+    Args:
+        header: The data to use as a header for each column. None for no header.
+        rows: The rows of data to print.
+        rows_per_column: The maximum number of rows for each column.
+
+    Returns:
+        The formatted table.
+    """
+    # Split the single list of rows into a separate list for each column.
+    columns = [list(rows[i:i+rows_per_column]) for i in range(0, len(rows), rows_per_column)]
+
+    # Add headers to each column.
+    if header:
+        for column in columns:
+            column.insert(0, header)
+
+    # Split the data into columns by combining rows.
+    column_data = []
+    for i in range(rows_per_column):
+        combined_row = []
+        for column in columns:
+            try:
+                combined_row += column[i]
+            except IndexError:
+                # This column does not have a row at this index.
+                break
+
+        column_data.append(combined_row)
+
+    return format_table(column_data, **kwargs)
 
 
 class Screen(abc.ABC):
