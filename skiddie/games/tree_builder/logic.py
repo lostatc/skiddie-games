@@ -19,6 +19,7 @@ along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import abc
 import random
+import collections
 from typing import List, Optional
 
 
@@ -81,6 +82,11 @@ class TreeNode(abc.ABC):
         return output
 
     @property
+    def depth(self) -> int:
+        """The number of levels deep this node is."""
+        return len(self.ancestors)
+
+    @property
     def root_node(self) -> "TreeNode":
         """The root node in the tree."""
         try:
@@ -99,13 +105,6 @@ class TreeNode(abc.ABC):
             return self is self.parent.children[-1]
         except AttributeError:
             return True
-
-    @property
-    def _siblings(self) -> List["TreeNode"]:
-        """All the other children of this node's parent."""
-        siblings = self.parent.children
-        siblings.remove(self)
-        return siblings
 
     def format_tree(self, hide_values=False) -> str:
         """Format the tree as a string.
@@ -151,46 +150,33 @@ class TreeNode(abc.ABC):
         value_pool = possible_values.copy()
         random.shuffle(value_pool)
 
-        def create_tree(node: TreeNode, current_depth: int = 0) -> None:
-            if current_depth >= depth:
+        root_node = TreeNode(value_pool.pop())
+
+        def create_minimum_tree(node: TreeNode) -> None:
+            """Create a new child of the given node with the minimum possible number of branches and levels."""
+            min_children = max(1, min_branches)
+
+            # Don't add the child if it would violate the constraints.
+            if len(node.children) >= max_branches:
+                return
+            if node.depth >= depth:
+                return
+            if len(node.root_node.descendants) >= num_nodes:
                 return
 
-            total_nodes = len(root_node.descendants)
-            remaining_nodes = num_nodes - total_nodes
-
-            # Get the minimum and maximum number of possible descendants that this node can have.
-            remaining_levels = depth - current_depth
-            min_possible_descendants = sum(min_branches**i for i in range(1, remaining_levels+1))
-            max_possible_descendants = sum(max_branches**i for i in range(1, remaining_levels+1))
-
-            # Get the minimum and maximum number of descendants that each child of this node could have.
-            min_descendants_per_child = round(min_possible_descendants / min_branches)
-            max_descendants_per_child = round(max_possible_descendants / max_branches)
-
-            # Get the range of numbers of children that this node can have. Shuffle them to avoid bias in which one is
-            # chosen.
-            possible_children = list(range(min_branches, max_branches+1))
-            random.shuffle(possible_children)
-
-            # Determine how many children this node should have. Look at the minimum and maximum number of descendants
-            # that this node could have with a given number of children.
-            children_to_add = 0
-            for num_children in possible_children:
-                range_min = min_descendants_per_child * num_children
-                range_max = max_descendants_per_child * num_children
-                if remaining_nodes in range(range_min, range_max+1):
-                    children_to_add = num_children
-                    break
-
-            # Add children to the node.
-            for _ in range(children_to_add):
+            # Add the minimum possible number of children to the node.
+            for _ in range(min_children):
                 node.add_child(value_pool.pop())
 
-            # Add children to this node's children.
+            # Recursively add children.
             for child in node.children:
-                create_tree(child, current_depth+1)
+                create_minimum_tree(child)
 
-        root_node = TreeNode(value_pool.pop())
-        create_tree(root_node)
+        create_minimum_tree(root_node)
+
+        # Randomly add new branches to the tree until the required number of nodes is met.
+        while len(root_node.descendants) < num_nodes:
+            random_node = random.choice(root_node.descendants)
+            create_minimum_tree(random_node)
 
         return root_node
