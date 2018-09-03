@@ -19,7 +19,6 @@ along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import abc
 import random
-import collections
 from typing import List, Optional, NamedTuple
 
 from prompt_toolkit.formatted_text import FormattedText
@@ -142,6 +141,40 @@ class TreeNode(abc.ABC):
             lines.append(new_line)
 
         return "\n".join([root_value, *lines])
+
+    def __eq__(self, other: "TreeNode") -> bool:
+        """Return whether the two nodes have the same value."""
+        return self.value == other.value
+
+    def __lt__(self, other: "TreeNode") -> bool:
+        return self.value < other.value
+
+    def __gt__(self, other: "TreeNode") -> bool:
+        return self.value > other.value
+
+    def equivalent_to(self, other: "TreeNode") -> bool:
+        """Return whether this tree is equivalent to `other`.
+
+        The two trees are equivalent if they have all the same nodes, The order of the node does not matter.
+        """
+        # Check that the values of the two nodes are equal.
+        if self != other:
+            return False
+
+        # If the trees have a different number of nodes, they are not equal.
+        if len(self.descendants) != len(other.descendants):
+            return False
+
+        for self_node, other_node in zip(self.descendants[1:], other.descendants[1:]):
+            # Check if the parent of each node has the same children.
+            if sorted(self_node.parent.children) != sorted(other_node.parent.children):
+                return False
+
+            # Check if the nodes are in the same position in each tree.
+            if self.ancestors != other.ancestors:
+                return False
+
+        return True
 
     @classmethod
     def create_random(
