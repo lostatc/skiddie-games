@@ -37,3 +37,4 @@ Game | Description | Screenshot
 **pattern_finder** | [Description](skiddie/descriptions/pattern_finder.md) | [Screenshot](images/pattern_finder.png)
 **port_scanner** | [Description](skiddie/descriptions/port_scanner.md) | [Screenshot](images/port_scanner.png)
 **shell_scripter** | [Description](skiddie/descriptions/shell_scripter.md) | [Screenshot](images/shell_scripter.png)
+**tree_builder** | [Description](skiddie/descriptions/tree_builder.md) | [Screenshot](images/tree_builder.png)

@@ -26,7 +26,7 @@ from prompt_toolkit.formatted_text import FormattedText
 from skiddie.utils.ui import format_table_columns
 
 # The maximum number of rows in each column of the formatted closure table.
-MAX_TABLE_ROWS = 40
+MAX_TABLE_ROWS = 35
 
 
 class TreeNode(abc.ABC):

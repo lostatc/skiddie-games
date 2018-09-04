@@ -20,7 +20,9 @@ along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 import datetime
 from typing import Callable
 
-from skiddie.games import hash_cracker, shell_scripter, port_scanner, hex_editor, pattern_finder, database_querier
+from skiddie.games import (
+    hash_cracker, shell_scripter, port_scanner, hex_editor, pattern_finder, database_querier, tree_builder,
+)
 from skiddie.launcher.difficulty import DifficultyPresets
 from skiddie.utils.misc import get_timer
 from skiddie.utils.ui import get_description
@@ -95,9 +97,10 @@ GAME_HEX_EDITOR = Game("hex_editor", get_description("hex_editor.md"), hex_edito
 GAME_PATTERN_FINDER = Game("pattern_finder", get_description("pattern_finder.md"), pattern_finder.play)
 GAME_PORT_SCANNER = Game("port_scanner", get_description("port_scanner.md"), port_scanner.play)
 GAME_SHELL_SCRIPTER = Game("shell_scripter", get_description("shell_scripter.md"), shell_scripter.play)
+GAME_TREE_BUILDER = Game("tree_builder", get_description("tree_builder.md"), tree_builder.play)
 
 # A list of all available games. This must be updated whenever new games are added.
 GAMES = [
     GAME_DATABASE_QUERIER, GAME_HASH_CRACKER, GAME_HEX_EDITOR, GAME_PATTERN_FINDER, GAME_PORT_SCANNER,
-    GAME_SHELL_SCRIPTER
+    GAME_SHELL_SCRIPTER, GAME_TREE_BUILDER,
 ]

@@ -182,9 +182,12 @@ def format_table_columns(
         for column in columns:
             column.insert(0, header)
 
+    # The first column should be the longest.
+    total_rows = len(columns[0])
+
     # Split the data into columns by combining rows.
     column_data = []
-    for i in range(rows_per_column):
+    for i in range(total_rows):
         combined_row = []
         for column in columns:
             try:
