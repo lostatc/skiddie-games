@@ -197,17 +197,17 @@
             },
             "Normal": {
                 "challenges_to_win": 1,
-                "tree_depth": 3,
+                "tree_depth": 4,
                 "min_branches": 1,
-                "max_branches": 4,
+                "max_branches": 3,
                 "total_nodes": 15
             },
             "Hard": {
                 "challenges_to_win": 1,
                 "tree_depth": 4,
                 "min_branches": 1,
-                "max_branches": 4,
-                "total_nodes": 20
+                "max_branches": 3,
+                "total_nodes": 25
             }
         }
     }
