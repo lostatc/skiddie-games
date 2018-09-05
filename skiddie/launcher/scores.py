@@ -26,7 +26,6 @@ from typing import List, Optional, Union, Callable, Any, Dict
 
 from prompt_toolkit import prompt
 from prompt_toolkit.formatted_text import FormattedText
-from skiddie.exceptions import MissingConfigKeyError
 
 from skiddie.constants import SCORES_FILE, CONFIG_DIR, JSON_INDENT
 from skiddie.utils.ui import format_duration, bool_prompt, format_table
@@ -77,7 +76,9 @@ class Scores:
         try:
             return get_first_insensitive_value(self._data, game_name)
         except ValueError:
-            raise MissingConfigKeyError("The game '{0}' was not found".format(game_name), game_name)
+            # If the given game does not exist in the scores file, we cannot raise an exception because the user may not
+            # have set any scores for that game yet.
+            return {}
 
     def add_score(self, session: GameSession) -> None:
         """Add a score.
