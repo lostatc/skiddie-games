@@ -152,6 +152,11 @@ class TreeNode(abc.ABC):
     def __gt__(self, other: "TreeNode") -> bool:
         return self.value > other.value
 
+    def _shuffle_tree(self) -> None:
+        """Shuffle the order of the children of each node."""
+        for node in self.descendants:
+            random.shuffle(node.children)
+
     def equivalent_to(self, other: "TreeNode") -> bool:
         """Return whether this tree is equivalent to `other`.
 
@@ -220,6 +225,10 @@ class TreeNode(abc.ABC):
         while len(root_node.descendants) < num_nodes:
             random_node = random.choice(root_node.descendants)
             create_minimum_tree(random_node)
+
+        # If we don't shuffle the tree, then the first child of each node will tend to have more descendants on average
+        # than the last node.
+        root_node._shuffle_tree()
 
         return root_node
 

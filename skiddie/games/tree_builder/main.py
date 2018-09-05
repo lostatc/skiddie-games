@@ -32,8 +32,8 @@ def play(challenges_to_win: int, tree_depth: int, min_branches: int, max_branche
         challenges_to_win: The number of trees that need to be completed to win the game. Increasing this makes the
             game more difficult.
         tree_depth: The number of levels in the generated tree. Increasing this makes the game more difficult.
-        min_branches: The minimum number of branches at each level of the tree. Increasing this makes the game more difficult.
-        max_branches: The maximum number of branches at each level of the tree. Increasing this makes the game more difficult.
+        min_branches: The minimum number of branches at each level of the tree. The effect on the difficulty varies.
+        max_branches: The maximum number of branches at each level of the tree. The effect on the difficulty varies.
         total_nodes: The number of nodes that the tree will have. Increasing this makes the game more difficult.
     """
     for _ in range(challenges_to_win):
