@@ -24,7 +24,7 @@ skiddie also comes with a command-line interface. For more information, run
 This program is still in a pre-release stage. To install directly from git, run
 the following command:
 ```
-pip install https://github.com/lostatc/skiddie/zipball/master
+pip install --upgrade https://github.com/lostatc/skiddie/zipball/master
 ```
 
 ## Games
