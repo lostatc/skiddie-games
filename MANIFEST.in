@@ -1,1 +1,2 @@
 include skiddie/descriptions/*
+include skiddie/templates/*
