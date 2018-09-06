@@ -17,6 +17,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
+import io
 import json
 import collections
 from typing import Dict, Any, List
@@ -37,7 +38,8 @@ class DifficultyPresets:
 
     def read(self) -> None:
         """Read the difficulty presets from storage, getting missing values from the template file."""
-        with open(pkg_resources.resource_filename("skiddie", self._template_path)) as template_file:
+        with pkg_resources.resource_stream("skiddie", self._template_path) as binary_stream:
+            template_file = io.TextIOWrapper(binary_stream)
             template_data = json.load(template_file, object_pairs_hook=collections.OrderedDict)
 
         try:
