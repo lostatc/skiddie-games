@@ -18,6 +18,8 @@ You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import abc
+import collections
+import copy
 import random
 from typing import List, Optional, NamedTuple
 
@@ -160,26 +162,34 @@ class TreeNode(abc.ABC):
     def equivalent_to(self, other: "TreeNode") -> bool:
         """Return whether this tree is equivalent to `other`.
 
-        The two trees are equivalent if they have all the same nodes, The order of the node does not matter.
+        The two trees are equivalent if each node in each tree has the same children.
         """
-        # Check that the values of the two nodes are equal.
         if self != other:
             return False
 
-        # If the trees have a different number of nodes, they are not equal.
-        if len(self.descendants) != len(other.descendants):
-            return False
+        # Iterate through both trees depth-first.
+        node_stack = collections.deque([(self, other)])
+        while node_stack:
+            self_node, other_node = node_stack.pop()
 
-        for self_node, other_node in zip(self.descendants[1:], other.descendants[1:]):
-            # Check if the parent of each node has the same children.
-            if sorted(self_node.parent.children) != sorted(other_node.parent.children):
+            # The order of the children should not matter.
+            self_children, other_children = sorted(self_node.children), sorted(other_node.children)
+
+            if self_children != other_children:
                 return False
 
-            # Check if the nodes are in the same position in each tree.
-            if self.ancestors != other.ancestors:
-                return False
+            for self_child, other_child in zip(self_children, other_children):
+                node_stack.append((self_child, other_child))
 
         return True
+
+    def copy_with_values(self, values: List[str]) -> "TreeNode":
+        """Create a copy of this tree, substituting the values if its descendants for the given ones."""
+        new_tree = copy.deepcopy(self)
+        for node, value in zip(new_tree.descendants, values):
+            node.value = value
+
+        return new_tree
 
     @classmethod
     def create_random(

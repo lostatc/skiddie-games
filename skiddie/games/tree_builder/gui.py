@@ -17,12 +17,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
-import copy
-
 from prompt_toolkit import Application
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
-from prompt_toolkit.layout import FloatContainer, HSplit, VSplit, Dimension
+from prompt_toolkit.layout import FloatContainer, HSplit, VSplit
 from prompt_toolkit.widgets import Button, TextArea, Label, Box, Frame
 
 from skiddie.constants import GUI_STYLE
@@ -99,12 +97,9 @@ class TreeScreen(Screen):
     def handle_input_confirm(self) -> None:
         """This is called when the user confirms their input."""
         input_values = [text_area.text for text_area in self.node_inputs]
-        input_tree = copy.deepcopy(self.tree)
-        for node, value in zip(input_tree.descendants, input_values):
-            node.value = value
-
+        input_tree = self.tree.copy_with_values(input_values)
         if self.tree.equivalent_to(input_tree):
-            return self.multi_screen.app.exit()
+            self.multi_screen.app.exit()
 
 
 class GameInterface(MultiScreenApp):
