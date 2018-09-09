@@ -53,4 +53,10 @@ NODE_VALUE_SETS = [
         "Loris", "Martes", "Meles", "Nasua", "Ochotona", "Ovis", "Pan", "Panthera", "Pedetes", "Phoca", "Pongo",
         "Potus", "Rattus", "Setifer", "Sus", "Tamias", "Tapirus", "Vulpes",
     ],
+    [
+        # Famous scientists.
+        "Einstein", "Darwin", "Newton", "Copernicus", "Galileo", "Curie", "Haber", "Higgs", "Edison", "Tesla",
+        "Faraday", "Bohr", "Planck", "Kepler", "Fermi", "Feynman", "Volta", "Kelvin", "Turing", "Thompson", "Ritchie",
+        "Kunth", "Hubble", "Franklin", "Meitner", "Hawking", "Pasteur", "Da Vinci", "Bell", "Aristotle",
+    ],
 ]
