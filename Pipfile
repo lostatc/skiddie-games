@@ -4,11 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-click = ">=6.0"
-prompt-toolkit = ">=2.0.0"
+click = "==6.7"
+prompt-toolkit = "==3.0.5"
+skiddie = {editable = true, path = "."}
 
 [dev-packages]
 skiddie = {editable = true, path = "."}
 
 [requires]
-python_version = "3.5"
+python_version = "3.8"
