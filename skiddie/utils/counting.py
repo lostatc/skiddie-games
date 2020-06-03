@@ -18,9 +18,9 @@ You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import itertools
-import random
 import math
-from typing import Sequence, Iterator, List, TypeVar, Union
+import random
+from typing import Sequence, Iterator, List, TypeVar, Union, Tuple
 
 T = TypeVar("T")
 
@@ -61,10 +61,28 @@ def limit_range(min_value: int, max_value: int, range_size: int) -> Sequence[int
 
 def sample_decimal_range(min_value: int, max_value: int, num_items: int, decimal_places: int = 2) -> Sequence[float]:
     """Sample from a range of decimal numbers between the given minimum and maximum values."""
-    multiple = 10**decimal_places
+    multiple = 10 ** decimal_places
     int_values = sample_and_sort(range(min_value * multiple, max_value * multiple), num_items)
     float_values = [integer / multiple for integer in int_values]
     return float_values
+
+
+def local_range(min_value: int, max_value: int, min_range: int, max_range: int) -> Tuple[int, int]:
+    """Find a random range within a larger range.
+
+    Args:
+        min_value: The minimum value of the range.
+        max_value: The maximum value of the range.
+        min_range: The minimum size of the resulting range.
+        max_range: The maximum size of the resulting range.
+
+    Returns:
+        The start and end points of the range.
+    """
+    range_size = random.randint(min_range, max_range)
+    local_min = random.randrange(min_value, max_value - range_size)
+    local_max = local_min + range_size
+    return local_min, local_max
 
 
 def sample_partitions(

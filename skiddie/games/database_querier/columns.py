@@ -24,7 +24,7 @@ from typing import List, Optional
 
 from skiddie.utils.counting import (
     take_random_cycle, sample_and_sort, limit_range, sample_decimal_range, sample_partitions,
-)
+    local_range)
 from skiddie.utils.ui import format_bytes
 
 
@@ -79,16 +79,19 @@ class ContinuousColumnGenerator(ColumnGenerator):
 
 
 class QuantityColumnGenerator(ContinuousColumnGenerator):
-    """A continuous data type representing a person's age."""
+    """A continuous data type representing a quantity."""
     min_value = 0
-    max_value = 100
+    max_value = 1000
+    min_range = 100
+    max_range = 100
 
     def __init__(self) -> None:
         names = ["quantity", "amount"]
         super().__init__(names)
 
     def generate(self, rows: int) -> ColumnData:
-        values = sample_and_sort(range(self.min_value, self.max_value), rows)
+        local_min, local_max = local_range(self.min_value, self.max_value, self.min_range, self.max_range)
+        values = sample_and_sort(range(local_min, local_max), rows)
         data = [str(value) for value in values]
         return self._generate_from_data(data)
 
@@ -101,7 +104,7 @@ class DateColumnGenerator(ContinuousColumnGenerator):
     max_range = round(datetime.timedelta(days=365 * 2).total_seconds())
 
     def __init__(self) -> None:
-        names = ["date", "start_date", "end_date"]
+        names = ["date", "start_date", "end_date", "enroll_date", "apply_date", "exp_date"]
         super().__init__(names)
 
     def generate(self, rows: int) -> ColumnData:
@@ -113,15 +116,18 @@ class DateColumnGenerator(ContinuousColumnGenerator):
 
 class PriceColumnGenerator(ContinuousColumnGenerator):
     """A continuous data type representing a price."""
-    min_value = 10
-    max_value = 1000
+    min_value = 1
+    max_value = 10000
+    min_range = 1000
+    max_range = 10000
 
     def __init__(self) -> None:
         names = ["price", "cost", "revenue", "profit", "valuation"]
         super().__init__(names)
 
     def generate(self, rows: int) -> ColumnData:
-        values = sample_decimal_range(self.min_value, self.max_value, rows)
+        local_min, local_max = local_range(self.min_value, self.max_value, self.min_range, self.max_range)
+        values = sample_decimal_range(local_min, local_max, rows)
         data = ["${0:.2f}".format(value) for value in values]
         return self._generate_from_data(data)
 
@@ -144,10 +150,12 @@ class PostalCodeColumnGenerator(ContinuousColumnGenerator):
 class TimeColumnGenerator(ContinuousColumnGenerator):
     """A continuous data type representing a time of the day."""
     min_value = 0
-    max_value = 60*60*24
+    max_value = 60 * 60 * 24
+    min_range = 60 * 60
+    max_range = 60 * 60 * 24
 
     def __init__(self) -> None:
-        names = ["time", "start_time", "end_time"]
+        names = ["time", "start_time", "end_time", "timestamp"]
         super().__init__(names)
 
     @staticmethod
@@ -158,7 +166,8 @@ class TimeColumnGenerator(ContinuousColumnGenerator):
         return datetime.time(hour=hours, minute=minutes, second=seconds)
 
     def generate(self, rows: int) -> ColumnData:
-        values = sample_and_sort(range(self.min_value, self.max_value), rows)
+        local_min, local_max = local_range(self.min_value, self.max_value, self.min_range, self.max_range)
+        values = sample_and_sort(range(local_min, local_max), rows)
         data = [self._to_time(value).isoformat() for value in values]
         return self._generate_from_data(data)
 
@@ -170,14 +179,17 @@ class NameColumnGenerator(ContinuousColumnGenerator):
         "Berry", "Miki", "Emery", "Ruthe", "Gene", "Lenny", "Shela", "Chang", "Rhett", "Cliff", "Dusty", "Vernie",
         "Fran", "Annita", "Jule", "Taren", "Matilda", "Paola", "Omer", "Luigi", "Alise", "Tama", "Paige", "Ferne",
         "Risa", "Odell", "Wan", "Theo", "Irwin", "Hilda", "Janelle", "Jacque", "Luana", "Nelle", "Grover", "Chi",
-        "Cleo", "Jarvis", "Esther",
+        "Cleo", "Jarvis", "Esther", "Rory", "Shen", "Oren", "Oliver", "Birch", "Cloud", "Cove", "Ciro",
+        "Ferris", "West", "Cedar", "Fen", "Rain", "Vale", "Echo", "Kadin", "Moss", "Milo", "Remus", "Sirius", "Minerva",
+        "Severus", "Albus", "Alastor", "Harrier", "Kim", "Evrart", "René", "Titus", "Klassje", "Guillaume"
     ]
     last_names = [
         "Stanton", "Delarosa", "Coker", "Peterman", "Buckner", "Alder", "Whitmore", "Seibert", "Aldrich", "Layman",
         "Dickens", "Redman", "Shrader", "Otero", "Switzer", "Maher", "Passmore", "Nobles", "Wertz", "Piper", "Lim",
         "Larsen", "Battle", "Overton", "Hargrove", "Manzo", "Kirkland", "Damron", "Kowalski", "Gerald", "Gough", "Nix",
         "Hoyle", "Westfall", "Cantrell", "Folse", "Sneed", "Venegas", "Baptiste", "Ziegler", "Horvath", "Hogan",
-        "Kinchloe", "Carter", "LeBeau", "Newkirk", "Klink", "Schultz", "Burkhalter", "Hochstetter",
+        "Kinchloe", "Carter", "LeBeau", "Newkirk", "Klink", "Schultz", "Burkhalter", "Hochstetter", "Haden", "Oshiro",
+        "Du Bois", "Kitsuragi", "Hardie", "Garte", "Vicquemare",
     ]
 
     def __init__(self) -> None:
@@ -219,13 +231,16 @@ class LatLongGenerator(ContinuousColumnGenerator):
     """A continuous data type representing a latitude or longitude"""
     min_value = -90
     max_value = 90
+    min_range = 30
+    max_range = 180
 
     def __init__(self) -> None:
         names = ["latitude", "longitude"]
         super().__init__(names)
 
     def generate(self, rows: int) -> ColumnData:
-        values = sample_decimal_range(self.min_value, self.max_value, rows, decimal_places=4)
+        local_min, local_max = local_range(self.min_value, self.max_value, self.min_range, self.max_range)
+        values = sample_decimal_range(local_min, local_max, rows, decimal_places=4)
         data = ["{0:.4f}".format(value) for value in values]
         return self._generate_from_data(data)
 
@@ -302,40 +317,62 @@ class BooleanColumnGenerator(DiscreteColumnGenerator):
         super().__init__(names, possible_values, max_discrete_values=2)
 
 
-class StatusColumnGenerator(DiscreteColumnGenerator):
+class ActivityColumnGenerator(DiscreteColumnGenerator):
     """A discrete data type representing a status."""
+
     def __init__(self) -> None:
-        names = ["status"]
+        names = ["activity", "activity_status"]
         possible_values = ["active", "inactive", "standby"]
-        super().__init__(names, possible_values, max_discrete_values=2)
-
-
-class ProcessStateColumnGenerator(DiscreteColumnGenerator):
-    """A discrete data type representing the state of a process."""
-    def __init__(self) -> None:
-        names = ["process_state"]
-        possible_values = ["working", "failed", "complete"]
         super().__init__(names, possible_values, max_discrete_values=2)
 
 
 class SpecializationColumnGenerator(DiscreteColumnGenerator):
     """A discrete data type representing a specialization."""
     def __init__(self) -> None:
-        names = ["level"]
+        names = ["level", "precedence"]
         possible_values = ["primary", "secondary", "tertiary"]
         super().__init__(names, possible_values, max_discrete_values=2)
 
 
 class VisibilityColumnGenerator(DiscreteColumnGenerator):
     """A discrete data type representing a visibility."""
+
     def __init__(self) -> None:
         names = ["visibility"]
         possible_values = ["public", "private", "protected"]
         super().__init__(names, possible_values, max_discrete_values=2)
 
 
+class ProcessStateColumnGenerator(DiscreteColumnGenerator):
+    """A discrete data type representing the state of a process."""
+
+    def __init__(self) -> None:
+        names = ["process_state", "task_state", "job_state", "transaction_state"]
+        possible_values = ["working", "failed", "complete", "waiting"]
+        super().__init__(names, possible_values, max_discrete_values=2)
+
+
+class TestStateColumnGenerator(DiscreteColumnGenerator):
+    """A discrete data type representing the state of a test suite."""
+
+    def __init__(self) -> None:
+        names = ["tests", "build"]
+        possible_values = ["passing", "failing"]
+        super().__init__(names, possible_values, max_discrete_values=2)
+
+
+class ShippingStatusColumnGenerator(DiscreteColumnGenerator):
+    """A discrete data type representing the shipping status of a delivery."""
+
+    def __init__(self) -> None:
+        names = ["shipping_status"]
+        possible_values = ["shipped", "en_route", "delivered"]
+        super().__init__(names, possible_values, max_discrete_values=2)
+
+
 class PriorityColumnGenerator(DiscreteColumnGenerator):
     """A discrete data type representing a priority."""
+
     def __init__(self) -> None:
         names = ["priority"]
         possible_values = ["low", "medium", "high", "immediate"]
@@ -346,7 +383,7 @@ class ConditionColumnGenerator(DiscreteColumnGenerator):
     """A discrete data type representing a condition."""
     def __init__(self) -> None:
         names = ["condition"]
-        possible_values = ["poor", "moderate", "good"]
+        possible_values = ["poor", "moderate", "good", "great"]
         super().__init__(names, possible_values, max_discrete_values=3)
 
 
@@ -368,7 +405,26 @@ class MachineStateColumnGenerator(DiscreteColumnGenerator):
 
 class SizeColumnGenerator(DiscreteColumnGenerator):
     """A discrete data type representing a size."""
+
     def __init__(self) -> None:
         names = ["size"]
-        possible_values = ["small", "medium", "large"]
+        possible_values = ["tiny", "small", "medium", "large", "xlarge"]
+        super().__init__(names, possible_values, max_discrete_values=3)
+
+
+class ReleaseColumnGenerator(DiscreteColumnGenerator):
+    """A discrete data type representing the release stage of a project."""
+
+    def __init__(self) -> None:
+        names = ["release_stage", "release_state"]
+        possible_values = ["alpha", "beta", "testing", "candidate", "release", "stable"]
+        super().__init__(names, possible_values, max_discrete_values=3)
+
+
+class WorkStatusColumnGenerator(DiscreteColumnGenerator):
+    """A discrete data type represeinting the status of a worker."""
+
+    def __init__(self) -> None:
+        names = ["work_status", "worker_status"]
+        possible_values = ["on_site", "remote", "sick", "leave", "vacation"]
         super().__init__(names, possible_values, max_discrete_values=3)
