@@ -1,10 +1,10 @@
 A game about building trees from a closure table.
 
 The game starts with an empty tree on the left side of the screen and a table
-of values of the right. The objective of the game is to fill in the values of
-the tree from the information in the table. Each row in the table represents a
-relationship between two nodes in the tree. The node in the first column is an
-ancestor of the node in the second column. It could be a parent, grandparent,
+of values of the right. The objective of the game is to fill in the tree with
+the information in the table. Each row in the table represents a relationship
+between two nodes in the tree. The node in the first column is an ancestor of
+the node in the second column. It could be a parent, grandparent,
 great-grandparent and so on. The value in the third column is the number of
 levels between the two nodes. Using this information, it's possible to figure
 out where each node is in the tree. Example:
@@ -21,4 +21,5 @@ out where each node is in the tree. Example:
 
 To fill in a value, type it in. To move the cursor between different positions
 in the tree, use the `Tab` or arrow keys. Once each value in the tree is
-filled, move the cursor to the "Done" button and press `Enter`.
+filled, move the cursor to the "Done" button and press `Enter`. If the tree is
+incorrect, pressing the "Done" button will do nothing.

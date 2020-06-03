@@ -7,13 +7,13 @@ visiting the tiles in between. You can visit a tile by typing in its
 coordinates, but only if is is adjacent to another visited tile that shares at
 least one character in common with it. Example:
 
-    1c  ff
+    2  c9  ff  de
 
-    9b  b3
+    1  9b  b3  b1
 
-    61  2b
+    0  61  2b  aa
 
-If the tile `9b` has been visited, then the only tile which it can visit is
-`b3`. This is because the two tiles are adjacent and have a character in
-common. When the game starts, one tile on the left edge of the screen will have
-been visited.
+        0   1   2
+
+From tile (0, 1), you can visit either tile (1, 1) or tile (0, 2). From tile
+(1, 1), you can only visit tile (2, 1)

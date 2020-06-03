@@ -3,7 +3,7 @@ A game about querying database tables.
 The game starts with a table of data on the left side of the screen. This table
 consists of rows and columns. On the right side of the screen is a series of
 rules. The objective of the game is to identify the row in the table that
-fulfills all of these rules. Here is an example of each rule:
+fulfills all of these rules. Here is an example of each type of rule:
 
     quantity >= 29
         The row is greater than or equal to 29 in the "quantity" column.
