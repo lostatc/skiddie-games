@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 # Strings that can be used as the values of nodes in the tree. Each list represents a set of values that can be used
-# together. Values should be somewhat uncommon proper nouns, and each list of values should have a common theme.
+# together.
 NODE_VALUE_SETS = [
     [
         # German towns and cities.
@@ -59,4 +59,28 @@ NODE_VALUE_SETS = [
         "Faraday", "Bohr", "Planck", "Kepler", "Fermi", "Feynman", "Volta", "Kelvin", "Turing", "Thompson", "Ritchie",
         "Kunth", "Hubble", "Franklin", "Meitner", "Hawking", "Pasteur", "Da Vinci", "Bell", "Aristotle",
     ],
+    [
+        # Constellations.
+        "Capricorn", "Aquarius", "Pisces", "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio",
+        "Sagittarius", "Ophiuchus", "Aquila", "Aries", "Cetus", "Cygnus", "Delphinus", "Draco", "Hydra", "Lyra",
+        "Orion", "Pegasus", "Ursa", "Canis", "Eridanus", "Lupus", "Perseus", "Corvus", "Hercules",
+    ],
+    [
+        # Greek gods and titans.
+        "Aphrodite", "Apollo", "Ares", "Artemis", "Athena", "Demeter", "Dionysus", "Hades", "Hephaestus", "Hera",
+        "Hermes", "Hestia", "Poseidon", "Zeus", "Cronus", "Hyperion", "Iapetus", "Phoebe", "Rhea", "Theia", "Atlas",
+        "Eos", "Prometheus", "Pallas", "Styx", "Metis", "Leto", "Selene", "Helios", "Dione",
+    ],
+    [
+        # Types of rock.
+        "Andesite", "Basalt", "Diorite", "Granite", "Obsidian", "Pumice", "Rhyolite", "Chalk", "Coal", "Flint",
+        "Sandstone", "Shale", "Marble", "Schist", "Slate", "Basanite", "Pegmatite", "Trachyte", "Lignite", "Marl",
+        "Phosphorite", "Anthracite", "Gneiss", "Mylonite", "Phyllite", "Chert", "Tuff", "Tonalite", "Norite", "Latite",
+    ],
+    [
+        # Types of trees.
+        "Ash", "Aspen", "Mahogany", "Beech", "Birch", "Butternut", "Chestnut", "Cottonwood", "Elm", "Fir", "Hawthorn",
+        "Hemlock", "Hickory", "Larch", "Maple", "Oak", "Pine", "Cedar", "Spruce", "Sycamore", "Walnut", "Willow",
+        "Eucalyptus", "Dogwood", "Sassafras", "Locust", "Hornbeam", "Cherry", "Tulip", "Basswood",
+    ]
 ]
