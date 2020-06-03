@@ -1,6 +1,6 @@
 """The UI for the game.
 
-Copyright © 2017-2018 Wren Powell <wrenp@duck.com>
+Copyright 2017-2020 Wren Powell <wrenp@duck.com>
 
 This file is part of skiddie.
 
@@ -23,9 +23,8 @@ from typing import List
 from prompt_toolkit import Application
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
-from prompt_toolkit.layout import FloatContainer, HSplit, Window, WindowAlign, FormattedTextControl, Dimension, \
-    VSplit
-from prompt_toolkit.widgets import Label, HorizontalLine, Frame, Box, Button
+from prompt_toolkit.layout import FloatContainer, HSplit, VSplit
+from prompt_toolkit.widgets import Label, Frame, Box, Button
 
 from skiddie.constants import GUI_STYLE
 from skiddie.games.pattern_finder.logic import PatternGrid

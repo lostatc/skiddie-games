@@ -1,6 +1,6 @@
 """Code for generating a random maze.
 
-Copyright © 2017-2018 Wren Powell <wrenp@duck.com>
+Copyright 2017-2020 Wren Powell <wrenp@duck.com>
 
 This file is part of skiddie.
 
@@ -17,10 +17,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
-import re
-import random
 import itertools
-from typing import List, NamedTuple, Optional
+import random
+import re
+from typing import List, NamedTuple
 
 from prompt_toolkit.formatted_text import FormattedText
 

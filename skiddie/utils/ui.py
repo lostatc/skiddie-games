@@ -1,6 +1,6 @@
 """Functions and classes related to user interfaces and displaying information.
 
-Copyright © 2017-2018 Wren Powell <wrenp@duck.com>
+Copyright 2017-2020 Wren Powell <wrenp@duck.com>
 
 This file is part of skiddie.
 
@@ -20,10 +20,10 @@ along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 import abc
 import shutil
 import sys
-import six
 from typing import Sequence, Optional
 
 import pkg_resources
+import six
 from prompt_toolkit import print_formatted_text, prompt, Application
 from prompt_toolkit.application import get_app
 from prompt_toolkit.formatted_text import FormattedText

@@ -1,6 +1,6 @@
 """Code for generating patterns.
 
-Copyright © 2017-2018 Wren Powell <wrenp@duck.com>
+Copyright 2017-2020 Wren Powell <wrenp@duck.com>
 
 This file is part of skiddie.
 
@@ -20,7 +20,6 @@ along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 import random
 from typing import List
 
-from prompt_toolkit import print_formatted_text
 from prompt_toolkit.formatted_text import FormattedText
 
 

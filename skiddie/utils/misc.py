@@ -1,6 +1,6 @@
 """Miscellaneous utilities.
 
-Copyright © 2017-2018 Wren Powell <wrenp@duck.com>
+Copyright 2017-2020 Wren Powell <wrenp@duck.com>
 
 This file is part of skiddie.
 
@@ -18,8 +18,7 @@ You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
 import time
-import functools
-from typing import MutableMapping, Mapping, Callable, Any, TypeVar
+from typing import MutableMapping, Mapping, Callable, TypeVar
 
 T = TypeVar("T")
 

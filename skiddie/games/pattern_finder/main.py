@@ -1,6 +1,6 @@
 """A game about finding patterns in randomly generated numbers.
 
-Copyright © 2017-2018 Wren Powell <wrenp@duck.com>
+Copyright 2017-2020 Wren Powell <wrenp@duck.com>
 
 This file is part of skiddie.
 
@@ -17,11 +17,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
-import time
 import random
+import time
 
-from skiddie.games.pattern_finder.logic import PatternGrid
 from skiddie.games.pattern_finder.gui import GameInterface
+from skiddie.games.pattern_finder.logic import PatternGrid
 from skiddie.utils.ui import print_correct_message, print_incorrect_message
 
 # The proportion of cells in the grid that are turned on.

@@ -1,6 +1,6 @@
 """A game about editing binary data.
 
-Copyright © 2017-2018 Wren Powell <wrenp@duck.com>
+Copyright 2017-2020 Wren Powell <wrenp@duck.com>
 
 This file is part of skiddie.
 
@@ -17,11 +17,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 """
-from skiddie.games.hex_editor.logic import MazeTile, MazeGrid
 from skiddie.games.hex_editor.gui import GameInterface
-
-from prompt_toolkit import print_formatted_text
-
+from skiddie.games.hex_editor.logic import MazeGrid
 from skiddie.utils.ui import print_correct_message
 
 
