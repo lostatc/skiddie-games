@@ -4,19 +4,14 @@ version = "0.1.0"
 description = "Hollywood-style hacking minigames"
 readme = "README.md"
 requires-python = ">=3.8"
-dependencies = [
-    "click==6.7",
-    "prompt-toolkit==3.0.47",
-    "setuptools>=73.0.1",
-]
+dependencies = ["click==6.7", "prompt-toolkit==3.0.47", "setuptools>=73.0.1"]
+
+  [project.scripts]
+  skiddie = "skiddie.launcher.cli:cli"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv]
-dev-dependencies = [
-    "six>=1.16.0",
-]
-
-[tool.uv.sources]
+dev-dependencies = ["six>=1.16.0"]
