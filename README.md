@@ -13,20 +13,23 @@ games themed around the hacking scenes found in many movies.
 * Create your own difficulty presets
 * Tracks your scores in a leaderboard
 
-## Usage
+## Installation
 
-To run skiddie, clone the repo, install [uv](https://docs.astral.sh/uv/), and
-run:
+To install skiddie, [install
+uv](https://docs.astral.sh/uv/getting-started/installation/) and run:
 
 ```shell
-uv run ./skiddie/__main__.py
+uvx --from git+https://github.com/lostatc/skiddie skiddie
 ```
 
-skiddie has a terminal-based user interface. You can use `Up`, `Down`, and
-`Tab` to navigate, `Enter` to select, and `q` to quit.
+## Usage
 
-skiddie also comes with a command-line interface. For more information, run
-skiddie with the `--help` flag.
+skiddie has a terminal-based graphical user interface. To launch it, just run
+`skiddie` in your terminal. You can use `Up`, `Down`, and `Tab` to navigate,
+`Enter` to select, and `q` to quit.
+
+skiddie also has a command-line interface. For more information, run `skiddie
+--help`.
 
 ## Games
 
