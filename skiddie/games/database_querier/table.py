@@ -93,7 +93,7 @@ class Table:
         style_tuples = []
 
         for column in self.columns:
-            style_tuples += column.constraint.format().data
+            style_tuples += column.constraint.format()
             style_tuples += [("", separator)]
 
         # Remove the trailing separator.
