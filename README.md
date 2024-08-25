@@ -15,8 +15,14 @@ games themed around the hacking scenes found in many movies.
 
 ## Installation
 
-To install skiddie, [install
+To install skiddie from git, [install
 uv](https://docs.astral.sh/uv/getting-started/installation/) and run:
+
+```shell
+uv tool install --from git+https://github.com/lostatc/skiddie skiddie
+```
+
+Alternatively, you can run skiddie ad-hoc without installing it:
 
 ```shell
 uvx --from git+https://github.com/lostatc/skiddie skiddie
