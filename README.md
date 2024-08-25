@@ -1,31 +1,32 @@
 # skiddie
+
 skiddie is a collection of minigames that can be played in the terminal and are
-meant to emulate Hollywood-style "hacking." These games have nothing to do with
-cybersecurity. Instead, they're just small puzzle games themed around the
-hacking scenes found in many movies.
+meant to emulate Hollywood-style "hacking." They're just silly little puzzle
+games themed around the hacking scenes found in many movies.
 
 ![GUI Screenshot](images/gui.png)
 
 ## Features
-* No knowledge of programming or cybersecurity required.
-* Multiple difficulty settings for each game.
-* Tracks your scores in a leaderboard.
-* Works on all platforms.
+
+* No knowledge of programming or cybersecurity required
+* Multiple difficulty levels for each game
+* Create your own difficulty presets
+* Tracks your scores in a leaderboard
 
 ## Usage
-skiddie comes with a terminal-based graphical user interface. To launch it,
-just open a terminal and type `skiddie`. To use the interface, use the keys
-`Up`, `Down` and `Tab` to navigate, `Enter` to select and `q` to quit.
+
+To run skiddie, clone the repo, install [uv](https://docs.astral.sh/uv/), and
+run:
+
+```shell
+uv run ./skiddie/__main__.py
+```
+
+skiddie has a terminal-based user interface. You can use `Up`, `Down`, and
+`Tab` to navigate, `Enter` to select, and `q` to quit.
 
 skiddie also comes with a command-line interface. For more information, run
-`skiddie --help`.
-
-## Installation
-This program is still in a pre-release stage. To install directly from git, run
-the following command:
-```
-pip install --upgrade https://github.com/lostatc/skiddie/zipball/master
-```
+skiddie with the `--help` flag.
 
 ## Games
 
