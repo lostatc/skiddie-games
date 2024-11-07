@@ -48,10 +48,6 @@ dependencies = [
     { name = "click" },
     { name = "prompt-toolkit" },
     { name = "setuptools" },
-]
-
-[package.dev-dependencies]
-dev = [
     { name = "six" },
 ]
 
@@ -60,10 +56,8 @@ requires-dist = [
     { name = "click", specifier = "==6.7" },
     { name = "prompt-toolkit", specifier = "==3.0.47" },
     { name = "setuptools", specifier = ">=73.0.1" },
+    { name = "six", specifier = ">=1.16.0" },
 ]
-
-[package.metadata.requires-dev]
-dev = [{ name = "six", specifier = ">=1.16.0" }]
 
 [[package]]
 name = "wcwidth"

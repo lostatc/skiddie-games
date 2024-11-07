@@ -20,6 +20,7 @@ along with skiddie.  If not, see <http://www.gnu.org/licenses/>.
 import io
 import json
 import collections
+import os
 from typing import Dict, Any, List
 
 import pkg_resources
@@ -60,6 +61,7 @@ class DifficultyPresets:
         It is necessary to write to storage even if the difficulty presets have not been modified because new data may
         have been added to the template. This data needs to be written to the user's config file.
         """
+        os.makedirs(os.path.dirname(self._config_path), exist_ok=True)
         with open(self._config_path, "w") as config_file:
             json.dump(self._data, config_file, indent=JSON_INDENT)
 
