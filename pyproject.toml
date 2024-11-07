@@ -1,5 +1,5 @@
 [project]
-name = "skiddie"
+name = "skiddie-games"
 version = "0.1.0"
 description = "Hollywood-style hacking minigames"
 readme = "README.md"
@@ -12,7 +12,7 @@ dependencies = [
 ]
 
   [project.scripts]
-  skiddie = "skiddie.launcher.cli:cli"
+  skiddie-games = "skiddie.launcher.cli:cli"
 
 [build-system]
 requires = ["hatchling"]

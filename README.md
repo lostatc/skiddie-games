@@ -1,50 +1,45 @@
-# skiddie
+# Puzzle games for script kiddies
 
-skiddie is a collection of minigames that can be played in the terminal and are
-meant to emulate Hollywood-style "hacking." They're just silly little puzzle
-games themed around the hacking scenes found in many movies.
+This is a collection of silly little puzzle games you can play in your terminal
+that are themed around the hacking scenes found in big Hollywood movies.
+
+This was a project I undertook a number of years ago to practice Python. It's
+here for your enjoyment, but I probably won't be updating it.
 
 ![GUI Screenshot](images/gui.png)
 
-## Features
-
-* No knowledge of programming or cybersecurity required
-* Multiple difficulty levels for each game
-* Create your own difficulty presets
-* Tracks your scores in a leaderboard
-
 ## Installation
 
-To install skiddie from git, [install
+To install the game launcher from git, [install
 uv](https://docs.astral.sh/uv/getting-started/installation/) and run:
 
 ```shell
-uv tool install --from git+https://github.com/lostatc/skiddie skiddie
+uv tool install --from git+https://github.com/lostatc/skiddie-games skiddie-games
 ```
 
-Alternatively, you can run skiddie ad-hoc without installing it:
+Alternatively, you can run the launcher ad-hoc without installing it:
 
 ```shell
-uvx --from git+https://github.com/lostatc/skiddie skiddie
+uvx --from git+https://github.com/lostatc/skiddie-games skiddie-games
 ```
 
 ## Usage
 
-skiddie has a terminal-based graphical user interface. To launch it, just run
-`skiddie` in your terminal. You can use `Up`, `Down`, and `Tab` to navigate,
-`Enter` to select, and `q` to quit.
+To play the games in this collection, there's a TUI launcher. The launcher lets
+you configure the difficulty and save high scores. Just run `skiddie-games`.
+You can use `Up`, `Down`, and `Tab` to navigate, `Enter` to select, and `q` to
+quit.
 
-skiddie also has a command-line interface. For more information, run `skiddie
---help`.
+There's also a CLI. For more information, run `skiddie-games --help`.
 
 ## Games
 
 Game | Description | Screenshot
 --- | --- | ---
-**database_querier** | [Description](skiddie/descriptions/database_querier.md) | [Screenshot](images/database_querier.png)
-**hash_cracker** | [Description](skiddie/descriptions/hash_cracker.md) | [Screenshot](images/hash_cracker.png)
-**hex_editor** | [Description](skiddie/descriptions/hex_editor.md) | [Screenshot](images/hex_editor.png)
-**pattern_finder** | [Description](skiddie/descriptions/pattern_finder.md) | [Screenshot](images/pattern_finder.png)
-**port_scanner** | [Description](skiddie/descriptions/port_scanner.md) | [Screenshot](images/port_scanner.png)
-**shell_scripter** | [Description](skiddie/descriptions/shell_scripter.md) | [Screenshot](images/shell_scripter.png)
-**tree_builder** | [Description](skiddie/descriptions/tree_builder.md) | [Screenshot](images/tree_builder.png)
+**database_querier** | [Description](./src/skiddie/descriptions/database_querier.md) | [Screenshot](./images/database_querier.png)
+**hash_cracker** | [Description](./src/skiddie/descriptions/hash_cracker.md) | [Screenshot](./images/hash_cracker.png)
+**hex_editor** | [Description](./src/skiddie/descriptions/hex_editor.md) | [Screenshot](./images/hex_editor.png)
+**pattern_finder** | [Description](./src/skiddie/descriptions/pattern_finder.md) | [Screenshot](./images/pattern_finder.png)
+**port_scanner** | [Description](./src/skiddie/descriptions/port_scanner.md) | [Screenshot](./images/port_scanner.png)
+**shell_scripter** | [Description](./src/skiddie/descriptions/shell_scripter.md) | [Screenshot](./images/shell_scripter.png)
+**tree_builder** | [Description](./src/skiddie/descriptions/tree_builder.md) | [Screenshot](./images/tree_builder.png)
