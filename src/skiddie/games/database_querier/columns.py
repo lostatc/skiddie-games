@@ -299,7 +299,7 @@ class DiscreteColumnGenerator(ColumnGenerator):
     def _limit_values(self, values: List[str]) -> List[str]:
         """Return a random subset of the given values that does not exceed `self.max_discrete_values`."""
         try:
-            return random.sample(set(values), self.max_discrete_values)
+            return random.sample(sorted(set(values)), self.max_discrete_values)
         except ValueError:
             return values
 

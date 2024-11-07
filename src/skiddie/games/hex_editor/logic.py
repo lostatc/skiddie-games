@@ -300,7 +300,7 @@ class MazeGrid:
 
         # Get the coordinates of the tiles to create branches off of.
         sample_size = round(len(maze_grid._used_coordinates) * branch_probability)
-        branch_coordinates = random.sample(maze_grid._used_coordinates, sample_size)
+        branch_coordinates = random.sample(sorted(maze_grid._used_coordinates), sample_size)
 
         # Create dead-end branches.
         for branch_start_coordinates in branch_coordinates:
