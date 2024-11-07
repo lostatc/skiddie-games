@@ -14,7 +14,7 @@ To install the game launcher from git, [install
 uv](https://docs.astral.sh/uv/getting-started/installation/) and run:
 
 ```shell
-uv tool install --from git+https://github.com/lostatc/skiddie-games skiddie-games
+uv tool install --from git+https://github.com/lostatc/skiddie-games skiddie
 ```
 
 Alternatively, you can run the launcher ad-hoc without installing it:
