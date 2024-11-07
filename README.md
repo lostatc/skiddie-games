@@ -4,7 +4,7 @@ This is a collection of silly little puzzle games you can play in your terminal
 that are themed around the hacking scenes found in big Hollywood movies.
 
 This was a project I undertook a number of years ago to practice Python. It's
-here for your enjoyment, but I probably won't be updating it.
+here for posterity; I probably won't be updating it.
 
 ![GUI Screenshot](images/gui.png)
 
@@ -21,6 +21,12 @@ Alternatively, you can run the launcher ad-hoc without installing it:
 
 ```shell
 uvx --from git+https://github.com/lostatc/skiddie-games skiddie-games
+```
+
+To uninstall:
+
+```shell
+uv tool uninstall skiddie
 ```
 
 ## Usage
