@@ -38,7 +38,7 @@ class DifficultyPresets:
 
     def read(self) -> None:
         """Read the difficulty presets from storage, getting missing values from the template file."""
-        with pkg_resources.resource_stream("skiddie", self._template_path) as binary_stream:
+        with pkg_resources.resource_stream("skiddie-games", self._template_path) as binary_stream:
             template_file = io.TextIOWrapper(binary_stream)
             template_data = json.load(template_file, object_pairs_hook=collections.OrderedDict)
 
